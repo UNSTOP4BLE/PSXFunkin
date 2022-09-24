@@ -2149,9 +2149,17 @@ void Stage_Tick(void)
 					Stage_DrawHealth(stage.player_state[0].health, stage.player_state[0].character->health_i,    1);
 					Stage_DrawHealth(stage.player_state[0].health, stage.player_state[1].character->health_i, -1);
 					
-					//Draw health bar
-					Stage_DrawHealthBar(255 - (255 * stage.player_state[0].health / 20000), stage.opponent->health_bar);
-					Stage_DrawHealthBar(255, stage.player->health_bar);
+                                        //Draw health bar
+                                        if (stage.mode == StageMode_Swap)
+                                        {
+					    Stage_DrawHealthBar(255 - (255 * stage.player_state[0].health / 20000), stage.player->health_bar);
+					    Stage_DrawHealthBar(255, stage.opponent->health_bar);
+                                        }
+                                        else
+                                        {
+					    Stage_DrawHealthBar(255 - (255 * stage.player_state[0].health / 20000), stage.opponent->health_bar);
+					    Stage_DrawHealthBar(255, stage.player->health_bar);
+                                        }
 				}
 			
 				//Tick note splashes
