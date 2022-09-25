@@ -870,10 +870,12 @@ static void Stage_Player2(void)
 	{
 		if (stage.mode == StageMode_Swap)
 		{
+			stage.player_state[1].character->pad_held = 0;
 			stage.player_state[1].character = stage.player2;
 		}
 		else
 		{
+			stage.player_state[0].character->pad_held = 0;
 		 	stage.player_state[0].character = stage.player2;
 		}
 	}
@@ -883,10 +885,12 @@ static void Stage_Player2(void)
 	{
 		if (stage.mode == StageMode_Swap)
 		{
+			stage.player_state[1].character->pad_held = 0;
 		 	stage.player_state[1].character = stage.player;
 		}
 		else
 		{
+			stage.player_state[0].character->pad_held = 0;
 			stage.player_state[0].character = stage.player;
 		}
 	}
@@ -905,10 +909,12 @@ static void Stage_Opponent2(void)
 	{
 		if (stage.mode == StageMode_Swap)
 		{
+			stage.player_state[0].character->pad_held = 0;
 			stage.player_state[0].character = stage.opponent2;
 		}
 		else
 		{
+			stage.player_state[1].character->pad_held = 0;
 			stage.player_state[1].character = stage.opponent2;
 		}
 	}
@@ -918,10 +924,12 @@ static void Stage_Opponent2(void)
 	{
 		if (stage.mode == StageMode_Swap)
 		{
+			stage.player_state[0].character->pad_held = 0;
 		 	stage.player_state[0].character = stage.opponent;
 		}
 		else
 		{
+			stage.player_state[1].character->pad_held = 0;
 		 	stage.player_state[1].character = stage.opponent;
 		}
 	}
