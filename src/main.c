@@ -29,13 +29,8 @@ void ErrorLock(void)
 {
 	while (1)
 	{
-		#ifdef PSXF_PC
-			MsgPrint(error_msg);
-			exit(1);
-		#else
-			FntPrint("A fatal error has occured\n~c700%s\n", error_msg);
-			Gfx_Flip();
-		#endif
+		FntPrint(-1, "A fatal error has occured\n~c700%s\n", error_msg);
+		Gfx_Flip();
 	}
 }
 
@@ -46,9 +41,10 @@ void ErrorLock(void)
 #include "mem.h"
 #undef MEM_IMPLEMENTATION
 
-#ifndef PSXF_STDMEM
-static u8 malloc_heap[0x1A0000];
-#endif
+//This is to avoid a few warnings
+void InitCard(int pad_enable);
+void StartCard(void);
+void StopCard(void);
 
 //Entry point                                                                             
 int main(int argc, char **argv)                                                                                                                                                        
@@ -64,11 +60,12 @@ int main(int argc, char **argv)
 	
 	stage.pal_i = 1;
 	stage.wide_i = 1;	
+	InitGeom();
 	Gfx_Init();
 	Pad_Init();
-	InitCARD(1);
+	InitCard(1);
 	StartPAD();
-	StartCARD();
+	StartCard();
 	_bu_init();	
 	ChangeClearPAD(0);
 
@@ -144,7 +141,7 @@ int main(int argc, char **argv)
 			size_t mem_used, mem_size, mem_max;
 			Mem_GetStat(&mem_used, &mem_size, &mem_max);
 			#ifndef MEM_BAR
-				FntPrint("mem: %08X/%08X (max %08X)\n", mem_used, mem_size, mem_max);
+				FntPrint(-1, "mem: %08X/%08X (max %08X)\n", mem_used, mem_size, mem_max);
 			#endif
 		#endif
 
@@ -154,7 +151,6 @@ int main(int argc, char **argv)
 			if (stage.pal_i == 1)
 			{
 				SetVideoMode(MODE_PAL);
-				SsSetTickMode(SS_TICK50);
 				stage.disp[0].screen.y = stage.disp[1].screen.y = 24;
 				Timer_Init(true, true);
 				stage.pal_i = 2;
@@ -165,7 +161,6 @@ int main(int argc, char **argv)
 			if (stage.pal_i == 1)
 			{
 				SetVideoMode(MODE_NTSC);
-				SsSetTickMode(SS_TICK60);
 				stage.disp[0].screen.y = stage.disp[1].screen.y = 0;
 				Timer_Init(false, false);
 				stage.pal_i = 2;

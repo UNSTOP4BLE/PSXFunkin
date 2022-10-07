@@ -8,7 +8,6 @@
 
 #include "save.h"
 
-#include <libmcrd.h>
 #include "stage.h"
 				  
 	        //HAS to be BASCUS-scusid,somename

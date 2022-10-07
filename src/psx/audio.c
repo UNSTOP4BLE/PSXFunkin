@@ -5,6 +5,7 @@
 */
 
 #include "../audio.h"
+#include <hwregs_c.h>
 
 #include "../io.h"
 #include "../main.h"
@@ -39,12 +40,6 @@ typedef struct
 	u16 _reserved;
 	u16 loop_addr;
 } Audio_SPUChannel;
-
-#define SPU_CTRL     *((volatile u16*)0x1f801daa)
-#define SPU_DMA_CTRL *((volatile u16*)0x1f801dac)
-#define SPU_IRQ_ADDR *((volatile u16*)0x1f801da4)
-#define SPU_KEY_ON   *((volatile u32*)0x1f801d88)
-#define SPU_KEY_OFF  *((volatile u32*)0x1f801d8c)
 
 #define SPU_CHANNELS    ((volatile Audio_SPUChannel*)0x1f801c00)
 #define SPU_RAM_ADDR(x) ((u16)(((u32)(x)) >> 3))
@@ -91,14 +86,11 @@ static void XA_Init(void)
 		return;
 	xa_state = XA_STATE_INIT;
 	xa_resync = 0;
-	
-	//Set CD mix flag
-	SpuCommonAttr spu_attr;
-	spu_attr.mask = SPU_COMMON_CDMIX | SPU_COMMON_CDVOLL | SPU_COMMON_CDVOLR;
-	spu_attr.cd.mix = SPU_ON;
-	spu_attr.cd.volume.left = spu_attr.cd.volume.right = 0x6000; //Lame magic number
-	SpuSetCommonAttr(&spu_attr);
-	
+
+	//Set volume
+	SPU_CD_VOL_L = 0x6000;
+	SPU_CD_VOL_R = 0x6000;
+
 	//Set initial volume
 	XA_SetVolume(0);
 	
@@ -152,20 +144,13 @@ static void XA_SetFilter(u8 channel)
 //Audio functions
 void Audio_Init(void)
 {
-	//Initialize sound system
-	SsInit();
-	SsSetSerialVol(SS_SERIAL_A, 0x7F, 0x7F);
-
 	//Initialize SPU
 	SpuInit();
 	Audio_ClearAlloc();
 	
-	//Set SPU common attributes
-	SpuCommonAttr spu_attr;
-	spu_attr.mask = SPU_COMMON_MVOLL | SPU_COMMON_MVOLR;
-	spu_attr.mvol.left  = 0x3FFF;
-	spu_attr.mvol.right = 0x3FFF;
-	SpuSetCommonAttr(&spu_attr);
+	//Set volume (this is done by default but i just put it here cus why not)
+	SPU_MASTER_VOL_L = 0x3fff;
+	SPU_MASTER_VOL_R = 0x3fff;
 	
 	//Set XA state
 	xa_state = 0;
@@ -414,7 +399,7 @@ u32 Audio_LoadVAGData(u32 *sound, u32 sound_size) {
 
 	SpuSetTransferStartAddr(addr); // set transfer starting address to malloced area
 	SpuSetTransferMode(SPU_TRANSFER_BY_DMA); // set transfer mode to DMA
-	SpuWrite(data + VAG_HEADER_SIZE, xfer_size); // perform actual transfer
+	SpuWrite((uint32_t *)data + VAG_HEADER_SIZE, xfer_size); // perform actual transfer
 	SpuIsTransferCompleted(SPU_TRANSFER_WAIT); // wait for DMA to complete
 
 	printf("Allocated new sound (addr=%08x, size=%d)\n", addr, xfer_size);

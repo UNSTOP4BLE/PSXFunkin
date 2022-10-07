@@ -4,6 +4,8 @@ pcsx.json
 memcard1.mcd
 memcard2.mcd
 mips/psyq/
+build/
+tools/build/
 
 # Exclude executable files
 *.cue

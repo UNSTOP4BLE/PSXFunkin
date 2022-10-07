@@ -20,7 +20,7 @@ fixed_t timer_sec, timer_dt, timer_secbase;
 u8 timer_brokeconf;
 
 //Timer interface
-extern void InterruptCallback(int index, void *cb);
+extern void *InterruptCallback(int irq, void (*func)(void));    
 extern void ChangeClearRCnt(int t, int m);
 
 void Timer_Callback(void) {

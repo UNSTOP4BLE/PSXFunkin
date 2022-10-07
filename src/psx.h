@@ -10,68 +10,32 @@
 extern int my_argc;
 extern char **my_argv;
 
-#ifdef PSXF_PC
-	//Headers
-	#include <sys/types.h>
-	#include <stdio.h>
-	#include <stdlib.h>
-	
-	#include <stdint.h>
-	#include <stddef.h>
-	#include <string.h>
-	#include <time.h>
-	
-	//Fixed size types
-	typedef uint8_t  u8;
-	typedef int8_t   s8;
-	typedef uint16_t u16;
-	typedef int16_t  s16;
-	typedef uint32_t u32;
-	typedef int32_t  s32;
-	typedef uint64_t u64;
-	typedef int64_t  s64;
-	
-	//CD types
-	typedef struct {
-		s32 x, y, w, h;
-	} RECT;
-	
-	typedef struct {
-		char path[32];
-	} CdlFILE;
-	
-	//Misc. functions
-	void FntPrint(const char *format, ...);
-	void MsgPrint(const char *format, ...);
-#else
-	//Headers
-	#include <sys/types.h>
-	#include <stdio.h>
+//Headers
+#include <sys/types.h>
+#include <stdio.h>
 
-	#include <libetc.h>
-	#include <libgte.h>
-	#include <libgpu.h>
-	#include <libspu.h>
-	#include <libcd.h>
-	#include <libsnd.h>
-	#include <libapi.h>
+#include <psxetc.h>
+#include <psxgte.h>
+#include <psxgpu.h>
+#include <psxspu.h>
+#include <psxcd.h>
+#include <psxapi.h>
 
-	#include <stddef.h>
-	#include <string.h>
+#include <stddef.h>
+#include <string.h>
 
-	//Fixed size types
-	typedef u_char             u8;
-	typedef signed char        s8;
-	typedef u_short            u16;
-	typedef signed short       s16;
-	typedef u_long             u32;
-	typedef signed int         s32;
-	typedef unsigned long long u64;
-	typedef signed long long   s64;
+//Fixed size types
+typedef u_char             u8;
+typedef signed char        s8;
+typedef u_short            u16;
+typedef signed short       s16;
+typedef u_long             u32;
+typedef signed int         s32;
+typedef unsigned long long u64;
+typedef signed long long   s64;
 	
-	//Misc. functions
-	#define MsgPrint FntPrint
-#endif
+//Misc. functions
+#define MsgPrint FntPrint
 
 //Boolean type
 typedef s8 boolean;

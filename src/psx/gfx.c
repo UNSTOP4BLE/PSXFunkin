@@ -114,8 +114,7 @@ void Gfx_LoadTex(Gfx_Tex *tex, IO_Data data, Gfx_LoadTex_Flag flag)
 	
 	//Read TIM information
 	TIM_IMAGE tparam;
-	OpenTIM(data);
-	ReadTIM(&tparam);
+	GetTimInfo(data, &tparam);
 	
 	if (tex != NULL)
 	{
