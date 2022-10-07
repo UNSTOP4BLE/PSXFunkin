@@ -35,7 +35,7 @@ void ErrorLock(void)
 }
 
 //Memory heap
-#define MEM_STAT //This will enable the Mem_GetStat function which returns information about available memory in the heap
+//#define MEM_STAT //This will enable the Mem_GetStat function which returns information about available memory in the heap
 
 #define MEM_IMPLEMENTATION
 #include "mem.h"
@@ -56,7 +56,7 @@ int main(int argc, char **argv)
 	//Initialize system
 	PSX_Init();
 	
-	Mem_Init((void*)malloc_heap, sizeof(malloc_heap));
+	//Mem_Init((void*)malloc_heap, sizeof(malloc_heap));
 	
 	stage.pal_i = 1;
 	stage.wide_i = 1;	
@@ -135,15 +135,6 @@ int main(int argc, char **argv)
 		Timer_Tick();
 		Audio_ProcessXA();
 		Pad_Update();
-		
-		#ifdef MEM_STAT
-			//Memory stats
-			size_t mem_used, mem_size, mem_max;
-			Mem_GetStat(&mem_used, &mem_size, &mem_max);
-			#ifndef MEM_BAR
-				FntPrint(-1, "mem: %08X/%08X (max %08X)\n", mem_used, mem_size, mem_max);
-			#endif
-		#endif
 
 		//Set video mode
 		if (stage.prefs.palmode)
