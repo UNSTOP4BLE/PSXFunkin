@@ -8,7 +8,7 @@
 
 #include "../stage.h"
 #include "../archive.h"
-#include "../mem.h"
+#include <stdlib.h> 
 #include "../mutil.h"
 #include "../timer.h"
 
@@ -311,13 +311,13 @@ void Back_Week6_Free(StageBack *back)
 	Back_Week6 *this = (Back_Week6*)back;
 	
 	//Free structure
-	Mem_Free(this);
+	free(this);
 }
 
 StageBack *Back_Week6_New(void)
 {
 	//Allocate background structure
-	Back_Week6 *this = (Back_Week6*)Mem_Alloc(sizeof(Back_Week6));
+	Back_Week6 *this = (Back_Week6*)malloc(sizeof(Back_Week6));
 	if (this == NULL)
 		return NULL;
 	
@@ -333,7 +333,7 @@ StageBack *Back_Week6_New(void)
 		IO_Data arc_back = IO_Read("\\WEEK6\\BACK.ARC;1");
 		Gfx_LoadTex(&this->tex_back0, Archive_Find(arc_back, "back0.tim"), 0);
 		Gfx_LoadTex(&this->tex_back1, Archive_Find(arc_back, "back1.tim"), 0);
-		Mem_Free(arc_back);
+		free(arc_back);
 		
 		//Initialize freaks state
 		Animatable_Init(&this->freaks_animatable, freaks_anim);

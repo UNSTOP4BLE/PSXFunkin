@@ -6,7 +6,7 @@
 
 #include "stage.h"
 
-#include "mem.h"
+#include <stdlib.h>      
 #include "timer.h"
 #include "audio.h"
 #include "pad.h"
@@ -1334,7 +1334,7 @@ static void Stage_LoadChart(void)
 	
 	
 	if (stage.chart_data != NULL)
-		Mem_Free(stage.chart_data);
+		free(stage.chart_data);
 	stage.chart_data = IO_Read(chart_path);
 	u8 *chart_byte = (u8*)stage.chart_data;
 
@@ -1387,7 +1387,7 @@ static void Stage_LoadSFX(void)
 	  	IO_FindFile(&file, text);
 	    u32 *data = IO_ReadFile(&file);
 	    Sounds[i] = Audio_LoadVAGData(data, file.size);
-	    Mem_Free(data);
+	    free(data);
 	}
 
 	//miss sound
@@ -1400,7 +1400,7 @@ static void Stage_LoadSFX(void)
 		  	IO_FindFile(&file, text);
 		    u32 *data = IO_ReadFile(&file);
 		    Sounds[i + 4] = Audio_LoadVAGData(data, file.size);
-		    Mem_Free(data);
+		    free(data);
 		}
     }
 }
@@ -1610,7 +1610,7 @@ void Stage_Unload(void)
 	stage.back = NULL;
 	
 	//Unload stage data
-	Mem_Free(stage.chart_data);
+	free(stage.chart_data);
 	stage.chart_data = NULL;
 	
 	//Free objects
@@ -2287,7 +2287,7 @@ void Stage_Tick(void)
 			Audio_StopXA();
 			
 			//Unload stage data
-			Mem_Free(stage.chart_data);
+			free(stage.chart_data);
 			stage.chart_data = NULL;
 			
 			//Free background

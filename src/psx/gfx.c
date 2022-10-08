@@ -6,7 +6,7 @@
 
 #include "../gfx.h"
 
-#include "../mem.h"
+#include <stdlib.h>                  
 #include "../main.h"
 #include "../mutil.h"
 #include "../stage.h"
@@ -148,7 +148,7 @@ void Gfx_LoadTex(Gfx_Tex *tex, IO_Data data, Gfx_LoadTex_Flag flag)
 	
 	//Free data
 	if (flag & GFX_LOADTEX_FREE)
-		Mem_Free(data);
+		free(data);
 }
 
 void Gfx_DrawRect(const RECT *rect, u8 r, u8 g, u8 b)

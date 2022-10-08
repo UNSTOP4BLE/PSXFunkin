@@ -6,7 +6,7 @@
 
 #include "senpaim.h"
 
-#include "../mem.h"
+#include <stdlib.h>    
 #include "../archive.h"
 #include "../stage.h"
 #include "../main.h"
@@ -124,13 +124,13 @@ void Char_SenpaiM_Free(Character *character)
 	Char_SenpaiM *this = (Char_SenpaiM*)character;
 	
 	//Free art
-	Mem_Free(this->arc_main);
+	free(this->arc_main);
 }
 
 Character *Char_SenpaiM_New(fixed_t x, fixed_t y)
 {
 	//Allocate senpaim object
-	Char_SenpaiM *this = Mem_Alloc(sizeof(Char_SenpaiM));
+	Char_SenpaiM *this = malloc(sizeof(Char_SenpaiM));
 	if (this == NULL)
 	{
 		sprintf(error_msg, "[Char_SenpaiM_New] Failed to allocate senpaim object");

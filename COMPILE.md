@@ -54,27 +54,16 @@ First open the terminal and install brew https://brew.sh, after that run these c
 `brew install ffmpeg`
 `brew install tinyxml2` 
 
-## Compiling mkpsxiso
-First do `git clone https://github.com/Lameguy64/mkpsxiso && cd mkpsxiso/` to clone the mkpsxiso repo and run these 2 commands.
-
-`git submodule update --init --recursive`
-`cmake . && make`
- 
-Finally, do `sudo cp mkpsxiso /usr/local/bin/mkpsxiso` (MSYS2 doesn't have sudo, so just ignore it)
-
-This will allow you to call mkpsxiso from anywhere (like the PSXFunkin repo).
-
-## Copying PsyQ files
-First, go to the [mips](/mips/) folder of the repo, and create a new folder named `psyq`.
-
-Then, download the converted PsyQ library from http://psx.arthus.net/sdk/Psy-Q/psyq-4_7-converted-light.zip. Just extract the contents of this into the new `psyq` folder.
-
 ## Compiling PSXFunkin
-First, make sure to `cd` to the repo directory where all the makefiles are. You're gonna want to run a few commands from here, You'll need to either get a PSX license file and save it as licensea.dat in the same directory as funkin.xml (you can get them at http://www.psxdev.net/downloads.html 's `PsyQ SDK`), or remove the referencing line `<license file="licensea.dat"/>` from funkin.xml. Without the license file, the game may fail on a bunch of emulators due to bios checks (unless you use fast boot, I believe?)
+First, make sure to `cd` to the repo directory where the CMakeLists.txt is. You're gonna want to run a few commands from here, You'll need to either get a PSX license file and save it as licensea.dat in the same directory as funkin.xml (you can get them at http://www.psxdev.net/downloads.html 's `PsyQ SDK`), or remove the referencing line `<license file="licensea.dat"/>` from funkin.xml. Without the license file, the game may fail on a bunch of emulators due to bios checks (unless you use fast boot, I believe?)
 
-TIP: For any make, try appending `-jX` to the end of it, where X is the number of CPU cores you have times two. This will try to put as much of your CPU as it can to doing whatever it needs to do and makes it go way quicker.
+this will build the tools.
+`cmake -S ./tools -B ./tools/build -G "Ninja"` 
+`cmake --build ./tools/build`
 
-`make -f Makefile.assets` this will compile all the assets.
+this builds the game itself.
+`cmake -S . -B ./build -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=C:\PSn00bSDK\lib\libpsn00b\cmake\sdk.cmake` replace C:\PSn00bSDK with the path you put PSn00bSDK in.
+`cmake --build ./tools/build`
 
 You can read more about the asset formats in [FORMATS.md](/FORMATS.md)
 

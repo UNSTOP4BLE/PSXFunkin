@@ -6,7 +6,7 @@
 
 #include "menu.h"
 
-#include "mem.h"
+#include <stdlib.h>                  
 #include "main.h"
 #include "timer.h"
 #include "io.h"
@@ -261,7 +261,7 @@ void Menu_Load(MenuPage page)
 	Gfx_LoadTex(&menu.tex_ng,    Archive_Find(menu_arc, "ng.tim"),    0);
 	Gfx_LoadTex(&menu.tex_story, Archive_Find(menu_arc, "story.tim"), 0);
 	Gfx_LoadTex(&menu.tex_title, Archive_Find(menu_arc, "title.tim"), 0);
-	Mem_Free(menu_arc);
+	free(menu_arc);
 	
 	FontData_Load(&menu.font_bold, Font_Bold);
 	FontData_Load(&menu.font_arial, Font_Arial);
@@ -296,17 +296,17 @@ void Menu_Load(MenuPage page)
     IO_FindFile(&file, "\\SOUNDS\\SCROLL.VAG;1");
     u32 *data = IO_ReadFile(&file);
     Sounds[0] = Audio_LoadVAGData(data, file.size);
-    Mem_Free(data);
+    free(data);
 
 	IO_FindFile(&file, "\\SOUNDS\\CONFIRM.VAG;1");
     data = IO_ReadFile(&file);
     Sounds[1] = Audio_LoadVAGData(data, file.size);
-    Mem_Free(data);
+    free(data);
 
 	IO_FindFile(&file, "\\SOUNDS\\CANCEL.VAG;1");
     data = IO_ReadFile(&file);
     Sounds[2] = Audio_LoadVAGData(data, file.size);
-    Mem_Free(data);
+    free(data);
 
 	//Play menu music
 	Audio_PlayXA_Track(XA_GettinFreaky, 0x40, 0, 1);

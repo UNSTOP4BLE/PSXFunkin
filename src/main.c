@@ -34,18 +34,6 @@ void ErrorLock(void)
 	}
 }
 
-//Memory heap
-//#define MEM_STAT //This will enable the Mem_GetStat function which returns information about available memory in the heap
-
-#define MEM_IMPLEMENTATION
-#include "mem.h"
-#undef MEM_IMPLEMENTATION
-
-//This is to avoid a few warnings
-void InitCard(int pad_enable);
-void StartCard(void);
-void StopCard(void);
-
 //Entry point                                                                             
 int main(int argc, char **argv)                                                                                                                                                        
 {
@@ -55,17 +43,15 @@ int main(int argc, char **argv)
 
 	//Initialize system
 	PSX_Init();
-	
-	//Mem_Init((void*)malloc_heap, sizeof(malloc_heap));
-	
+
 	stage.pal_i = 1;
 	stage.wide_i = 1;	
 	InitGeom();
 	Gfx_Init();
 	Pad_Init();
-	InitCard(1);
+	InitCARD(1);
 	StartPAD();
-	StartCard();
+	StartCARD();
 	_bu_init();	
 	ChangeClearPAD(0);
 

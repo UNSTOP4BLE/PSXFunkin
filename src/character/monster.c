@@ -6,7 +6,7 @@
 
 #include "monster.h"
 
-#include "../mem.h"
+#include <stdlib.h>    
 #include "../archive.h"
 #include "../stage.h"
 #include "../main.h"
@@ -109,13 +109,13 @@ void Char_Monster_Free(Character *character)
 	Char_Monster *this = (Char_Monster*)character;
 	
 	//Free art
-	Mem_Free(this->arc_main);
+	free(this->arc_main);
 }
 
 Character *Char_Monster_New(fixed_t x, fixed_t y)
 {
 	//Allocate monster object
-	Char_Monster *this = Mem_Alloc(sizeof(Char_Monster));
+	Char_Monster *this = malloc(sizeof(Char_Monster));
 	if (this == NULL)
 	{
 		sprintf(error_msg, "[Char_Monster_New] Failed to allocate monster object");

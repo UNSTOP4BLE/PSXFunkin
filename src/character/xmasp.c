@@ -6,7 +6,7 @@
 
 #include "xmasp.h"
 
-#include "../mem.h"
+#include <stdlib.h>    
 #include "../archive.h"
 #include "../stage.h"
 #include "../main.h"
@@ -131,13 +131,13 @@ void Char_XmasP_Free(Character *character)
 	Char_XmasP *this = (Char_XmasP*)character;
 	
 	//Free art
-	Mem_Free(this->arc_main);
+	free(this->arc_main);
 }
 
 Character *Char_XmasP_New(fixed_t x, fixed_t y)
 {
 	//Allocate Christmas Parents object
-	Char_XmasP *this = Mem_Alloc(sizeof(Char_XmasP));
+	Char_XmasP *this = malloc(sizeof(Char_XmasP));
 	if (this == NULL)
 	{
 		sprintf(error_msg, "[Char_XmasP_New] Failed to allocate Christmas Parents object");

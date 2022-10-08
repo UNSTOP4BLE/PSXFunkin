@@ -7,7 +7,7 @@
 #include "week4.h"
 
 #include "../archive.h"
-#include "../mem.h"
+#include <stdlib.h> 
 #include "../stage.h"
 #include "../random.h"
 #include "../timer.h"
@@ -229,16 +229,16 @@ void Back_Week4_Free(StageBack *back)
 	Back_Week4 *this = (Back_Week4*)back;
 	
 	//Free henchmen archive
-	Mem_Free(this->arc_hench);
+	free(this->arc_hench);
 	
 	//Free structure
-	Mem_Free(this);
+	free(this);
 }
 
 StageBack *Back_Week4_New(void)
 {
 	//Allocate background structure
-	Back_Week4 *this = (Back_Week4*)Mem_Alloc(sizeof(Back_Week4));
+	Back_Week4 *this = (Back_Week4*)malloc(sizeof(Back_Week4));
 	if (this == NULL)
 		return NULL;
 	
@@ -254,7 +254,7 @@ StageBack *Back_Week4_New(void)
 	Gfx_LoadTex(&this->tex_back1, Archive_Find(arc_back, "back1.tim"), 0);
 	Gfx_LoadTex(&this->tex_back2, Archive_Find(arc_back, "back2.tim"), 0);
 	Gfx_LoadTex(&this->tex_back3, Archive_Find(arc_back, "back3.tim"), 0);
-	Mem_Free(arc_back);
+	free(arc_back);
 	
 	//Load henchmen textures
 	this->arc_hench = IO_Read("\\WEEK4\\HENCH.ARC;1");

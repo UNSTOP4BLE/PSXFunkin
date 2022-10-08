@@ -6,7 +6,7 @@
 
 #include "pico.h"
 
-#include "../mem.h"
+#include <stdlib.h>    
 #include "../archive.h"
 #include "../stage.h"
 #include "../main.h"
@@ -106,13 +106,13 @@ void Char_Pico_Free(Character *character)
 	Char_Pico *this = (Char_Pico*)character;
 	
 	//Free art
-	Mem_Free(this->arc_main);
+	free(this->arc_main);
 }
 
 Character *Char_Pico_New(fixed_t x, fixed_t y)
 {
 	//Allocate pico object
-	Char_Pico *this = Mem_Alloc(sizeof(Char_Pico));
+	Char_Pico *this = malloc(sizeof(Char_Pico));
 	if (this == NULL)
 	{
 		sprintf(error_msg, "[Char_Pico_New] Failed to allocate pico object");

@@ -6,7 +6,7 @@
 
 #include "../io.h"
 
-#include "../mem.h"
+#include <stdlib.h>                  
 #include "../audio.h"
 #include "../main.h"
 
@@ -61,7 +61,7 @@ IO_Data IO_AsyncReadFile(CdlFILE *file)
 	
 	//Allocate a buffer for the file
 	size_t size;
-	IO_Data buffer = (IO_Data)Mem_Alloc(size = (IO_SECT_SIZE * sects));
+	IO_Data buffer = (IO_Data)malloc(size = (IO_SECT_SIZE * sects));
 	if (buffer == NULL)
 	{
 		sprintf(error_msg, "[IO_AsyncReadFile] Malloc (size %X) fail", size);
