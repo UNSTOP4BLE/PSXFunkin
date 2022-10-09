@@ -19,7 +19,7 @@
 		<directory_tree>
 			<!-- System -->
 			<file name = "system.cnf" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/system.cnf"/>
-			<file name = "SCUS_000.00" type = "data" source = "build/funkin.exe"/>
+			<file name = "SCUS_000.00" type = "data" source = "funkin.exe"/>
 			
 			<!-- Menu assets -->
 			<dir name = "menu">
@@ -213,24 +213,23 @@
 			<!-- Sound effects -->
 			<dir name = "sounds">
 				<!-- Menu Sounds -->
-				<file name = "scroll.vag" type = "data" source = "iso/sounds/menu/scroll.VAG"/>
-				<file name = "confirm.vag" type = "data" source = "iso/sounds/menu/confirm.VAG"/>
-				<file name = "cancel.vag" type = "data" source = "iso/sounds/menu/cancel.VAG"/>
+				<file name = "scroll.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/menu/scroll.VAG"/>
+				<file name = "confirm.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/menu/confirm.VAG"/>
+				<file name = "cancel.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/menu/cancel.VAG"/>
 				<!-- Stage Sounds -->
-				<file name = "intro0.vag" type = "data" source = "iso/sounds/stage/intro0.VAG"/>
-				<file name = "intro1.vag" type = "data" source = "iso/sounds/stage/intro1.VAG"/>
-				<file name = "intro2.vag" type = "data" source = "iso/sounds/stage/intro2.VAG"/>
-				<file name = "intro3.vag" type = "data" source = "iso/sounds/stage/intro3.VAG"/>
+				<file name = "intro0.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/intro0.VAG"/>
+				<file name = "intro1.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/intro1.VAG"/>
+				<file name = "intro2.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/intro2.VAG"/>
+				<file name = "intro3.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/intro3.VAG"/>
 				<!-- Weeb Sounds -->
-				<file name = "intro0p.vag" type = "data" source = "iso/sounds/stage/weeb/intro0p.VAG"/>
-				<file name = "intro1p.vag" type = "data" source = "iso/sounds/stage/weeb/intro1p.VAG"/>
-				<file name = "intro2p.vag" type = "data" source = "iso/sounds/stage/weeb/intro2p.VAG"/>
-				<file name = "intro3p.vag" type = "data" source = "iso/sounds/stage/weeb/intro3p.VAG"/>
-
+				<file name = "intro0p.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/weeb/intro0p.VAG"/>
+				<file name = "intro1p.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/weeb/intro1p.VAG"/>
+				<file name = "intro2p.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/weeb/intro2p.VAG"/>
+				<file name = "intro3p.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/weeb/intro3p.VAG"/>
 				<!-- Miss Sounds -->
-				<file name = "miss1.vag" type = "data" source = "iso/sounds/stage/miss1.VAG"/>
-				<file name = "miss2.vag" type = "data" source = "iso/sounds/stage/miss2.VAG"/>
-				<file name = "miss3.vag" type = "data" source = "iso/sounds/stage/miss3.VAG"/>
+				<file name = "miss1.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/miss1.VAG"/>
+				<file name = "miss2.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/miss2.VAG"/>
+				<file name = "miss3.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/miss3.VAG"/>
 			</dir>
 			
 			<!-- Music -->
