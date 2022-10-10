@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 
 	stage.pal_i = 1;
 	stage.wide_i = 1;	
-	InitGeom();
+
 	Gfx_Init();
 	Pad_Init();
 	InitCARD(1);
@@ -54,7 +54,6 @@ int main(int argc, char **argv)
 	StartCARD();
 	_bu_init();	
 	ChangeClearPAD(0);
-
 	IO_Init();
 	Audio_Init();
 	Network_Init();

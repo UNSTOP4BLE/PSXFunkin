@@ -1,4 +1,0 @@
-1 xa cocoa/Vocals.xa 1 0
-1 xa cocoa/Inst.xa 1 1
-1 xa eggnog/Vocals.xa 1 2
-1 xa eggnog/Inst.xa 1 3

@@ -25,11 +25,12 @@ static u8 *nextpri;          //Next primitive pointer
 void Gfx_Init(void)
 {
 	ResetGraph(0);
+
 	if (stage.prefs.widescreen)
 	{
 		//Initialize display environment
 		SetDefDispEnv(&stage.disp[0], 0, 0, 512, 240);
-		SetDefDispEnv(&stage.disp[1], 0, 240, 512, 240);					
+		SetDefDispEnv(&stage.disp[1], 0, 240, 512, 240);				
 		//Initialize draw environment
 		SetDefDrawEnv(&stage.draw[0], 0, 240, 512, 240);
 		SetDefDrawEnv(&stage.draw[1], 0, 0, 512, 240);
@@ -45,46 +46,51 @@ void Gfx_Init(void)
 	}
 
 	//Set draw background
-	stage.draw[0].isbg = stage.draw[1].isbg = 1;
+	stage.draw[0].isbg = 1;
+	stage.draw[1].isbg = 1;
 	setRGB0(&stage.draw[0], 0, 0, 0);
 	setRGB0(&stage.draw[1], 0, 0, 0);
-	
-	//Load font
-	FntLoad(960, 0);
-	FntOpen(0, 8, 320, 224, 0, 100);
-	
+
+	PutDispEnv(&stage.disp[0]);
+	PutDrawEnv(&stage.draw[0]);
+	SetDispMask(1);
+
 	//Initialize drawing state
 	nextpri = pribuff[0];
 	db = 0;
-	Gfx_Flip();
-	Gfx_Flip();
+
+	ClearOTagR(ot[0], OTLEN);
+	ClearOTagR(ot[1], OTLEN);
+
+	//Load font
+	FntLoad(960, 0);
+	FntOpen(0, 8, 320, 224, 0, 100);
 }
 
 void Gfx_Quit(void)
-{	
+{
+	SetDispMask(0); // turn screen off
 }
 
 void Gfx_Flip(void)
 {
-	//Sync
-	DrawSync(0);
-	VSync(0);
-	
-	//Apply environments
-	PutDispEnv(&stage.disp[db]);
-	PutDrawEnv(&stage.draw[db]);
-	
-	//Enable display
-	SetDispMask(1);
-	
-	//Draw screen
-	DrawOTag(ot[db] + OTLEN - 1);
 	FntFlush(-1);
-	
+
+	//Sync
+	//DrawSync(0); // not required, FntFlush already does it
+	VSync(0);
+
 	//Flip buffers
 	db ^= 1;
 	nextpri = pribuff[db];
 	ClearOTagR(ot[db], OTLEN);
+
+	//Apply environments
+	PutDispEnv(&stage.disp[db]);
+	PutDrawEnv(&stage.draw[db]);
+
+	//Draw screen
+	DrawOTag(&(ot[db ^ 1])[OTLEN - 1]);
 }
 
 void Gfx_SetClear(u8 r, u8 g, u8 b)

@@ -65,7 +65,7 @@ static u8 XA_BCD(u8 x)
 static u32 XA_TellSector(void)
 {
 	u8 result[8];
-	CdControlB(CdlGetlocP, NULL, result);
+	CdControl(CdlGetlocP, NULL, result);
 	return (XA_BCD(result[2]) * 75 * 60) + (XA_BCD(result[3]) * 75) + XA_BCD(result[4]);
 }
 
@@ -97,8 +97,8 @@ static void XA_Init(void)
 	//Prepare CD drive for XA reading
 	param[0] = CdlModeRT | CdlModeSF | CdlModeSize1;
 	
-	CdControlB(CdlSetmode, param, NULL);
-	CdControlF(CdlPause, NULL);
+	CdControl(CdlSetmode, param, NULL);
+	CdControlB(CdlPause, NULL, NULL);
 }
 
 static void XA_Quit(void)
@@ -118,7 +118,8 @@ static void XA_Play(u32 start)
 	//Play at given position
 	CdlLOC cd_loc;
 	CdIntToPos(start, &cd_loc);
-	CdControlF(CdlReadS, (u8*)&cd_loc);
+	CdControlF(CdlSetloc, (u8*)&cd_loc);
+	CdControlF(CdlReadS, NULL);
 }
 
 static void XA_Pause(void)
@@ -352,7 +353,8 @@ void Audio_ProcessXA(void)
 				//Reset XA playback
 				CdlLOC cd_loc;
 				CdIntToPos(xa_pos = xa_start, &cd_loc);
-				CdControlB(CdlSeekL, (u8*)&cd_loc, NULL);
+				CdControl(CdlSetloc, (u8*)&cd_loc, NULL);
+				CdControlB(CdlSeekL, NULL, NULL);
 				xa_state |= XA_STATE_SEEKING;
 			}
 			else

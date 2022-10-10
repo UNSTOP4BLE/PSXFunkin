@@ -40,7 +40,8 @@ void IO_FindFile(CdlFILE *file, const char *path)
 void IO_SeekFile(CdlFILE *file)
 {
 	//Seek to file position
-	CdControlB(CdlSeekL, (u8*)&file->pos, NULL);
+	CdControl(CdlSetloc, (u8*)&file->pos, NULL);
+	CdControlB(CdlSeekL, NULL, NULL);
 }
 
 IO_Data IO_ReadFile(CdlFILE *file)
@@ -71,6 +72,7 @@ IO_Data IO_AsyncReadFile(CdlFILE *file)
 	
 	//Read file
 	CdControl(CdlSetloc, (u8*)&file->pos, NULL);
+	CdControlB(CdlSeekL, NULL, NULL);
 	CdRead(sects, buffer, CdlModeSpeed);
 	return buffer;
 }

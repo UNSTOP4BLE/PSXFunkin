@@ -1,7 +1,7 @@
 # PSn00bSDK example CMake script
 # (C) 2021 spicyjpeg - MPL licensed
 
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.24)
 
 # define the project
 project(
@@ -35,7 +35,12 @@ find_program(_xainterleave
 )
 
 # custom functions
+set(_built_archives "")
+set(_built_xa "")
+
 function(funkin_add_archive _out)
+	set(_built_archives ${_built_archives} ${_out} PARENT_SCOPE)
+
 	add_custom_command(
 		OUTPUT ${_out}
 		COMMAND ${_arcpak} ${_out} ${ARGN}
@@ -44,11 +49,15 @@ function(funkin_add_archive _out)
 	)
 endfunction()
 
-function(funkin_interleave _out)
+function(funkin_interleave _out _in)
+	set(_built_xa ${_built_xa} ${_out} PARENT_SCOPE)
+
+	# this actually copies the manifest to the build directory
+	configure_file(${_in} ${_in} NEWLINE_STYLE LF)
 	add_custom_command(
 		OUTPUT ${_out}
-		COMMAND ${_xainterleave} ${_out} ${ARGN}
-		DEPENDS ${ARGN}
+		COMMAND ${_xainterleave} ${_out} ${_in}
+		DEPENDS ${_in} ${ARGN}
 		COMMENT "Interleaving xa ${_out}"
 	)
 endfunction()
@@ -90,6 +99,26 @@ foreach(_in _out IN ZIP_LISTS _images _built_images)
 		COMMAND ${_timconv} ${_out} ${PROJECT_SOURCE_DIR}/${_in}
 		DEPENDS ${PROJECT_SOURCE_DIR}/${_in}
 		COMMENT "Building image ${_out}"
+	)
+endforeach()
+
+# build .xa files
+file(
+	GLOB_RECURSE _xa
+	RELATIVE ${PROJECT_SOURCE_DIR}
+	iso/*.ogg
+)
+list(
+	TRANSFORM _xa REPLACE "\.ogg$" ".xa"
+	OUTPUT_VARIABLE _built_audio
+)
+
+foreach(_in _out IN ZIP_LISTS _xa _built_audio)
+	add_custom_command(
+		OUTPUT ${_out}
+		COMMAND ${_psxavenc} -f 37800 -t xa -b 4 -c 2 -F 1 -C 0 ${PROJECT_SOURCE_DIR}/${_in} ${_out} 
+		DEPENDS ${PROJECT_SOURCE_DIR}/${_in}
+		COMMENT "Building xa ${_out}"
 	)
 endforeach()
 
@@ -300,68 +329,76 @@ funkin_add_archive(iso/week6/back.arc
 	iso/week6/back1.tim
 ) 
 
-# ADD OTHER ARCHIVES HERE
+# ADD ARCHIVES HERE
 
-# build .xa files
-file(
-	GLOB_RECURSE _xa
-	RELATIVE ${PROJECT_SOURCE_DIR}
-	iso/*.ogg
+# interleave xa
+funkin_interleave(iso/music/menu.xa iso/music/menu.txt
+	iso/music/freaky.xa
+	iso/music/gameover.xa
 )
-list(
-	TRANSFORM _xa REPLACE "\.ogg$" ".xa"
-	OUTPUT_VARIABLE _built_audio
+funkin_interleave(iso/music/week1a.xa iso/music/week1a.txt
+	iso/music/bopeebo/Inst.xa
+	iso/music/bopeebo/Vocals.xa
+	iso/music/fresh/Inst.xa
+	iso/music/fresh/Vocals.xa
 )
-
-foreach(_in _out IN ZIP_LISTS _xa _built_audio)
-	add_custom_command(
-		OUTPUT ${_out}
-		COMMAND ${_psxavenc} -f 37800 -t xa -b 4 -c 2 -F 1 -C 0 ${PROJECT_SOURCE_DIR}/${_in} ${_out} 
-		DEPENDS ${PROJECT_SOURCE_DIR}/${_in}
-		COMMENT "Building xa ${_out}"
-	)
-endforeach()
-
-funkin_interleave(iso/music/menu.xa
-	iso/music/freaky.xa iso/music/gameover.xa
+funkin_interleave(iso/music/week1b.xa iso/music/week1b.txt
+	iso/music/dadbattle/Inst.xa
+	iso/music/dadbattle/Vocals.xa
+	iso/music/tutorial/Inst.xa
 )
-funkin_interleave(iso/music/week1a.xa
-	iso/music/bopeebo/Inst.xa iso/music/bopeebo/Vocals.xa iso/music/fresh/Inst.xa iso/music/fresh/Vocals.xa
+funkin_interleave(iso/music/week2a.xa iso/music/week2a.txt
+	iso/music/spookeez/Inst.xa
+	iso/music/spookeez/Vocals.xa
+	iso/music/south/Inst.xa
+	iso/music/south/Vocals.xa
 )
-funkin_interleave(iso/music/week1b.xa
-	iso/music/dadbattle/Inst.xa iso/music/dadbattle/Vocals.xa iso/music/tutorial/Inst.xa
+funkin_interleave(iso/music/week2b.xa iso/music/week2b.txt
+	iso/music/monster/Inst.xa
+	iso/music/monster/Vocals.xa
 )
-funkin_interleave(iso/music/week2a.xa
-	iso/music/spookeez/Inst.xa iso/music/spookeez/Vocals.xa iso/music/south/Inst.xa iso/music/south/Vocals.xa
+funkin_interleave(iso/music/week3a.xa iso/music/week3a.txt
+	iso/music/pico/Inst.xa
+	iso/music/pico/Vocals.xa
+	iso/music/philly/Inst.xa
+	iso/music/philly/Vocals.xa
 )
-funkin_interleave(iso/music/week2b.xa
-	iso/music/monster/Inst.xa iso/music/monster/Vocals.xa
+funkin_interleave(iso/music/week3b.xa iso/music/week3b.txt
+	iso/music/blammed/Inst.xa
+	iso/music/blammed/Vocals.xa
 )
-funkin_interleave(iso/music/week3a.xa
-	iso/music/pico/Inst.xa iso/music/pico/Vocals.xa iso/music/philly/Inst.xa iso/music/philly/Vocals.xa
+funkin_interleave(iso/music/week4a.xa iso/music/week4a.txt
+	iso/music/satin-panties/Inst.xa
+	iso/music/satin-panties/Vocals.xa
+	iso/music/high/Inst.xa
+	iso/music/high/Vocals.xa
 )
-funkin_interleave(iso/music/week3b.xa
-	iso/music/blammed/Inst.xa iso/music/blammed/Vocals.xa
+funkin_interleave(iso/music/week4b.xa iso/music/week4b.txt
+	iso/music/milf/Inst.xa
+	iso/music/milf/Vocals.xa
+	iso/music/test/Inst.xa
+	iso/music/test/Vocals.xa
 )
-funkin_interleave(iso/music/week4a.xa
-	iso/music/satin-panties/Inst.xa iso/music/satin-panties/Vocals.xa iso/music/high/Inst.xa iso/music/high/Vocals.xa
+funkin_interleave(iso/music/week5a.xa iso/music/week5a.txt
+	iso/music/cocoa/Inst.xa
+	iso/music/cocoa/Vocals.xa
+	iso/music/eggnog/Inst.xa
+	iso/music/eggnog/Vocals.xa
 )
-funkin_interleave(iso/music/week4b.xa
-	iso/music/milf/Inst.xa iso/music/milf/Vocals.xa iso/music/test/Inst.xa iso/music/test/Vocals.xa
+funkin_interleave(iso/music/week5b.xa iso/music/week5b.txt
+	iso/music/winter-horrorland/Inst.xa
+	iso/music/winter-horrorland/Vocals.xa
 )
-funkin_interleave(iso/music/week5a.xa
-	iso/music/cocoa/Inst.xa iso/music/cocoa/Vocals.xa iso/music/eggnog/Inst.xa iso/music/eggnog/Vocals.xa
+funkin_interleave(iso/music/week6a.xa iso/music/week6a.txt
+	iso/music/senpai/Inst.xa
+	iso/music/senpai/Vocals.xa
+	iso/music/roses/Inst.xa
+	iso/music/roses/Vocals.xa
 )
-funkin_interleave(iso/music/week5b.xa
-	iso/music/winter-horrorland/Inst.xa iso/music/winter-horrorland/Vocals.xa
+funkin_interleave(iso/music/week6b.xa iso/music/week6b.txt
+	iso/music/thorns/Inst.xa
+	iso/music/thorns/Vocals.xa
 )
-funkin_interleave(iso/music/week6a.xa
-	iso/music/senpai/Inst.xa iso/music/senpai/Vocals.xa iso/music/roses/Inst.xa iso/music/roses/Vocals.xa
-)
-funkin_interleave(iso/music/week6b.xa
-	iso/music/thorns/Inst.xa iso/music/thorns/Vocals.xa
-)
-
 
 # compile the source code
 set(_sources
@@ -420,33 +457,8 @@ psn00bsdk_add_cd_image(iso
 	DEPENDS 
 	funkin   
 	${_built_images}
-	iso/menu/menu.arc
-	iso/bf/main.arc
-	iso/bf/dead.arc
-	iso/bf/weeb.arc
-	iso/bf/xmas.arc
-	iso/gf/main.arc
-	iso/gf/xmas.arc
-	iso/gf/tut.arc
-	iso/gf/weeb.arc
-	iso/dad/main.arc
-	iso/spook/main.arc
-	iso/monster/main.arc
-	iso/monster/xmas.arc
-	iso/pico/main.arc
-	iso/mom/main.arc
-	iso/xmasp/main.arc
-	iso/senpai/main.arc
-	iso/senpaim/main.arc
-	iso/spirit/main.arc
-	iso/week1/back.arc
-	iso/week2/back.arc
-	iso/week3/back.arc
-	iso/week4/back.arc
-	iso/week4/hench.arc
-	iso/week5/back.arc
-	iso/week6/back.arc
 	${_built_charts} 
 	${_built_audio} 
-	iso/music/menu.xa
+	${_built_archives}
+	${_built_xa}
 )

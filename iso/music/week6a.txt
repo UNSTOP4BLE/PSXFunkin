@@ -1,0 +1,4 @@
+1 xa ${PROJECT_BINARY_DIR}/iso/music/senpai/Vocals.xa 1 0
+1 xa ${PROJECT_BINARY_DIR}/iso/music/senpai/Inst.xa 1 1
+1 xa ${PROJECT_BINARY_DIR}/iso/music/roses/Vocals.xa 1 2
+1 xa ${PROJECT_BINARY_DIR}/iso/music/roses/Inst.xa 1 3

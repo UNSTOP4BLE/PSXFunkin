@@ -19,7 +19,7 @@ freely, subject to the following restrictions:
    misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 
-This tool has been modified to only use 'just XA' mode, refer to .txt file automatically by input, and assume files referenced in .txt to be in the same directory as the .txt
+This tool has been modified to only use 'just XA' mode.
 */
 
 #include <stdint.h>
@@ -47,18 +47,13 @@ static entry_t entries[ENTRY_MAX];
 
 int parse(char *filename) {
 	entry_t e;
-	char type_str[65];
-	char fn_str[257];
+	char type_str[64];
+	char fn_str[256];
 	int entry_count = 0;
 	FILE *file = fopen(filename, "r");
 	if (file == NULL) return 0;
-	
-	char *cute = filename + strlen(filename) - 1;
-	while (cute >= filename && *cute != '/' && *cute != '\\')
-		cute--;
-	cute[1] = '\0';
 
-	while (fscanf(file, " %d %64s", &(e.sectors), type_str) > 0) {
+	while (fscanf(file, " %d %63s", &(e.sectors), type_str) > 0) {
 		if (strcmp(type_str, "null") == 0) e.type = TYPE_NULL;
 		else if (strcmp(type_str, "raw") == 0) e.type = TYPE_RAW;
 		else if (strcmp(type_str, "xacd") == 0) e.type = TYPE_XACD;
@@ -69,13 +64,8 @@ int parse(char *filename) {
 			case TYPE_RAW:
 			case TYPE_XA:
 			case TYPE_XACD:
-				if (fscanf(file, " %256s", fn_str) > 0) {
-					char *npath = malloc(strlen(filename) + strlen(fn_str) + 1);
-					if (npath == NULL)
-						return 0;
-					sprintf(npath, "%s%s", filename, fn_str);
-					e.file = fopen(npath, "rb");
-					free(npath);
+				if (fscanf(file, " %255s", fn_str) > 0) {
+					e.file = fopen(fn_str, "rb");
 					if (e.file == NULL) return 0;
 				} else return 0;
 				break;
@@ -104,19 +94,15 @@ int parse(char *filename) {
 int main(int argc, char** argv) {
 	uint8_t buffer[2352];
 
-	if (argc < 2) {
-		fprintf(stderr, "Usage: xainterleave <out.xa>\n");
+	if (argc < 3) {
+		fprintf(stderr, "Usage: xainterleave <out.xa> <manifest.txt>\n");
 		return 1;
 	}
 
 	int mode = 1; //Just XA
 
-	char *txtpath = malloc(strlen(argv[1]) + 5);
-	sprintf(txtpath, "%s.txt", argv[1]);
+	int entry_count = parse(argv[2]);
 
-	int entry_count = parse(txtpath);
-	
-	free(txtpath);
 	if (entry_count <= 0) {
 		fprintf(stderr, "Empty manifest?\n");
 		return 1;

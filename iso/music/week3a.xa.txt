@@ -1,4 +1,0 @@
-1 xa pico/Vocals.xa 1 0
-1 xa pico/Inst.xa 1 1
-1 xa philly/Vocals.xa 1 2
-1 xa philly/Inst.xa 1 3

@@ -15,7 +15,6 @@ extern char **my_argv;
 #include <stdio.h>
 
 #include <psxetc.h>
-#include <psxgte.h>
 #include <psxgpu.h>
 #include <psxspu.h>
 #include <psxcd.h>
