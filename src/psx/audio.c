@@ -37,12 +37,6 @@ typedef struct
 	u16 loop_addr;
 } Audio_SPUChannel;
 
-#define SPU_CTRL     *((volatile u16*)0x1f801daa)
-#define SPU_DMA_CTRL *((volatile u16*)0x1f801dac)
-#define SPU_IRQ_ADDR *((volatile u16*)0x1f801da4)
-#define SPU_KEY_ON   *((volatile u32*)0x1f801d88)
-#define SPU_KEY_OFF  *((volatile u32*)0x1f801d8c)
-
 #define SPU_CHANNELS    ((volatile Audio_SPUChannel*)0x1f801c00)
 #define SPU_RAM_ADDR(x) ((u16)(((u32)(x)) >> 3))
 
@@ -150,7 +144,7 @@ void Audio_StreamIRQ_SPU(void)
 
 static u8 read_sector[2048];
 
-void Audio_StreamIRQ_CD(u8 event, u8 *payload)
+void Audio_StreamIRQ_CD(int event, u8 *payload)
 {
 	(void)payload;
 	
@@ -174,7 +168,7 @@ void Audio_StreamIRQ_CD(u8 event, u8 *payload)
 	SpuSetTransferStartAddr(audio_streamcontext.spu_addr + audio_streamcontext.spu_pos);
 	audio_streamcontext.spu_pos += 2048;
 	
-	SpuWrite(read_sector, 2048);
+	SpuWrite((const uint32_t *)read_sector, 2048);
 	
 	//Start SPU IRQ if finished reading
 	if (audio_streamcontext.spu_pos >= CHUNK_SIZE)
@@ -248,7 +242,7 @@ void Audio_Reset(void)
 	
 	SpuSetTransferMode(SPU_TRANSFER_BY_DMA);
 	SpuSetTransferStartAddr(dummy_addr);
-	SpuWrite(dummy, sizeof(dummy));
+	SpuWrite((const uint32_t *)dummy, sizeof(dummy));
 	SpuIsTransferCompleted(SPU_TRANSFER_WAIT);
 	
 	//Reset keys
