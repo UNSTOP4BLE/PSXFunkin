@@ -11,7 +11,7 @@
 		
 		//Song info
 		1, 1,
-		"\\WEEK6\\WEEK6_1.MUS;1",
+		"\\MUSIC\\WEEK6_1.MUS;1",
 		
 		StageId_1_2, STAGE_LOAD_FLAG
 	},
@@ -28,7 +28,7 @@
 		
 		//Song info
 		1, 2,
-		"\\WEEK6\\WEEK6_1.MUS;1",
+		"\\MUSIC\\WEEK6_1.MUS;1",
 		
 		StageId_1_3, STAGE_LOAD_FLAG
 	},
@@ -45,7 +45,7 @@
 		
 		//Song info
 		1, 3,
-		"\\WEEK6\\WEEK6_1.MUS;1",
+		"\\MUSIC\\WEEK6_1.MUS;1",
 		
 		StageId_1_3, 0
 	},
@@ -62,7 +62,7 @@
 		
 		//Song info
 		1, 4,
-		"\\WEEK6\\WEEK6_1.MUS;1",
+		"\\MUSIC\\WEEK6_1.MUS;1",
 		
 		StageId_1_4, 0
 	},
@@ -80,7 +80,7 @@
 		
 		//Song info
 		2, 1,
-		"\\WEEK6\\WEEK6_1.MUS;1",
+		"\\MUSIC\\WEEK6_1.MUS;1",
 		
 		StageId_2_2, STAGE_LOAD_FLAG
 	},
@@ -97,7 +97,7 @@
 		
 		//Song info
 		2, 2,
-		"\\WEEK6\\WEEK6_1.MUS;1",
+		"\\MUSIC\\WEEK6_1.MUS;1",
 		
 		StageId_2_3, STAGE_LOAD_FLAG | STAGE_LOAD_OPPONENT
 	},
@@ -114,7 +114,7 @@
 		
 		//Song info
 		2, 3,
-		"\\WEEK6\\WEEK6_1.MUS;1",
+		"\\MUSIC\\WEEK6_1.MUS;1",
 		
 		StageId_2_3, 0
 	},
@@ -132,7 +132,7 @@
 		
 		//Song info
 		3, 1,
-		"\\WEEK6\\WEEK6_1.MUS;1",
+		"\\MUSIC\\WEEK6_1.MUS;1",
 		
 		StageId_3_2, STAGE_LOAD_FLAG
 	},
@@ -149,7 +149,7 @@
 		
 		//Song info
 		3, 2,
-		"\\WEEK6\\WEEK6_1.MUS;1",
+		"\\MUSIC\\WEEK6_1.MUS;1",
 		
 		StageId_3_3, STAGE_LOAD_FLAG
 	},
@@ -166,7 +166,7 @@
 		
 		//Song info
 		3, 3,
-		"\\WEEK6\\WEEK6_1.MUS;1",
+		"\\MUSIC\\WEEK6_1.MUS;1",
 		
 		StageId_3_3, 0
 	},
@@ -184,7 +184,7 @@
 		
 		//Song info
 		4, 1,
-		"\\WEEK6\\WEEK6_1.MUS;1",
+		"\\MUSIC\\WEEK6_1.MUS;1",
 		
 		StageId_4_2, STAGE_LOAD_FLAG
 	},
@@ -201,7 +201,7 @@
 		
 		//Song info
 		4, 2,
-		"\\WEEK6\\WEEK6_1.MUS;1",
+		"\\MUSIC\\WEEK6_1.MUS;1",
 		
 		StageId_4_3, STAGE_LOAD_FLAG
 	},
@@ -218,7 +218,7 @@
 		
 		//Song info
 		4, 3,
-		"\\WEEK6\\WEEK6_1.MUS;1",
+		"\\MUSIC\\WEEK6_1.MUS;1",
 		
 		StageId_4_3, 0
 	},
@@ -235,7 +235,7 @@
 		
 		//Song info
 		4, 4,
-		"\\WEEK6\\WEEK6_1.MUS;1",
+		"\\MUSIC\\WEEK6_1.MUS;1",
 		
 		StageId_4_4, 0
 	},
@@ -253,7 +253,7 @@
 		
 		//Song info
 		5, 1,
-		"\\WEEK6\\WEEK6_1.MUS;1",
+		"\\MUSIC\\WEEK6_1.MUS;1",
 		
 		StageId_5_2, STAGE_LOAD_FLAG
 	},
@@ -270,7 +270,7 @@
 		
 		//Song info
 		5, 2,
-		"\\WEEK6\\WEEK6_1.MUS;1",
+		"\\MUSIC\\WEEK6_1.MUS;1",
 		
 		StageId_5_3, STAGE_LOAD_FLAG | STAGE_LOAD_OPPONENT | STAGE_LOAD_STAGE
 	},
@@ -287,7 +287,7 @@
 		
 		//Song info
 		5, 3,
-		"\\WEEK6\\WEEK6_1.MUS;1",
+		"\\MUSIC\\WEEK6_1.MUS;1",
 		
 		StageId_5_3, 0
 	},
@@ -305,7 +305,7 @@
 		
 		//Song info
 		6, 1,
-		"\\WEEK6\\WEEK6_1.MUS;1",
+		"\\MUSIC\\WEEK6_1.MUS;1",
 		
 		StageId_6_2, STAGE_LOAD_FLAG | STAGE_LOAD_OPPONENT
 	},
@@ -322,7 +322,7 @@
 		
 		//Song info
 		6, 2,
-		"\\WEEK6\\WEEK6_1.MUS;1",
+		"\\MUSIC\\WEEK6_1.MUS;1",
 		
 		StageId_6_3, 0
 	},
@@ -339,7 +339,7 @@
 		
 		//Song info
 		6, 3,
-		"\\WEEK6\\WEEK6_1.MUS;1",
+		"\\MUSIC\\WEEK6_1.MUS;1",
 		
 		StageId_6_3, 0
 	},
