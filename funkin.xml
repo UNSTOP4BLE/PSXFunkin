@@ -234,32 +234,30 @@
 			
 			<!-- Music -->
 			<dir name = "music">
-				<file name = "menu.xa" type = "xa" source = "iso/music/menu.xa"/>
-				<dummy sectors="128"/>
-				<file name = "week1a.xa" type = "xa" source = "iso/music/week1a.xa"/>
-				<dummy sectors="128"/>
-				<file name = "week1b.xa" type = "xa" source = "iso/music/week1b.xa"/>
-				<dummy sectors="128"/>
-				<file name = "week2a.xa" type = "xa" source = "iso/music/week2a.xa"/>
-				<dummy sectors="128"/>
-				<file name = "week2b.xa" type = "xa" source = "iso/music/week2b.xa"/>
-				<dummy sectors="128"/>
-				<file name = "week3a.xa" type = "xa" source = "iso/music/week3a.xa"/>
-				<dummy sectors="128"/>
-				<file name = "week3b.xa" type = "xa" source = "iso/music/week3b.xa"/>
-				<dummy sectors="128"/>
-				<file name = "week4a.xa" type = "xa" source = "iso/music/week4a.xa"/>
-				<dummy sectors="128"/>
-				<file name = "week4b.xa" type = "xa" source = "iso/music/week4b.xa"/>
-				<dummy sectors="128"/>
-				<file name = "week5a.xa" type = "xa" source = "iso/music/week5a.xa"/>
-				<dummy sectors="128"/>
-				<file name = "week5b.xa" type = "xa" source = "iso/music/week5b.xa"/>
-				<dummy sectors="128"/>
-				<file name = "week6a.xa" type = "xa" source = "iso/music/week6a.xa"/>
-				<dummy sectors="128"/>
-				<file name = "week6b.xa" type = "xa" source = "iso/music/week6b.xa"/>
-				<dummy sectors="128"/>
+				<file name = "week1_1.mus" type = "data" source = "iso/music/bopeebo/bopeebo.mus"/>
+				<file name = "week1_2.mus" type = "data" source = "iso/music/fresh/fresh.mus"/>
+				<file name = "week1_3.mus" type = "data" source = "iso/music/dadbattle/dadbattle.mus"/>
+				<file name = "week1_4.mus" type = "data" source = "iso/music/tutorial/tutorial.mus"/>
+
+				<file name = "week2_1.mus" type = "data" source = "iso/music/spookeez/spookeez.mus"/>
+				<file name = "week2_2.mus" type = "data" source = "iso/music/south/south.mus"/>
+				<file name = "week2_3.mus" type = "data" source = "iso/music/monster/monster.mus"/>
+
+				<file name = "week3_1.mus" type = "data" source = "iso/music/pico/pico.mus"/>
+				<file name = "week3_2.mus" type = "data" source = "iso/music/philly/philly.mus"/>
+				<file name = "week3_3.mus" type = "data" source = "iso/music/blammed/blammed.mus"/>
+
+				<file name = "week4_1.mus" type = "data" source = "iso/music/satin-panties/satin-panties.mus"/>
+				<file name = "week4_2.mus" type = "data" source = "iso/music/high/high.mus"/>
+				<file name = "week4_3.mus" type = "data" source = "iso/music/milf/milf.mus"/>
+
+				<file name = "week5_1.mus" type = "data" source = "iso/music/cocoa/cocoa.mus"/>
+				<file name = "week5_2.mus" type = "data" source = "iso/music/eggnog/eggnog.mus"/>
+				<file name = "week5_3.mus" type = "data" source = "iso/music/winter-horrorland/winter-horrorland.mus"/>
+				
+				<file name = "week6_1.mus" type = "data" source = "iso/music/senpai/senpai.mus"/>
+				<file name = "week6_2.mus" type = "data" source = "iso/music/roses/roses.mus"/>
+				<file name = "week6_3.mus" type = "data" source = "iso/music/thorns/thorns.mus"/>
 			</dir>
 			
 			<!-- Dummy sectors -->
