@@ -59,8 +59,8 @@ void Gfx_Init(void)
 	nextpri = pribuff[0];
 	db = 0;
 
-	ClearOTagR(ot[0], OTLEN);
-	ClearOTagR(ot[1], OTLEN);
+	ClearOTagR((uint32_t *)ot[0], OTLEN);
+	ClearOTagR((uint32_t *)ot[1], OTLEN);
 
 	//Load font
 	FntLoad(960, 0);
@@ -83,14 +83,14 @@ void Gfx_Flip(void)
 	//Flip buffers
 	db ^= 1;
 	nextpri = pribuff[db];
-	ClearOTagR(ot[db], OTLEN);
+	ClearOTagR((uint32_t *)ot[db], OTLEN);
 
 	//Apply environments
 	PutDispEnv(&stage.disp[db]);
 	PutDrawEnv(&stage.draw[db]);
 
 	//Draw screen
-	DrawOTag(&(ot[db ^ 1])[OTLEN - 1]);
+	DrawOTag((uint32_t *)&(ot[db ^ 1])[OTLEN - 1]);
 }
 
 void Gfx_SetClear(u8 r, u8 g, u8 b)
@@ -120,7 +120,7 @@ void Gfx_LoadTex(Gfx_Tex *tex, IO_Data data, Gfx_LoadTex_Flag flag)
 	
 	//Read TIM information
 	TIM_IMAGE tparam;
-	GetTimInfo(data, &tparam);
+	GetTimInfo((uint32_t *)data, &tparam);
 	
 	if (tex != NULL)
 	{
@@ -136,7 +136,7 @@ void Gfx_LoadTex(Gfx_Tex *tex, IO_Data data, Gfx_LoadTex_Flag flag)
 			tex->tim_prect = *tparam.prect;
 			tex->tpage = getTPage(tparam.mode & 0x3, 0, tparam.prect->x, tparam.prect->y);
 		}
-		LoadImage(tparam.prect, (u32*)tparam.paddr);
+		LoadImage(tparam.prect, (uint32_t *)tparam.paddr);
 		DrawSync(0);
 	}
 	
@@ -148,7 +148,7 @@ void Gfx_LoadTex(Gfx_Tex *tex, IO_Data data, Gfx_LoadTex_Flag flag)
 			tex->tim_crect = *tparam.crect;
 			tex->clut = getClut(tparam.crect->x, tparam.crect->y);
 		}
-		LoadImage(tparam.crect, (u32*)tparam.caddr);
+		LoadImage(tparam.crect, (uint32_t *)tparam.caddr);
 		DrawSync(0);
 	}
 	

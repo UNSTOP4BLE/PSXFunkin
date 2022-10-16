@@ -73,7 +73,7 @@ IO_Data IO_AsyncReadFile(CdlFILE *file)
 	//Read file
 	CdControl(CdlSetloc, (u8*)&file->pos, NULL);
 	CdControlB(CdlSeekL, NULL, NULL);
-	CdRead(sects, buffer, CdlModeSpeed);
+	CdRead(sects, (uint32_t *)buffer, CdlModeSpeed);
 	return buffer;
 }
 

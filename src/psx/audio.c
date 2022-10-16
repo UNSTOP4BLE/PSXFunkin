@@ -266,7 +266,7 @@ void Audio_LoadMusFile(CdlFILE *file)
 	//Read header
 	CdReadyCallback(NULL);
 	CdControl(CdlSetloc, (u8*)&file->pos, NULL);
-	CdRead(1, (IO_Data)audio_streamcontext.header.d, CdlModeSpeed);
+	CdRead(1, (uint32_t *)audio_streamcontext.header.d, CdlModeSpeed);
 	CdReadSync(0, NULL);
 	
 	//Reset context
