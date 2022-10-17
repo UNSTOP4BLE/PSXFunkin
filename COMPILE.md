@@ -62,7 +62,7 @@ this will build the tools.
 `cmake --build ./tools/build`
 
 this builds the game itself.
-`cmake -S . -B ./build -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=C:\PSn00bSDK\lib\libpsn00b\cmake\sdk.cmake` replace C:\PSn00bSDK with the path you put PSn00bSDK in.
+`cmake -S . -B ./build -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=C:\PSn00bSDK\lib\libpsn00b\cmake\sdk.cmake` (add -DCMAKE_BUILD_TYPE=Debug at the end to build for debug mode) replace C:\PSn00bSDK with the path you put PSn00bSDK in.
 `cmake --build ./tools/build`
 
 You can read more about the asset formats in [FORMATS.md](/FORMATS.md)

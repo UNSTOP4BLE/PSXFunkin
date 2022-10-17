@@ -6,6 +6,7 @@
 
 #include "main.h"
 
+#include <stdlib.h>
 #include "timer.h"
 #include "io.h"
 #include "gfx.h"
@@ -21,6 +22,7 @@
 //Game loop
 GameLoop gameloop;
 SCREEN screen;
+HeapUsage memUsage;
 
 //Error handler
 char error_msg[0x200];
@@ -69,6 +71,11 @@ int main(int argc, char **argv)
 	//Game loop
 	while (PSX_Running())
 	{
+		#ifndef NDEBUG
+			GetHeapUsage(&memUsage);
+			FntPrint(-1, "mem: %d/%d (max %d)\n", memUsage.alloc, memUsage.total, memUsage.alloc_max);
+		#endif
+
 		if (stage.prefs.widescreen) {
 			if (stage.wide_i == 1)
 			{		
