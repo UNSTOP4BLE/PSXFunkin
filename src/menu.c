@@ -309,10 +309,10 @@ void Menu_Load(MenuPage page)
     free(data);
 
 	//Play menu music
-	Audio_LoadMus("\\MUSIC\\MENU.MUS;1");
-	Audio_PlayMus(true);
-	Audio_SetVolume(0, 0x3FFF, 0x0000);
-	Audio_SetVolume(1, 0x0000, 0x3FFF);
+//	Audio_LoadMus("\\MUSIC\\MENU.MUS;1");
+//	Audio_PlayMus(true);
+//	Audio_SetVolume(0, 0x3FFF, 0x0000);
+//	Audio_SetVolume(1, 0x0000, 0x3FFF);
 	
 	//Set background colour
 	Gfx_SetClear(0, 0, 0);
@@ -814,7 +814,7 @@ void Menu_Tick(void)
 
 			menu.font_arial.draw(&menu.font_arial,
 				scoredisp,
-				150,
+				screen.SCREEN_WIDTH - 170,
 				screen.SCREEN_HEIGHT / 2 - 75,
 				FontAlign_Left
 			);

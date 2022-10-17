@@ -1,4 +1,4 @@
-/*
+ /*
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -23,8 +23,6 @@
 
 #define BUFFER_TIME FIXED_DEC(((BUFFER_SIZE * 28) / 16), 44100)
 
-#define BUFFER_START_ADDR 0x1010
-
 //SPU registers
 typedef struct
 {
@@ -40,9 +38,11 @@ typedef struct
 #define SPU_CHANNELS    ((volatile Audio_SPUChannel*)0x1f801c00)
 #define SPU_RAM_ADDR(x) ((u16)(((u32)(x)) >> 3))
 
-#define DUMMY_ADDR (BUFFER_START_ADDR + (CHUNK_SIZE_MAX * 2))	
+#define DUMMY_ADDR 0x1000
+#define BUFFER_START_ADDR 0x1040
+
 #define CHUNK_SIZE_MAX (BUFFER_SIZE * 4) // there are never more than 4 channels
-#define ALLOC_START_ADDR (BUFFER_START_ADDR + (CHUNK_SIZE_MAX * 2) + 64)
+#define ALLOC_START_ADDR (BUFFER_START_ADDR + (CHUNK_SIZE_MAX * 2))
 //Audio streaming
 typedef struct
 {
@@ -233,29 +233,30 @@ void Audio_Quit(void)
 void Audio_Reset(void)
 {
 	//Reset SPU
-	InterruptCallback(9, NULL);
+	//InterruptCallback(9, NULL);
 	SPU_CTRL &= 0xffbf;
 	
-	//Upload dummy block at end of stream
-	u32 dummy_addr = BUFFER_START_ADDR + (CHUNK_SIZE * 2);
-	static u8 dummy[64] = {0, 5};
+	//Upload dummy block (not needed, psn00b already does this)
+	/*static u8 dummy[64] = {0, 5};
 	
 	SpuSetTransferMode(SPU_TRANSFER_BY_DMA);
-	SpuSetTransferStartAddr(dummy_addr);
+	SpuSetTransferStartAddr(DUMMY_ADDR);
 	SpuWrite((const uint32_t *)dummy, sizeof(dummy));
-	SpuIsTransferCompleted(SPU_TRANSFER_WAIT);
+	SpuIsTransferCompleted(SPU_TRANSFER_WAIT);*/
 	
 	//Reset keys
+	SPU_KEY_OFF = 0x00FFFFFF;
+
 	for (int i = 0; i < 24; i++)
 	{
 		SPU_CHANNELS[i].vol_left   = 0x0000;
 		SPU_CHANNELS[i].vol_right  = 0x0000;
-		SPU_CHANNELS[i].addr       = SPU_RAM_ADDR(dummy_addr);
-		SPU_CHANNELS[i].freq       = 0;
-		SPU_CHANNELS[i].adsr_param = 0x9FC080FF;
+		SPU_CHANNELS[i].addr       = SPU_RAM_ADDR(DUMMY_ADDR);
+		SPU_CHANNELS[i].freq       = 0x1000;
+		SPU_CHANNELS[i].adsr_param = 0x1fc080ff;
 	}
-	SPU_KEY_OFF |= 0x00FFFFFF;
-	SPU_KEY_ON |= 0x00FFFFFF;
+
+	SPU_KEY_ON = 0x00FFFFFF;
 }
 
 void Audio_LoadMusFile(CdlFILE *file)
@@ -292,7 +293,7 @@ void Audio_LoadMusFile(CdlFILE *file)
 	//Begin streaming from CD
 	u8 param[4];
 	param[0] = CdlModeSpeed;
-	CdControlB(CdlSetmode, param, 0);
+	CdControl(CdlSetmode, param, 0);
 	
 	CdlLOC pos;
 	CdIntToPos(audio_streamcontext.cd_lba + audio_streamcontext.cd_pos, &pos);
@@ -315,7 +316,7 @@ void Audio_PlayMus(boolean loops)
 {
 	//Wait for play state
 	while (audio_streamcontext.state != Audio_StreamState_Playing)
-		__asm__("nop");
+		__asm__ volatile("");
 	
 	//Start timing
 	audio_streamcontext.timing_chunk = 0;
@@ -331,35 +332,20 @@ void Audio_PlayMus(boolean loops)
 		SPU_CHANNELS[i].addr       = SPU_RAM_ADDR(BUFFER_START_ADDR + BUFFER_SIZE * i);
 		SPU_CHANNELS[i].loop_addr  = SPU_CHANNELS[i].addr + SPU_RAM_ADDR(CHUNK_SIZE);
 		SPU_CHANNELS[i].freq       = SAMPLE_RATE;
-		SPU_CHANNELS[i].adsr_param = 0x9FC080FF;
+		SPU_CHANNELS[i].adsr_param = 0x1fc080ff;
 		key_or |= (1 << i);
 	}
-	SPU_KEY_ON |= key_or;
+
+	SPU_KEY_ON = key_or;
 }
 
 void Audio_StopMus(void)
 {
 	//Reset context
 	audio_streamcontext.state = Audio_StreamState_Stopped;
-	
-	//Reset keys
-	u32 dummy_addr = BUFFER_START_ADDR + (CHUNK_SIZE * 2);
-	
-	for (int i = 0; i < 24; i++)
-	{
-		SPU_CHANNELS[i].vol_left   = 0x0000;
-		SPU_CHANNELS[i].vol_right  = 0x0000;
-		SPU_CHANNELS[i].addr       = SPU_RAM_ADDR(dummy_addr);
-		SPU_CHANNELS[i].freq       = 0;
-		SPU_CHANNELS[i].adsr_param = 0x9FC080FF;
-	}
-	SPU_KEY_OFF |= 0x00FFFFFF;
-	SPU_KEY_ON |= 0x00FFFFFF;
-	
-	//Reset SPU
-	InterruptCallback(9, NULL);
-	SPU_CTRL &= 0xffbf;
-	
+
+	Audio_Reset();
+
 	//Reset CD
 	CdReadyCallback(NULL);
 	CdControlF(CdlPause, NULL);
@@ -435,7 +421,7 @@ void Audio_PlaySoundOnChannel(u32 addr, u32 channel, int volume) {
 	SPU_CHANNELS[channel].vol_right  = volume;
 	SPU_CHANNELS[channel].addr       = SPU_RAM_ADDR(addr);
 	SPU_CHANNELS[channel].loop_addr  = SPU_RAM_ADDR(DUMMY_ADDR);
-	SPU_CHANNELS[channel].freq       = 0x1000; // 44100 Hz
+	SPU_CHANNELS[channel].freq       = SAMPLE_RATE; // 44100 Hz
 	SPU_CHANNELS[channel].adsr_param = 0x1fc080ff;
 
 	SPU_KEY_ON = (1 << channel);

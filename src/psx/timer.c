@@ -4,6 +4,7 @@
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
+#include <hwregs_c.h>
 #include "../timer.h"
 #include "../stage.h"
 
@@ -27,31 +28,24 @@ void Timer_Callback(void) {
 	timer_count++;
 }
 
-void Timer_Init(boolean pal_console, boolean pal_video)
-{
-	//Initialize counters
-	frame_count = animf_count = timer_count = timer_lcount = timer_countbase = 0;
-	timer_sec = timer_dt = timer_secbase = 0;
-	
-	//Setup counter IRQ
-	static const u32 hblanks_per_sec[4] = {
-		15734 >> TIMER_BITS, //!console && !video => 262.5 * 59.940
-		15591 >> TIMER_BITS, //!console &&  video => 262.5 * 59.393
-		15769 >> TIMER_BITS, // console && !video => 312.5 * 50.460
-		15625 >> TIMER_BITS, // console &&  video => 312.5 * 50.000
-	};
-	timer_persec = hblanks_per_sec[(pal_console << 1) | pal_video];
-	
-	EnterCriticalSection();
-	
-	SetRCnt(RCntCNT1, 1 << TIMER_BITS, RCntMdINTR);
-	InterruptCallback(5, (void*)Timer_Callback); //IRQ5 is RCNT1
-	StartRCnt(RCntCNT1);
-	ChangeClearRCnt(1, 0);
-	
-	ExitCriticalSection();
-	
-	timer_brokeconf = 0;
+void Timer_Init(void) {
+    //Initialize counters
+    frame_count = animf_count = timer_count = timer_lcount = timer_countbase = 0;
+    timer_sec = timer_dt = timer_secbase = 0;
+    
+    //Setup counter IRQ
+    timer_persec = 100;
+    
+    EnterCriticalSection();
+
+    TIMER_CTRL(2) = 0x0258; // F_CPU/8 input, IRQ on reload
+    TIMER_RELOAD(2) = (F_CPU / 8) / timer_persec; // 100 Hz
+
+    ChangeClearRCnt(2, 0);
+    InterruptCallback(6, &Timer_Callback); //IRQ6 is RCNT2
+
+    ExitCriticalSection();
+    timer_brokeconf = 0;
 }
 
 void Timer_Tick(void)

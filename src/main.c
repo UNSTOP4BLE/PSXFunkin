@@ -57,7 +57,7 @@ int main(int argc, char **argv)
 	IO_Init();
 	Audio_Init();
 	Network_Init();
-	Timer_Init(false, false);
+	Timer_Init();
 
 	if (readSaveFile() == false)
 		defaultSettings();
@@ -127,7 +127,6 @@ int main(int argc, char **argv)
 			{
 				SetVideoMode(MODE_PAL);
 				stage.disp[0].screen.y = stage.disp[1].screen.y = 24;
-				Timer_Init(true, true);
 				stage.pal_i = 2;
 			}
 		}
@@ -137,7 +136,6 @@ int main(int argc, char **argv)
 			{
 				SetVideoMode(MODE_NTSC);
 				stage.disp[0].screen.y = stage.disp[1].screen.y = 0;
-				Timer_Init(false, false);
 				stage.pal_i = 2;
 			}
 		}
