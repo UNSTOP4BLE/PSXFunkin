@@ -1866,7 +1866,8 @@ void Stage_Tick(void)
 							Audio_SetVolume(0, 0x1fff, 0x1fff);
 							Audio_SetVolume(1, 0x1fff, 0x1fff);
 						}
-						//Stage_StartVocal();
+						stage.flag &= ~STAGE_FLAG_VOCAL_ACTIVE;
+						Stage_StartVocal();
 						
 						//Update song time
 						stage.interp_ms = Audio_GetTime();
