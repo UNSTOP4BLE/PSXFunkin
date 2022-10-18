@@ -99,7 +99,7 @@ int main(int argc, char **argv)
 		int ram = 100 * heap.alloc / heap.total;
 
 		FntPrint(
-			-1, "CPU:%3d%%  HEAP:%06x\nRAM:%3d%%  MAX: %06x",
+			-1, "CPU:%3d%%  HEAP:%06x\nRAM:%3d%%  MAX: %06x\n",
 			cpu, heap.alloc, ram, heap.alloc_max
 		);
 #endif
