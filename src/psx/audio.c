@@ -96,7 +96,7 @@ void Audio_StreamCallback(u32 *sector) {
 	//DMA to SPU
 	SpuSetTransferMode(SPU_TRANSFER_BY_DMA);
 	SpuSetTransferStartAddr(audio_streamcontext.spu_addr + audio_streamcontext.spu_pos);
-	SpuWrite(sector, 2048);
+	SpuWrite((uint32_t *)sector, 2048);
 	audio_streamcontext.spu_pos += 2048;
 
 	//Start SPU IRQ if finished reading
@@ -250,7 +250,7 @@ void Audio_LoadMusFile(CdlFILE *file)
 	Audio_StopMus();
 
 	//Read header
-	IO_ReadDataChunk(CdPosToInt(&file->pos), 1, (uint32_t *)audio_streamcontext.header.d);
+	IO_ReadDataChunk(CdPosToInt(&file->pos), 1, (u32 *)audio_streamcontext.header.d);
 	IO_WaitRead();
 	printf(
 		"[Audio_LoadMusFile] Loaded %s (%d ch)\n",
@@ -336,6 +336,11 @@ void Audio_StopMus(void)
 
 	//Reset CD
 	IO_AbortAudioRead();
+}
+
+void Audio_PauseMus()
+{	
+	//SPU_KEY_OFF = CHANNEL_MASK;
 }
 
 void Audio_SetVolume(u8 i, u16 vol_left, u16 vol_right)
