@@ -284,7 +284,7 @@ void Audio_LoadMusFile(CdlFILE *file)
 
 int Audio_GetLength()
 {
-	return audio_streamcontext.cd_length;
+	return (audio_streamcontext.cd_length / audio_streamcontext.header.s.channels) * 0xe00 * 1 / 44100;
 }
 
 void Audio_LoadMus(const char *path)
