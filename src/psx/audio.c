@@ -12,6 +12,7 @@
 #include "../audio.h"
 #include "../main.h"
 #include <hwregs_c.h>
+#include <stdlib.h> 
 
 #include "../timer.h"
 #include "../io.h"
@@ -418,3 +419,15 @@ void Audio_PlaySound(u32 addr, int volume) {
     Audio_PlaySoundOnChannel(addr, getFreeChannel(), volume);
 }
 
+u32 Audio_LoadSound(const char *path)
+{
+	CdlFILE file;
+	u32 Sound;
+
+  	IO_FindFile(&file, path);
+	u32 *data = IO_ReadFile(&file);
+	Sound = Audio_LoadVAGData(data, file.size);
+	free(data);
+
+	return Sound;
+}

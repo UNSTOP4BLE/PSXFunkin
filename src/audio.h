@@ -26,5 +26,6 @@ void Audio_ClearAlloc(void);
 u32 Audio_LoadVAGData(u32 *sound, u32 sound_size);
 void Audio_PlaySoundOnChannel(u32 addr, u32 channel, int volume);
 void Audio_PlaySound(u32 addr, int volume);
+u32 Audio_LoadSound(const char *path);
 
 #endif

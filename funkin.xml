@@ -230,12 +230,20 @@
 				<file name = "miss1.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/miss1.VAG"/>
 				<file name = "miss2.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/miss2.VAG"/>
 				<file name = "miss3.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/miss3.VAG"/>
+				<!-- Game Over Sounds -->
+				<file name = "loss.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/gameover/fnf_loss_sfx.VAG"/>
+				<file name = "lossp.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/gameover/fnf_loss_sfx-pixel.VAG"/>
+				<file name = "end.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/gameover/gameOverEnd.VAG"/>
+				<file name = "endp.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/gameover/gameOverEnd-pixel.VAG"/>
+
 			</dir>
 			
 			<!-- Music -->
 			<dir name = "music">
 				
 				<file name = "menu.mus" type = "data" source = "iso/music/freakyMenu/freakyMenu.mus"/>
+				<file name = "gover.mus" type = "data" source = "iso/music/gameover/gameover.mus"/>
+				<file name = "goverp.mus" type = "data" source = "iso/music/gameover/pixel/gameover-pixel.mus"/>
 
 				<file name = "week1_1.mus" type = "data" source = "iso/music/bopeebo/bopeebo.mus"/>
 				<file name = "week1_2.mus" type = "data" source = "iso/music/fresh/fresh.mus"/>

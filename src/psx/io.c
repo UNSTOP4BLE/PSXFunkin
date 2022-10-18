@@ -51,7 +51,7 @@ static void dataHandler(int event, u8 *payload) {
 		return;
 
 	// handle this data sector
-	CdGetSector(data_ptr, 512);
+	CdGetSector((void *)data_ptr, 512);
 	data_ptr += 512;
 	data_lba++;
 	data_sectors_pending--;

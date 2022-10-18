@@ -292,21 +292,9 @@ void Menu_Load(MenuPage page)
 	stage.song_step = 0;
 
 	// to load
-	CdlFILE file;
-    IO_FindFile(&file, "\\SOUNDS\\SCROLL.VAG;1");
-    u32 *data = IO_ReadFile(&file);
-    Sounds[0] = Audio_LoadVAGData(data, file.size);
-    free(data);
-
-	IO_FindFile(&file, "\\SOUNDS\\CONFIRM.VAG;1");
-    data = IO_ReadFile(&file);
-    Sounds[1] = Audio_LoadVAGData(data, file.size);
-    free(data);
-
-	IO_FindFile(&file, "\\SOUNDS\\CANCEL.VAG;1");
-    data = IO_ReadFile(&file);
-    Sounds[2] = Audio_LoadVAGData(data, file.size);
-    free(data);
+    Sounds[0] = Audio_LoadSound("\\SOUNDS\\SCROLL.VAG;1");
+    Sounds[1] = Audio_LoadSound("\\SOUNDS\\CONFIRM.VAG;1");
+    Sounds[2] = Audio_LoadSound("\\SOUNDS\\CANCEL.VAG;1");
 
 	//Play menu music
 	Audio_LoadMus("\\MUSIC\\MENU.MUS;1");

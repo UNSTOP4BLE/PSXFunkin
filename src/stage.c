@@ -221,9 +221,9 @@ static u8 Stage_HitNote(PlayerState *this, u8 type, fixed_t offset)
 		offset = -offset;
 	
 	u8 hit_type;
-	if (offset > stage.late_safe * 9 / 11)
+	if (offset > stage.late_safe * 81 / 100)
 		hit_type = 3; //SHIT
-	else if (offset > stage.late_safe * 6 / 11)
+	else if (offset > stage.late_safe * 54 / 100)
 		hit_type = 2; //BAD
 	else if (offset > stage.late_safe * 3 / 11)
 		hit_type = 1; //GOOD
@@ -244,22 +244,22 @@ static u8 Stage_HitNote(PlayerState *this, u8 type, fixed_t offset)
 	this->min_accuracy += 1;
 
 	if (hit_type == 3)
-	this->max_accuracy += 4;
-
+		this->max_accuracy += 4;
 	else if (hit_type == 2)
-	this->max_accuracy += 3;
-
+		this->max_accuracy += 3;
 	else if (hit_type == 1)
-	this->max_accuracy += 2;
-
+		this->max_accuracy += 2;
 	else
-	this->max_accuracy += 1;
+		this->max_accuracy += 1;
+	
 	this->refresh_accuracy = true;
 	this->refresh_score = true;
 	
 	//Restore vocals and health
 	Stage_StartVocal();
-	this->health += 230;
+
+	if (hit_type != 3 && hit_type != 2) //dont increase if shit or bad
+		this->health += 300;
 	
 	//Create combo object telling of our combo
 	Obj_Combo *combo = Obj_Combo_New(
@@ -383,7 +383,7 @@ static void Stage_NoteCheck(PlayerState *this, u8 type)
 			this->character->set_anim(this->character, note_anims[type & 0x3][0]);
 		Stage_MissNote(this);
 		
-		this->health -= 400;
+		this->health -= 430;
 		this->score -= 1;
 		this->refresh_score = true;
 	}
@@ -1384,10 +1384,7 @@ static void Stage_LoadSFX(void)
 	{
 		char text[0x80];
 		sprintf(text, "\\SOUNDS\\INTRO%d%s.VAG;1", i, (stage.stage_id >= StageId_6_1 && stage.stage_id <= StageId_6_3) ? "P" : "");
-	  	IO_FindFile(&file, text);
-	    u32 *data = IO_ReadFile(&file);
-	    Sounds[i] = Audio_LoadVAGData(data, file.size);
-	    free(data);
+	    Sounds[i] = Audio_LoadSound(text);
 	}
 
 	//miss sound
@@ -1397,10 +1394,7 @@ static void Stage_LoadSFX(void)
 		{
 			char text[0x80];
 			sprintf(text, "\\SOUNDS\\MISS%d.VAG;1", i + 1);
-		  	IO_FindFile(&file, text);
-		    u32 *data = IO_ReadFile(&file);
-		    Sounds[i + 4] = Audio_LoadVAGData(data, file.size);
-		    free(data);
+		    Sounds[i + 4] = Audio_LoadSound(text);
 		}
     }
 }
@@ -1718,6 +1712,8 @@ static boolean Stage_NextLoad(void)
 	}
 }
 
+int deadtimer;
+
 void Stage_Tick(void)
 {
 	SeamLoad:;
@@ -1740,6 +1736,7 @@ void Stage_Tick(void)
 	}
 	if (pad_state.press & (PAD_START | PAD_CROSS) && stage.state != StageState_Play)
 	{
+		Audio_PlaySound(Sounds[1], 0x3fff);
 		stage.trans = StageTrans_Reload;
 		Trans_Start();
 	}
@@ -2256,8 +2253,10 @@ void Stage_Tick(void)
 		{
 			//Stop music immediately
 			Audio_StopMus();
+			deadtimer = 0;
 			
 			//Unload stage data
+			Audio_ClearAlloc();
 			free(stage.chart_data);
 			stage.chart_data = NULL;
 			
@@ -2291,6 +2290,12 @@ void Stage_Tick(void)
 			stage.song_time = 0;
 			
 			stage.state = StageState_DeadLoad;
+			IO_WaitRead();
+			if (stage.stage_id >= StageId_6_1 && stage.stage_id <= StageId_6_3)			
+				Sounds[0] = Audio_LoadSound("\\SOUNDS\\LOSSP.VAG;1");
+			else
+				Sounds[0] = Audio_LoadSound("\\SOUNDS\\LOSS.VAG;1");
+			Audio_PlaySound(Sounds[0], 0x3fff);
 		}
 	//Fallthrough
 		case StageState_DeadLoad:
@@ -2305,8 +2310,32 @@ void Stage_Tick(void)
 			
 			//Drop mic and change state if CD has finished reading and animation has ended
 			if (IO_IsReading() || stage.player->animatable.anim != PlayerAnim_Dead1)
+			{
 				break;
+			}
 			
+			//load sounds
+			if (stage.stage_id >= StageId_6_1 && stage.stage_id <= StageId_6_3)			
+			{
+				Sounds[1] = Audio_LoadSound("\\SOUNDS\\ENDP.VAG;1");
+				IO_WaitRead();
+				Audio_LoadMus("\\MUSIC\\GOVERP.MUS;1");
+			}
+			else
+			{
+				Sounds[1] = Audio_LoadSound("\\SOUNDS\\END.VAG;1");
+				IO_WaitRead();
+				Audio_LoadMus("\\MUSIC\\GOVER.MUS;1");
+			}
+
+			if (stage.prefs.stereo) {
+				Audio_SetVolume(0, 0x3fff, 0x0000);
+				Audio_SetVolume(1, 0x0000, 0x3fff);
+			} else {
+				Audio_SetVolume(0, 0x1fff, 0x1fff);
+				Audio_SetVolume(1, 0x1fff, 0x1fff);
+			}
+	
 			stage.player->set_anim(stage.player, PlayerAnim_Dead2);
 			stage.camera.td = FIXED_DEC(25, 1000);
 			stage.state = StageState_DeadDrop;
@@ -2322,7 +2351,7 @@ void Stage_Tick(void)
 			if (stage.player->animatable.anim == PlayerAnim_Dead3)
 			{
 				stage.state = StageState_DeadRetry;
-			//	Audio_PlayXA_Track(XA_GameOver, 0x40, 1, true);
+		     	Audio_PlayMus(true);
 			}
 			break;
 		}
