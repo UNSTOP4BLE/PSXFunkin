@@ -71,7 +71,9 @@ void Gfx_ScreenSetup(void) {
 	screen.SCREEN_WIDEOADD2 = (screen.SCREEN_WIDEOADD >> 1);
 	screen.SCREEN_TALLOADD2 = (screen.SCREEN_TALLOADD >> 1);
 
-	stage.disp[0].screen.y = stage.disp[1].screen.y = stage.prefs.palmode ? 24 : 0;
+	stage.disp[0].screen.y = stage.prefs.palmode ? 24 : 0;
+	stage.disp[1].screen.y = stage.prefs.palmode ? 24 : 0;
+
 	SetVideoMode(stage.prefs.palmode ? MODE_PAL : MODE_NTSC);
 
 	Gfx_Init();

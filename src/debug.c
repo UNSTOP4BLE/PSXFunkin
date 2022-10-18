@@ -88,98 +88,101 @@ void Debug_StageDebug()
 			debug.mode = 0;
 		Drawdebugtxt();
 
-		if (debug.mode == 0)
+		if (!stage.paused)
 		{
-			switch(debug.selection)
+			if (debug.mode == 0)
 			{
-				case 0:
-				if (debug.switchcooldown == 0)
+				switch(debug.selection)
 				{
-					debug.debugx = stage.opponent->x / 1024; 
-					debug.debugy = stage.opponent->y / 1024; 
+					case 0:
+					if (debug.switchcooldown == 0)
+					{
+						debug.debugx = stage.opponent->x / 1024; 
+						debug.debugy = stage.opponent->y / 1024; 
+					}
+					debug.switchcooldown ++;
+					stage.opponent->x = FIXED_DEC(debug.debugx,1);
+					stage.opponent->y = FIXED_DEC(debug.debugy,1);
+					break;
+					case 1:
+					if (debug.switchcooldown == 0)
+					{
+						debug.debugx = stage.opponent2->x / 1024; 
+						debug.debugy = stage.opponent2->y / 1024; 
+					}
+					debug.switchcooldown ++;
+					stage.opponent2->x = FIXED_DEC(debug.debugx,1);
+					stage.opponent2->y = FIXED_DEC(debug.debugy,1);
+					break;
+					case 2:
+					if (debug.switchcooldown == 0)
+					{
+						debug.debugx = stage.gf->x / 1024; 
+						debug.debugy = stage.gf->y / 1024; 
+					}
+					debug.switchcooldown ++;
+					stage.gf->x = FIXED_DEC(debug.debugx,1);
+					stage.gf->y = FIXED_DEC(debug.debugy,1);
+					break;
+					case 3:
+					if (debug.switchcooldown == 0)
+					{
+						debug.debugx = stage.player->x / 1024; 
+						debug.debugy = stage.player->y / 1024; 
+					}
+					debug.switchcooldown ++;
+					stage.player->x = FIXED_DEC(debug.debugx,1);
+					stage.player->y = FIXED_DEC(debug.debugy,1);
+					break;
 				}
-				debug.switchcooldown ++;
-				stage.opponent->x = FIXED_DEC(debug.debugx,1);
-				stage.opponent->y = FIXED_DEC(debug.debugy,1);
-				break;
-				case 1:
-				if (debug.switchcooldown == 0)
-				{
-					debug.debugx = stage.opponent2->x / 1024; 
-					debug.debugy = stage.opponent2->y / 1024; 
-				}
-				debug.switchcooldown ++;
-				stage.opponent2->x = FIXED_DEC(debug.debugx,1);
-				stage.opponent2->y = FIXED_DEC(debug.debugy,1);
-				break;
-				case 2:
-				if (debug.switchcooldown == 0)
-				{
-					debug.debugx = stage.gf->x / 1024; 
-					debug.debugy = stage.gf->y / 1024; 
-				}
-				debug.switchcooldown ++;
-				stage.gf->x = FIXED_DEC(debug.debugx,1);
-				stage.gf->y = FIXED_DEC(debug.debugy,1);
-				break;
-				case 3:
-				if (debug.switchcooldown == 0)
-				{
-					debug.debugx = stage.player->x / 1024; 
-					debug.debugy = stage.player->y / 1024; 
-				}
-				debug.switchcooldown ++;
-				stage.player->x = FIXED_DEC(debug.debugx,1);
-				stage.player->y = FIXED_DEC(debug.debugy,1);
-				break;
-			}
 
-			switch(pad_state.held)
+				switch(pad_state.held)
+				{
+					case PAD_LEFT: 
+						debug.debugx --;
+					break;
+					case PAD_RIGHT: 
+						debug.debugx ++;
+					break;
+					case PAD_UP: 
+						debug.debugy --;
+					break;
+					case PAD_DOWN: 
+						debug.debugy ++;
+					break;
+					case PAD_SQUARE: 
+						debug.debugw --;
+					break;
+					case PAD_CIRCLE: 
+						debug.debugw ++;
+					break;
+					case PAD_TRIANGLE: 
+						debug.debugh --;
+					break;
+					case PAD_CROSS: 
+						debug.debugh ++;
+					break;
+				}
+			}
+			switch(pad_state.press)
 			{
-				case PAD_LEFT: 
-					debug.debugx --;
+				case PAD_L1: 
+					debug.selection --;
+					debug.switchcooldown = 0;
 				break;
-				case PAD_RIGHT: 
-					debug.debugx ++;
+				case PAD_R1: 
+					debug.selection ++;
+					debug.switchcooldown = 0;
 				break;
-				case PAD_UP: 
-					debug.debugy --;
+				case PAD_L2: 
+					debug.mode --;
 				break;
-				case PAD_DOWN: 
-					debug.debugy ++;
-				break;
-				case PAD_SQUARE: 
-					debug.debugw --;
-				break;
-				case PAD_CIRCLE: 
-					debug.debugw ++;
-				break;
-				case PAD_TRIANGLE: 
-					debug.debugh --;
-				break;
-				case PAD_CROSS: 
-					debug.debugh ++;
+				case PAD_R2: 
+					debug.mode ++;
 				break;
 			}
-		}
-		switch(pad_state.press)
-		{
-			case PAD_L1: 
-				debug.selection --;
-				debug.switchcooldown = 0;
-			break;
-			case PAD_R1: 
-				debug.selection ++;
-				debug.switchcooldown = 0;
-			break;
-			case PAD_L2: 
-				debug.mode --;
-			break;
-			case PAD_R2: 
-				debug.mode ++;
-			break;
-		}
-	}
+		}	
+	}	
 }
 
 void Debug_StageMoveDebug(RECT_FIXED *dst, int dacase, fixed_t fx, fixed_t fy)

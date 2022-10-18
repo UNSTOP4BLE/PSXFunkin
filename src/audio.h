@@ -14,6 +14,7 @@
 //Audio interface
 void Audio_Init(void);
 void Audio_Quit(void);
+void Audio_Reset(void);
 void Audio_LoadMusFile(CdlFILE *file);
 int Audio_GetLength();
 void Audio_LoadMus(const char *path);

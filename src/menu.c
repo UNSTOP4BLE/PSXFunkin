@@ -1066,7 +1066,6 @@ void Menu_Tick(void)
 				} spec;
 			} menu_options[] = {
 				{OptType_Enum,    "GAMEMODE", &stage.mode, {.spec_enum = {COUNT_OF(gamemode_strs), gamemode_strs}}},
-				{OptType_Boolean, "INTERPOLATION", &stage.prefs.expsync, {.spec_boolean = {0}}},
 				{OptType_Boolean, "PAL REFRESH RATE", &stage.prefs.palmode, {.spec_boolean = {0}}},
 				{OptType_Boolean, "GHOST TAP", &stage.prefs.ghost, {.spec_boolean = {0}}},
 				{OptType_Boolean, "MISS SOUNDS", &stage.prefs.sfxmiss, {.spec_boolean = {0}}},
@@ -1130,9 +1129,9 @@ void Menu_Tick(void)
 							*((boolean*)menu_options[menu.select].value) ^= 1;
 
 							// this shit needs to go
-							if ((menu.select == 2) || (menu.select == 10)) {
+							if ((menu.select == 1) || (menu.select == 9)) {
 								Gfx_ScreenSetup();
-							} else if (menu.select == 11) {
+							} else if (menu.select == 10) {
 								if (stage.prefs.stereo) {
 									Audio_SetVolume(0, 0x3fff, 0x0000);
 									Audio_SetVolume(1, 0x0000, 0x3fff);

@@ -185,10 +185,11 @@ typedef struct
 	DRAWENV draw[2];
 
 	//Stage settings
-	int pal_i, wide_i;
+	int pause_state;
+	fixed_t pause_scroll;
 	struct
 	{
-		boolean ghost, downscroll, middlescroll, expsync, practice, debug, palmode, widescreen, stereo, sfxmiss, songtimer, botplay;
+		boolean ghost, downscroll, middlescroll, practice, debug, palmode, widescreen, stereo, sfxmiss, songtimer, botplay;
 		int savescore[StageId_Max][3];
 	} prefs;
 	boolean paused;
