@@ -309,10 +309,15 @@ void Menu_Load(MenuPage page)
     free(data);
 
 	//Play menu music
-//	Audio_LoadMus("\\MUSIC\\MENU.MUS;1");
-//	Audio_PlayMus(true);
-//	Audio_SetVolume(0, 0x3FFF, 0x0000);
-//	Audio_SetVolume(1, 0x0000, 0x3FFF);
+	Audio_LoadMus("\\MUSIC\\MENU.MUS;1");
+	Audio_PlayMus(true);
+	if (stage.prefs.stereo) {
+		Audio_SetVolume(0, 0x3fff, 0x0000);
+		Audio_SetVolume(1, 0x0000, 0x3fff);
+	} else {
+		Audio_SetVolume(0, 0x1fff, 0x1fff);
+		Audio_SetVolume(1, 0x1fff, 0x1fff);
+	}
 	
 	//Set background colour
 	Gfx_SetClear(0, 0, 0);
@@ -374,7 +379,7 @@ void Menu_Tick(void)
 			else
 			{
 				//Start title screen if start pressed
-				if (pad_state.held & PAD_START)
+				if (pad_state.held & (PAD_START | PAD_CROSS))
 					menu.page = menu.next_page = MenuPage_Title;
 				
 				//Draw different text depending on beat
@@ -449,7 +454,7 @@ void Menu_Tick(void)
 			if (menu.trans_time > 0 && (menu.trans_time -= timer_dt) <= 0)
 				Trans_Start();
 			
-			if ((pad_state.press & PAD_START) && menu.next_page == menu.page && Trans_Idle())
+			if ((pad_state.press & (PAD_START | PAD_CROSS)) && menu.next_page == menu.page && Trans_Idle())
 			{
 				//play confirm sound
 				Audio_PlaySound(Sounds[1], 0x3fff);
@@ -1083,13 +1088,9 @@ void Menu_Tick(void)
 				{OptType_Boolean, "SHOW SONG TIME", &stage.prefs.songtimer, {.spec_boolean = {0}}},
 				{OptType_Boolean, "PRACTICE MODE", &stage.prefs.practice, {.spec_boolean = {0}}},
 				{OptType_Boolean, "WIDESCREEN", &stage.prefs.widescreen, {.spec_boolean = {0}}},
+				{OptType_Boolean, "STEREO AUDIO", &stage.prefs.stereo, {.spec_boolean = {0}}},
 				{OptType_Boolean, "DEBUG MODE", &stage.prefs.debug, {.spec_boolean = {0}}},
 			};
-			if (menu.select == 2 && pad_state.press & (PAD_CROSS | PAD_LEFT | PAD_RIGHT))
-				stage.pal_i = 1;
-
-			if (menu.select == 10 && pad_state.press & (PAD_CROSS | PAD_LEFT | PAD_RIGHT))
-				stage.wide_i = 1;
 
 			if (stage.mode == StageMode_2P)
 				stage.prefs.middlescroll = false;
@@ -1137,8 +1138,22 @@ void Menu_Tick(void)
 				switch (menu_options[menu.select].type)
 				{
 					case OptType_Boolean:
-						if (pad_state.press & (PAD_CROSS | PAD_LEFT | PAD_RIGHT))
+						if (pad_state.press & (PAD_CROSS | PAD_LEFT | PAD_RIGHT)) {
 							*((boolean*)menu_options[menu.select].value) ^= 1;
+
+							// this shit needs to go
+							if ((menu.select == 2) || (menu.select == 10)) {
+								Gfx_ScreenSetup();
+							} else if (menu.select == 11) {
+								if (stage.prefs.stereo) {
+									Audio_SetVolume(0, 0x3fff, 0x0000);
+									Audio_SetVolume(1, 0x0000, 0x3fff);
+								} else {
+									Audio_SetVolume(0, 0x1fff, 0x1fff);
+									Audio_SetVolume(1, 0x1fff, 0x1fff);
+								}
+							}
+						}
 						break;
 					case OptType_Enum:
 						if (pad_state.press & PAD_LEFT)
@@ -1149,7 +1164,7 @@ void Menu_Tick(void)
 								*((s32*)menu_options[menu.select].value) = 0;
 						break;
 				}
-				
+
 				if (pad_state.press & PAD_SELECT)
 					writeSaveFile();
 

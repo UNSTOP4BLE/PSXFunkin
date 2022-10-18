@@ -66,6 +66,7 @@ void defaultSettings()
 	stage.prefs.sfxmiss = 1;
 	stage.prefs.botplay = 1;	
 	stage.prefs.songtimer = 1;
+	stage.prefs.stereo = 1;
 
 	for (int i = 0; i < StageId_Max; i++)
 	{

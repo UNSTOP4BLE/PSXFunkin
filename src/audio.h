@@ -15,6 +15,7 @@
 void Audio_Init(void);
 void Audio_Quit(void);
 void Audio_LoadMusFile(CdlFILE *file);
+int Audio_GetLength();
 void Audio_LoadMus(const char *path);
 void Audio_PlayMus(boolean loops);
 void Audio_StopMus(void);

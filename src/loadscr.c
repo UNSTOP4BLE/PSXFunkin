@@ -17,6 +17,8 @@
 //Loading screen functions
 void LoadScr_Start(void)
 {
+	Audio_StopMus();
+
 	//free all sounds it loaded before and make sure frame has been drawn
 	Audio_ClearAlloc();
 	Network_Process();

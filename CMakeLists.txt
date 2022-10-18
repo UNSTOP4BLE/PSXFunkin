@@ -12,22 +12,30 @@ project(
 	HOMEPAGE_URL "http://lameguy64.net/?page=psn00bsdk"
 )
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+
 # find tools
+set(_tool_paths
+	${PROJECT_SOURCE_DIR}/tools/build
+	${PROJECT_SOURCE_DIR}/tools/build/Debug
+	${PROJECT_SOURCE_DIR}/tools/build/Release
+)
 find_program(_chartpak
 	funkinchartpak REQUIRED
-	HINTS ${PROJECT_SOURCE_DIR}/tools/build
+	HINTS ${_tool_paths}
+
 )
 find_program(_arcpak
 	funkinarcpak REQUIRED
-	HINTS ${PROJECT_SOURCE_DIR}/tools/build
+	HINTS ${_tool_paths}
 )
 find_program(_timconv
 	funkintimconv REQUIRED
-	HINTS ${PROJECT_SOURCE_DIR}/tools/build
+	HINTS ${_tool_paths}
 )
 find_program(_muspak
 	funkinmuspak REQUIRED
-	HINTS ${PROJECT_SOURCE_DIR}/tools/build
+	HINTS ${_tool_paths}
 )
 
 # custom functions

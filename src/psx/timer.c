@@ -4,25 +4,35 @@
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
+#include <psxetc.h>
+#include <psxapi.h>
 #include <hwregs_c.h>
 #include "../timer.h"
 #include "../stage.h"
 
-#define TIMER_BITS (3)
-
 //Timer state
 Timer timer;
+volatile u32 timer_count;
 u32 frame_count, animf_count;
-u32 timer_count, timer_lcount, timer_countbase;
+u32 timer_lcount, timer_countbase;
 u32 timer_persec;
 
 fixed_t timer_sec, timer_dt, timer_secbase;
 
 u8 timer_brokeconf;
 
-//Timer interface
-extern void *InterruptCallback(int irq, void (*func)(void));    
-extern void ChangeClearRCnt(int t, int m);
+u16 profile_start, total_time;
+
+void Timer_StartProfile(void) {
+	total_time = (TIMER_VALUE(1) - profile_start) & 0xffff;
+	profile_start = TIMER_VALUE(1);
+}
+
+// returns cpu usage percentage
+int Timer_EndProfile(void) {
+	u16 cpu_time = (TIMER_VALUE(1) - profile_start) & 0xffff;
+	return 100 * cpu_time / (total_time + 1);
+}
 
 void Timer_Callback(void) {
 	timer_count++;

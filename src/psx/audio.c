@@ -10,6 +10,7 @@
 */
 
 #include "../audio.h"
+#include "../main.h"
 #include <hwregs_c.h>
 
 #include "../timer.h"
@@ -81,7 +82,60 @@ typedef struct
 } Audio_StreamContext;
 
 static volatile Audio_StreamContext audio_streamcontext;
-static volatile u32 audio_alloc_ptr = 0;
+static volatile u32 audio_alloc_ptr = ALLOC_START_ADDR;
+
+void Audio_StreamCallback(u32 *sector) {
+	
+	//Don't run if stopped
+	if (audio_streamcontext.state == Audio_StreamState_Stopped)
+		return;
+
+	audio_streamcontext.cd_pos++;
+	
+	//DMA to SPU
+	SpuSetTransferMode(SPU_TRANSFER_BY_DMA);
+	SpuSetTransferStartAddr(audio_streamcontext.spu_addr + audio_streamcontext.spu_pos);
+	SpuWrite(sector, 2048);
+	audio_streamcontext.spu_pos += 2048;
+
+	//Start SPU IRQ if finished reading
+	if (audio_streamcontext.spu_pos >= CHUNK_SIZE)
+	{
+		switch (audio_streamcontext.state)
+		{
+			case Audio_StreamState_Ini:
+			{
+				//Update addresses
+				audio_streamcontext.spu_addr = BUFFER_START_ADDR + CHUNK_SIZE;
+				audio_streamcontext.spu_swap = 1;
+				audio_streamcontext.spu_pos = 0;
+				
+				//Set state
+				audio_streamcontext.state = Audio_StreamState_Play;
+				break;
+			}
+			case Audio_StreamState_Play:
+			{
+				//Stop and turn on SPU IRQ
+				SPU_IRQ_ADDR = SPU_RAM_ADDR(audio_streamcontext.spu_addr);
+				SPU_CTRL |= 0x0040;
+				
+				//Set state
+				audio_streamcontext.state = Audio_StreamState_Playing;
+				break;
+			}
+			case Audio_StreamState_Playing:
+			{
+				//Stop and turn on SPU IRQ
+				SPU_IRQ_ADDR = SPU_RAM_ADDR(audio_streamcontext.spu_addr);
+				SPU_CTRL |= 0x0040;
+				break;
+			}
+			default:
+				break;
+		}
+	}
+}
 
 void Audio_StreamIRQ_SPU(void)
 {
@@ -123,9 +177,7 @@ void Audio_StreamIRQ_SPU(void)
 		if (audio_streamcontext.cd_pos == audio_streamcontext.cd_length)
 		{
 			//Continue streaming from CD (wrap to prevent unintended errors)
-			CdlLOC pos;
-			CdIntToPos(audio_streamcontext.cd_lba, &pos);
-			CdControlF(CdlReadN, (u8*)&pos);
+			IO_ReadAudioChunk(audio_streamcontext.cd_lba, CHUNK_SIZE / 2048, &Audio_StreamCallback);
 			return;
 		}
 		else if (audio_streamcontext.cd_pos > audio_streamcontext.cd_length)
@@ -135,80 +187,12 @@ void Audio_StreamIRQ_SPU(void)
 			return;
 		}
 	}
-	
+
 	//Continue streaming from CD
-	CdlLOC pos;
-	CdIntToPos(audio_streamcontext.cd_lba + audio_streamcontext.cd_pos, &pos);
-	CdControlF(CdlReadN, (u8*)&pos);
-}
-
-static u8 read_sector[2048];
-
-void Audio_StreamIRQ_CD(int event, u8 *payload)
-{
-	(void)payload;
-	
-	//Don't run if stopped
-	if (audio_streamcontext.state == Audio_StreamState_Stopped)
-	{
-		CdControlF(CdlPause, NULL);
-		return;
-	}
-	
-	//Ignore all events other than a sector being ready
-	if (event != CdlDataReady)
-		return;
-	
-	//Fetch the sector that has been read from the drive
-	CdGetSector(read_sector, 2048 / 4);
-	audio_streamcontext.cd_pos++;
-	
-	//DMA to SPU
-	SpuSetTransferMode(SPU_TRANSFER_BY_DMA);
-	SpuSetTransferStartAddr(audio_streamcontext.spu_addr + audio_streamcontext.spu_pos);
-	audio_streamcontext.spu_pos += 2048;
-	
-	SpuWrite((const uint32_t *)read_sector, 2048);
-	
-	//Start SPU IRQ if finished reading
-	if (audio_streamcontext.spu_pos >= CHUNK_SIZE)
-	{
-		switch (audio_streamcontext.state)
-		{
-			case Audio_StreamState_Ini:
-			{
-				//Update addresses
-				audio_streamcontext.spu_addr = BUFFER_START_ADDR + CHUNK_SIZE;
-				audio_streamcontext.spu_swap = 1;
-				audio_streamcontext.spu_pos = 0;
-				
-				//Set state
-				audio_streamcontext.state = Audio_StreamState_Play;
-				break;
-			}
-			case Audio_StreamState_Play:
-			{
-				//Stop and turn on SPU IRQ
-				CdControlF(CdlPause, NULL);
-				SPU_IRQ_ADDR = SPU_RAM_ADDR(audio_streamcontext.spu_addr);
-				SPU_CTRL |= 0x0040;
-				
-				//Set state
-				audio_streamcontext.state = Audio_StreamState_Playing;
-				break;
-			}
-			case Audio_StreamState_Playing:
-			{
-				//Stop and turn on SPU IRQ
-				CdControlF(CdlPause, NULL);
-				SPU_IRQ_ADDR = SPU_RAM_ADDR(audio_streamcontext.spu_addr);
-				SPU_CTRL |= 0x0040;
-				break;
-			}
-			default:
-				break;
-		}
-	}
+	IO_ReadAudioChunk(
+		audio_streamcontext.cd_lba + audio_streamcontext.cd_pos,
+		CHUNK_SIZE / 2048, &Audio_StreamCallback
+	);
 }
 
 //Audio interface
@@ -263,12 +247,15 @@ void Audio_LoadMusFile(CdlFILE *file)
 {
 	//Stop playing mus
 	Audio_StopMus();
-	
+
 	//Read header
-	CdReadyCallback(NULL);
-	CdControl(CdlSetloc, (u8*)&file->pos, NULL);
-	CdRead(1, (uint32_t *)audio_streamcontext.header.d, CdlModeSpeed);
-	CdReadSync(0, NULL);
+	IO_ReadDataChunk(CdPosToInt(&file->pos), 1, (uint32_t *)audio_streamcontext.header.d);
+	IO_WaitRead();
+	printf(
+		"[Audio_LoadMusFile] Loaded %s (%d ch)\n",
+		file->name,
+		audio_streamcontext.header.s.channels
+	);
 	
 	//Reset context
 	audio_streamcontext.state = Audio_StreamState_Ini;
@@ -285,21 +272,19 @@ void Audio_LoadMusFile(CdlFILE *file)
 	audio_streamcontext.cd_lba = CdPosToInt(&file->pos) + 1;
 	audio_streamcontext.cd_length = ((file->size + 2047) >> 11) - 1;
 	audio_streamcontext.cd_pos = 0;
-	
+
 	//Setup SPU
 	Audio_Reset();
+
+	EnterCriticalSection();
 	InterruptCallback(9, &Audio_StreamIRQ_SPU);
-	
-	//Begin streaming from CD
-	u8 param[4];
-	param[0] = CdlModeSpeed;
-	CdControl(CdlSetmode, param, 0);
-	
-	CdlLOC pos;
-	CdIntToPos(audio_streamcontext.cd_lba + audio_streamcontext.cd_pos, &pos);
-	
-	CdReadyCallback(Audio_StreamIRQ_CD);
-	CdControlF(CdlReadN, (u8*)&pos);
+	IO_ReadAudioChunk(audio_streamcontext.cd_lba, CHUNK_SIZE / 2048 * 2, &Audio_StreamCallback);
+	ExitCriticalSection();
+}
+
+int Audio_GetLength()
+{
+	return audio_streamcontext.cd_length;
 }
 
 void Audio_LoadMus(const char *path)
@@ -317,7 +302,7 @@ void Audio_PlayMus(boolean loops)
 	//Wait for play state
 	while (audio_streamcontext.state != Audio_StreamState_Playing)
 		__asm__ volatile("");
-	
+
 	//Start timing
 	audio_streamcontext.timing_chunk = 0;
 	audio_streamcontext.timing_pos = 0;
@@ -325,18 +310,20 @@ void Audio_PlayMus(boolean loops)
 	
 	//Play keys
 	audio_streamcontext.loops = loops;
-	
-	u16 key_or = 0;
+	u32 key_or = 0x00ffffff >> (24 - audio_streamcontext.header.s.channels);
+
+	SPU_KEY_OFF = key_or;
+
 	for (int i = 0; i < audio_streamcontext.header.s.channels; i++)
 	{
 		SPU_CHANNELS[i].addr       = SPU_RAM_ADDR(BUFFER_START_ADDR + BUFFER_SIZE * i);
 		SPU_CHANNELS[i].loop_addr  = SPU_CHANNELS[i].addr + SPU_RAM_ADDR(CHUNK_SIZE);
 		SPU_CHANNELS[i].freq       = SAMPLE_RATE;
 		SPU_CHANNELS[i].adsr_param = 0x1fc080ff;
-		key_or |= (1 << i);
 	}
 
 	SPU_KEY_ON = key_or;
+	//Audio_StreamIRQ_SPU();
 }
 
 void Audio_StopMus(void)
@@ -347,8 +334,7 @@ void Audio_StopMus(void)
 	Audio_Reset();
 
 	//Reset CD
-	CdReadyCallback(NULL);
-	CdControlF(CdlPause, NULL);
+	IO_AbortAudioRead();
 }
 
 void Audio_SetVolume(u8 i, u16 vol_left, u16 vol_right)
@@ -374,11 +360,13 @@ boolean Audio_IsPlaying(void)
 
 /* .VAG file loader */
 #define VAG_HEADER_SIZE 48
-static int lastChannelUsed = 0;
+static int lastChannelUsed = 23;
 
 static int getFreeChannel(void) {
     int channel = lastChannelUsed;
-    lastChannelUsed = (channel + 1) % 24;
+    lastChannelUsed--;
+	if (lastChannelUsed < audio_streamcontext.header.s.channels)
+		lastChannelUsed = 23;
     return channel;
 }
 
@@ -400,9 +388,8 @@ u32 Audio_LoadVAGData(u32 *sound, u32 sound_size) {
 	audio_alloc_ptr += xfer_size;
 
 	if (audio_alloc_ptr > 0x80000) {
-		// TODO: add proper error handling code
-		printf("FATAL: SPU RAM overflow! (%d bytes overflowing)\n", audio_alloc_ptr - 0x80000);
-		while (1);
+		sprintf(error_msg, "[Audio_LoadVAGData] SPU RAM overflow");
+		ErrorLock();
 	}
 
 	SpuSetTransferStartAddr(addr); // set transfer starting address to malloced area
@@ -410,7 +397,7 @@ u32 Audio_LoadVAGData(u32 *sound, u32 sound_size) {
 	SpuWrite((uint32_t *)data + VAG_HEADER_SIZE, xfer_size); // perform actual transfer
 	SpuIsTransferCompleted(SPU_TRANSFER_WAIT); // wait for DMA to complete
 
-	printf("Allocated new sound (addr=%08x, size=%d)\n", addr, xfer_size);
+	printf("[Audio_LoadVAGData] Allocated new sound (addr=%08x size=%d)\n", addr, xfer_size);
 	return addr;
 }
 
@@ -429,6 +416,5 @@ void Audio_PlaySoundOnChannel(u32 addr, u32 channel, int volume) {
 
 void Audio_PlaySound(u32 addr, int volume) {
     Audio_PlaySoundOnChannel(addr, getFreeChannel(), volume);
-   // printf("Could not find free channel to play sound (addr=%08x)\n", addr);
 }
 

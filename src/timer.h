@@ -33,4 +33,7 @@ void StageTimer_Calculate();
 void StageTimer_Tick();
 void StageTimer_Draw();
 
+void Timer_StartProfile(void);
+int Timer_EndProfile(void);
+
 #endif

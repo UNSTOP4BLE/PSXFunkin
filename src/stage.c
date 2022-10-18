@@ -1427,6 +1427,8 @@ static void Stage_LoadMusic(void)
 	stage.interp_ms = 0;
 	stage.interp_speed = 0;
 	
+	timer.timer = Audio_GetLength();
+	
 	//Offset sing ends again
 	stage.player->sing_end += stage.note_scroll;
 	if (stage.player2 != NULL)
@@ -1478,7 +1480,6 @@ static void Stage_LoadState(void)
 		stage.player_state[i].score = 0;
 		stage.song_beat = 0;
 		timer.secondtimer = 0;
-	//	timer.timer = Audio_GetLength(stage.stage_def->music_track) - 1;
 		timer.timermin = 0;
 		strcpy(stage.player_state[i].accuracy_text, "Accuracy: ?");
 		strcpy(stage.player_state[i].miss_text, "Misses: 0");
@@ -1596,6 +1597,7 @@ void Stage_Load(StageId id, StageDiff difficulty, boolean story)
 	
 	//Test offset
 	stage.offset = 0;
+	printf("[Stage_Load] Done (id=%d)\n", id);
 }
 
 void Stage_Unload(void)
@@ -1857,8 +1859,14 @@ void Stage_Tick(void)
 						playing = true;
 
 						Audio_PlayMus(false);
-						Audio_SetVolume(0, 0x3FFF, 0x0000);
-						Audio_SetVolume(1, 0x0000, 0x3FFF);
+						if (stage.prefs.stereo) {
+							Audio_SetVolume(0, 0x3fff, 0x0000);
+							Audio_SetVolume(1, 0x0000, 0x3fff);
+						} else {
+							Audio_SetVolume(0, 0x1fff, 0x1fff);
+							Audio_SetVolume(1, 0x1fff, 0x1fff);
+						}
+						//Stage_StartVocal();
 						
 						//Update song time
 						stage.interp_ms = Audio_GetTime();
@@ -2020,8 +2028,8 @@ void Stage_Tick(void)
 			for (int i = 0; i < ((stage.mode >= StageMode_2P) ? 2 : 1); i++)
 			{
 				PlayerState *this = &stage.player_state[i];
-			
-				this->accuracy = (this->min_accuracy * 100) / (this->max_accuracy);
+				if (this->max_accuracy) // prevent division by zero
+					this->accuracy = (this->min_accuracy * 100) / (this->max_accuracy);
 
 				//Rank
 				if (this->accuracy == 100 && this->miss == 0)
