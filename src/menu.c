@@ -298,13 +298,6 @@ void Menu_Load(MenuPage page)
 	//Play menu music
 	Audio_LoadMus("\\MUSIC\\MENU.MUS;1");
 	Audio_PlayMus(true);
-	if (stage.prefs.stereo) {
-		Audio_SetVolume(0, 0x3fff, 0x0000);
-		Audio_SetVolume(1, 0x0000, 0x3fff);
-	} else {
-		Audio_SetVolume(0, 0x1fff, 0x1fff);
-		Audio_SetVolume(1, 0x1fff, 0x1fff);
-	}
 	
 	//Set background colour
 	Gfx_SetClear(0, 0, 0);

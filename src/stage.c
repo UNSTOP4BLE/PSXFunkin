@@ -1713,7 +1713,6 @@ static boolean Stage_NextLoad(void)
 
 static int deadtimer;
 static boolean inctimer;
-static fixed_t pause_scroll;
 
 void Stage_Tick(void)
 {
@@ -1724,6 +1723,7 @@ void Stage_Tick(void)
 	{
 		stage.pause_scroll = -1;
 		pad_state.press = false;
+		Audio_PauseMus();
 		stage.paused = true;
 	}
 
@@ -1875,13 +1875,6 @@ void Stage_Tick(void)
 						playing = true;
 
 						Audio_PlayMus(false);
-						if (stage.prefs.stereo) {
-							Audio_SetVolume(0, 0x3fff, 0x0000);
-							Audio_SetVolume(1, 0x0000, 0x3fff);
-						} else {
-							Audio_SetVolume(0, 0x1fff, 0x1fff);
-							Audio_SetVolume(1, 0x1fff, 0x1fff);
-						}
 						stage.flag &= ~STAGE_FLAG_VOCAL_ACTIVE;
 						Stage_StartVocal();
 						
@@ -2346,14 +2339,6 @@ void Stage_Tick(void)
 				Audio_LoadMus("\\MUSIC\\GOVER.MUS;1");
 			}
 
-			if (stage.prefs.stereo) {
-				Audio_SetVolume(0, 0x3fff, 0x0000);
-				Audio_SetVolume(1, 0x0000, 0x3fff);
-			} else {
-				Audio_SetVolume(0, 0x1fff, 0x1fff);
-				Audio_SetVolume(1, 0x1fff, 0x1fff);
-			}
-	
 			stage.player->set_anim(stage.player, PlayerAnim_Dead2);
 			stage.camera.td = FIXED_DEC(25, 1000);
 			stage.state = StageState_DeadDrop;

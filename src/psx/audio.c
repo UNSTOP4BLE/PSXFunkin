@@ -16,6 +16,7 @@
 
 #include "../timer.h"
 #include "../io.h"
+#include "../stage.h"
 
 //Audio constants
 #define SAMPLE_RATE 0x1000 //44100 Hz
@@ -325,6 +326,14 @@ void Audio_PlayMus(boolean loops)
 
 	SPU_KEY_ON = key_or;
 	//Audio_StreamIRQ_SPU();
+	if (stage.prefs.stereo) {
+		Audio_SetVolume(0, 0x3fff, 0x0000);
+		Audio_SetVolume(1, 0x0000, 0x3fff);
+	} else {
+		Audio_SetVolume(0, 0x1fff, 0x1fff);
+		Audio_SetVolume(1, 0x1fff, 0x1fff);
+	}
+
 }
 
 void Audio_StopMus(void)
@@ -340,7 +349,13 @@ void Audio_StopMus(void)
 
 void Audio_PauseMus()
 {	
-	//SPU_KEY_OFF = CHANNEL_MASK;
+	u32 key_or = 0x00ffffff >> (24 - audio_streamcontext.header.s.channels);
+	SPU_KEY_OFF = key_or;
+
+	for (int i = 0; i < 24; i++)
+		SPU_CH_ADDR(i) = SPU_RAM_ADDR(DUMMY_ADDR);
+
+	SPU_KEY_ON = key_or;
 }
 
 void Audio_SetVolume(u8 i, u16 vol_left, u16 vol_right)

@@ -20,7 +20,6 @@ typedef struct {
   	u8 saveData[7936];
 } SaveFile;
 
-
 void defaultSettings();
 boolean readSaveFile();
 void writeSaveFile();

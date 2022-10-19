@@ -25,12 +25,15 @@ void PausedState()
 		switch (pause_select)
 		{
 			case 0: //Resume
+				Audio_PlayMus(false);
 				stage.paused = false;
+				pause_select = 0;
 				break;
 			case 1: //Retry
 				stage.paused = false;
 				stage.trans = StageTrans_Reload;
 				Trans_Start();
+				pause_select = 0;
 				break;
 			case 2: //Settings
 				stage.pause_scroll = -1;
@@ -40,6 +43,7 @@ void PausedState()
 				stage.paused = false;
 				stage.trans = StageTrans_Menu;
 				Trans_Start();
+				pause_select = 0;
 				break;
 		}
 	}
