@@ -158,6 +158,8 @@
 				<file name = "6.1e.cht" type = "data" source = "iso/chart/senpai-easy.cht"/>
 				<file name = "6.1n.cht" type = "data" source = "iso/chart/senpai.cht"/>
 				<file name = "6.1h.cht" type = "data" source = "iso/chart/senpai-hard.cht"/>
+
+				<file name = "6.1_dlg.txt" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/week6/senpaidialogue.txt"/>
 				<!-- Roses charts -->
 				<file name = "6.2e.cht" type = "data" source = "iso/chart/roses-easy.cht"/>
 				<file name = "6.2n.cht" type = "data" source = "iso/chart/roses.cht"/>

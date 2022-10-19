@@ -1144,7 +1144,7 @@ void Menu_Tick(void)
 						}
 						break;	
 					case OptType_SubMenu:
-						if (pad_state.press & (PAD_CROSS | PAD_LEFT | PAD_RIGHT)) {
+						if (pad_state.press & (PAD_CROSS | PAD_START)) {
 							*((boolean*)menu_options[menu.select].value) ^= 1;
 							Trans_Start();
 						}

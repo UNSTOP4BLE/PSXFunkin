@@ -28,8 +28,7 @@ extern Timer timer;
 //Timer interface 
 void Timer_Init(void);
 void Timer_Tick(void);
-void Timer_Reset(void);
-void StageTimer_Calculate();
+void Timer_Reset(void); 
 void StageTimer_Tick();
 void StageTimer_Draw();
 

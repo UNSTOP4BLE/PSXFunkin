@@ -1420,8 +1420,6 @@ static void Stage_LoadMusic(void)
 	stage.interp_ms = 0;
 	stage.interp_speed = 0;
 	
-	timer.timer = Audio_GetLength();
-	
 	//Offset sing ends again
 	stage.player->sing_end += stage.note_scroll;
 	if (stage.player2 != NULL)
@@ -1473,6 +1471,7 @@ static void Stage_LoadState(void)
 		stage.player_state[i].score = 0;
 		stage.song_beat = 0;
 		timer.secondtimer = 0;
+		timer.timer = 0;
 		timer.timermin = 0;
 		strcpy(stage.player_state[i].accuracy_text, "Accuracy: ?");
 		strcpy(stage.player_state[i].miss_text, "Misses: 0");
@@ -2251,13 +2250,10 @@ void Stage_Tick(void)
 				stage.back->draw_bg(stage.back);
 			
 			if (stage.song_step > 0)
-			{
 				stage.song_beat = stage.song_step / 4;
 				
+			if (!stage.paused)	
 				StageTimer_Tick();
-			}
-			else
-				StageTimer_Calculate();
 
 			break;
 		}

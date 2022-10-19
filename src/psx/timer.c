@@ -9,6 +9,7 @@
 #include <hwregs_c.h>
 #include "../timer.h"
 #include "../stage.h"
+#include "../audio.h"
 
 //Timer state
 Timer timer;
@@ -106,35 +107,12 @@ void Timer_Reset(void)
 	timer_dt = 0;
 }
 
-void StageTimer_Calculate()
-{
-	//Calculate the minutes and seconds
-	if (timer.timer >= 60) {
-		timer.timermin ++;
-		timer.timer -= 60;
-	}	
-}
-
 void StageTimer_Tick()
 {
-	if (!stage.paused)
-	{
-		timer.secondtimer += timer_dt / 12;
-		if (stage.prefs.palmode ? timer.secondtimer >= 50 : timer.secondtimer >= 60)
-		{
-			timer.secondtimer = 0;
-			if (timer.timer <= 0)
-			{		
-				if (timer.timermin > 0)
-					timer.timermin --;
-				else
-					timer.timermin = 0;
-				timer.timer = 59;
-			}
-			else 
-				timer.timer --;
-		}
-	}
+	timer.timer = 1;	
+	if (timer.timer >= 60) {
+		timer.timermin ++;
+	}	
 }
 
 void StageTimer_Draw()
