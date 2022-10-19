@@ -18,8 +18,6 @@
 #include "font.h"
 #include "debug.h"
 
-#include "network.h"
-
 //Stage constants
 #define INPUT_LEFT  (PAD_LEFT  | PAD_SQUARE | PAD_L2)
 #define INPUT_DOWN  (PAD_DOWN  | PAD_CROSS | PAD_L1)
@@ -190,6 +188,7 @@ typedef struct
 	struct
 	{
 		boolean ghost, downscroll, middlescroll, practice, debug, palmode, widescreen, stereo, sfxmiss, songtimer, botplay;
+		s16 scr_x, scr_y;
 		int savescore[StageId_Max][3];
 	} prefs;
 	boolean paused;

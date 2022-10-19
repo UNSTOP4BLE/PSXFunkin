@@ -11,7 +11,6 @@
 #include "gfx.h"
 #include "audio.h"
 #include "pad.h"
-#include "network.h"
 
 #include "pause.h"
 #include "menu.h"
@@ -59,7 +58,6 @@ int main(int argc, char **argv)
 	ChangeClearPAD(0);
 	IO_Init();
 	Audio_Init();
-	Network_Init();
 	Timer_Init();
 
 	if (readSaveFile() == false)
@@ -109,7 +107,6 @@ int main(int argc, char **argv)
 	}
 	
 	//Deinitialize system
-	Network_Quit();
 	Pad_Quit();
 	Gfx_Quit();
 	Audio_Quit();

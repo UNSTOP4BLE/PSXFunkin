@@ -24,7 +24,7 @@ static u8 *nextpri;          //Next primitive pointer
 //Gfx functions
 void Gfx_Init(void)
 {
-	int width = stage.prefs.widescreen ? 384 : 320;
+	int width = stage.prefs.widescreen ? 512 : 320;
 
 	//Initialize display environment
 	SetDefDispEnv(&stage.disp[0], 0, 0, width, 240);
@@ -56,7 +56,7 @@ void Gfx_Init(void)
 }
 
 void Gfx_ScreenSetup(void) {
-	screen.SCREEN_WIDTH   = stage.prefs.widescreen ? 384 : 320;
+	screen.SCREEN_WIDTH   = stage.prefs.widescreen ? 512 : 320;
 	screen.SCREEN_HEIGHT  = 240;
 	screen.SCREEN_WIDTH2  = (screen.SCREEN_WIDTH >> 1);
 	screen.SCREEN_HEIGHT2 = (screen.SCREEN_HEIGHT >> 1);
@@ -77,6 +77,20 @@ void Gfx_ScreenSetup(void) {
 	SetVideoMode(stage.prefs.palmode ? MODE_PAL : MODE_NTSC);
 
 	Gfx_Init();
+
+	//screen borders
+	if (stage.prefs.widescreen)
+	{
+		if (stage.prefs.scr_x > 217)
+			stage.prefs.scr_x = 217;
+
+		if (stage.prefs.scr_x < -134)
+			stage.prefs.scr_x = -134;
+	}
+	stage.disp[0].screen.x = stage.prefs.scr_x;
+	stage.disp[1].screen.x = stage.prefs.scr_x;
+	stage.disp[0].screen.y = stage.prefs.scr_y;
+	stage.disp[1].screen.y = stage.prefs.scr_y;
 }
 
 void Gfx_Quit(void)

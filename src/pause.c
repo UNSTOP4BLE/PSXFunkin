@@ -93,7 +93,7 @@ void PausedState()
 	Gfx_BlendRect(&scr, 0, 0, 0, 0);
 }
 
-void OptionsState(int *note_x[8])
+void OptionsState(int note_x[8])
 {
 	static const char *stage_options[] = {
 		"BACK",

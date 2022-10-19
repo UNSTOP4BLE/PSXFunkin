@@ -15,7 +15,6 @@
 #include "pad.h"
 #include "archive.h"
 #include "mutil.h"
-#include "network.h"
 
 #include "font.h"
 #include "trans.h"
@@ -326,6 +325,8 @@ void Menu_ToStage(StageId id, StageDiff diff, boolean story)
 	Trans_Start();
 }
 
+boolean adjustscreen;
+
 void Menu_Tick(void)
 {
 	//Clear per-frame flags
@@ -347,8 +348,16 @@ void Menu_Tick(void)
 		menu.page_swap = true;
 		menu.page = menu.next_page;
 		menu.select = menu.next_select;
+
+		if (adjustscreen)
+		{	
+			if (menu.trans_time > 0 && (menu.trans_time -= timer_dt) <= 0)
+				Trans_Start();
+
+			menu.page = MenuPage_MoveSCR;
+		}
 	}
-	
+
 	//Tick menu page
 	MenuPage exec_page;
 	switch (exec_page = menu.page)
@@ -1049,6 +1058,7 @@ void Menu_Tick(void)
 				{
 					OptType_Boolean,
 					OptType_Enum,
+					OptType_SubMenu,
 				} type;
 				const char *text;
 				void *value;
@@ -1076,12 +1086,10 @@ void Menu_Tick(void)
 				{OptType_Boolean, "PRACTICE MODE", &stage.prefs.practice, {.spec_boolean = {0}}},
 				{OptType_Boolean, "WIDESCREEN", &stage.prefs.widescreen, {.spec_boolean = {0}}},
 				{OptType_Boolean, "STEREO AUDIO", &stage.prefs.stereo, {.spec_boolean = {0}}},
+				{OptType_SubMenu, "ADJUST SCREEN BORDERS", &adjustscreen, {.spec_boolean = {0}}},
 				{OptType_Boolean, "DEBUG MODE", &stage.prefs.debug, {.spec_boolean = {0}}},
 			};
 
-			if (stage.mode == StageMode_2P)
-				stage.prefs.middlescroll = false;
-			
 			//Initialize page
 			if (menu.page_swap)
 				menu.scroll = COUNT_OF(menu_options) * FIXED_DEC(24 + screen.SCREEN_HEIGHT2,1);
@@ -1141,6 +1149,12 @@ void Menu_Tick(void)
 								}
 							}
 						}
+						break;	
+					case OptType_SubMenu:
+						if (pad_state.press & (PAD_CROSS | PAD_LEFT | PAD_RIGHT)) {
+							*((boolean*)menu_options[menu.select].value) ^= 1;
+							Trans_Start();
+						}
 						break;
 					case OptType_Enum:
 						if (pad_state.press & PAD_LEFT)
@@ -1189,6 +1203,9 @@ void Menu_Tick(void)
 					case OptType_Enum:
 						sprintf(text, "%s %s", menu_options[i].text, menu_options[i].spec.spec_enum.strs[*((s32*)menu_options[i].value)]);
 						break;
+					case OptType_SubMenu:
+						sprintf(text, "%s", menu_options[i].text);
+						break;
 				}
 				menu.font_bold.draw(&menu.font_bold,
 					Menu_LowerIf(text, menu.select != i),
@@ -1217,6 +1234,66 @@ void Menu_Tick(void)
 			Stage_Load(menu.page_param.stage.id, menu.page_param.stage.diff, menu.page_param.stage.story);
 			gameloop = GameLoop_Stage;
 			LoadScr_End();
+			break;
+		}
+		case MenuPage_MoveSCR:
+		{
+			if (pad_state.held & PAD_LEFT && stage.prefs.scr_x > (stage.prefs.widescreen ? -134 : -150))
+			{
+				stage.prefs.scr_x --;
+			}
+			else if (pad_state.held & PAD_RIGHT && stage.prefs.scr_x < (stage.prefs.widescreen ? 217 : 233))
+			{
+				stage.prefs.scr_x ++;
+			}
+			else if (pad_state.held & PAD_UP && stage.prefs.scr_y > -16)
+			{
+				stage.prefs.scr_y --;
+			}
+			else if (pad_state.held & PAD_DOWN)
+			{
+				stage.prefs.scr_y ++;
+			}
+
+			stage.disp[0].screen.x = stage.prefs.scr_x;
+			stage.disp[1].screen.x = stage.prefs.scr_x;
+			stage.disp[0].screen.y = stage.prefs.scr_y;
+			stage.disp[1].screen.y = stage.prefs.scr_y;
+
+			//Return to options menu if circle is pressed
+			if (pad_state.press & PAD_CIRCLE)
+			{
+				adjustscreen = false;
+				//play cancel sound
+				Audio_PlaySound(Sounds[2], 0x3fff);
+				menu.next_page = MenuPage_Options;
+				Trans_Start();
+			}
+			//Draw background	
+			RECT save_src = {0, 121, 55, 7};
+			RECT save_dst = {screen.SCREEN_WIDTH / 2 - 53, screen.SCREEN_HEIGHT - 30, 53 * 2, 7 * 2};
+			Gfx_DrawTex(&menu.tex_story, &save_src, &save_dst);
+
+			if (pad_state.press & PAD_SELECT)
+				writeSaveFile();
+
+			RECT triangle_src = {56, 114, 15, 14};
+			RECT triangle_dst = {screen.SCREEN_WIDTH / 2 - 53, screen.SCREEN_HEIGHT - 15, 15, 14};
+			RECT reset_src = {74, 118, 42, 7};
+			RECT reset_dst = {screen.SCREEN_WIDTH / 2 - 19, screen.SCREEN_HEIGHT - 15, 42 * 2, 7 * 2};
+			Gfx_DrawTex(&menu.tex_story, &reset_src, &reset_dst);
+			Gfx_DrawTex(&menu.tex_story, &triangle_src, &triangle_dst);
+			if (pad_state.press & PAD_TRIANGLE)
+			{
+				stage.prefs.scr_x = stage.prefs.scr_y = 0;
+			}
+
+			Menu_DrawBack(
+				true,
+				8,
+				34 >> 1, 139 >> 1, 34 >> 1,
+				0, 0, 0
+			);
 			break;
 		}
 		default:

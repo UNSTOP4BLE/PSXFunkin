@@ -12,7 +12,6 @@
 #include "pad.h"
 #include "main.h"
 #include "random.h"
-#include "network.h"
 #include "mutil.h"
 #include "debug.h"
 #include "save.h"
@@ -1736,7 +1735,7 @@ void Stage_Tick(void)
 				PausedState();
 				break;
 			case 1:
-				OptionsState(&note_x);
+				OptionsState((int **)&note_x);
 				break;
 		}
 
