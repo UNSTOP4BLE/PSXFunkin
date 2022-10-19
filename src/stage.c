@@ -1857,9 +1857,7 @@ void Stage_Tick(void)
 			//Get song position
 			boolean playing;
 			fixed_t next_scroll;
-			
-			const fixed_t interp_int = FIXED_UNIT * 8 / 75;
-			
+		
 			if (!stage.paused)
 			{
 				if (stage.note_scroll < 0)
