@@ -25,7 +25,7 @@ void PausedState()
 		switch (pause_select)
 		{
 			case 0: //Resume
-				Audio_PlayMus(false);
+				Audio_ResumeXA();
 				stage.paused = false;
 				pause_select = 0;
 				break;
@@ -109,7 +109,6 @@ void OptionsState(int note_x[8])
 		"MIDDLESCROLL",
 		"SHOW SONG TIME",
 		"WIDESCREEN",
-		"STEREO AUDIO",
 		"DEBUG MODE"
 	};
 
@@ -177,18 +176,8 @@ void OptionsState(int note_x[8])
 				stage.prefs.widescreen = !stage.prefs.widescreen;
 				Gfx_ScreenSetup();
 				break;
-			case 9: //Stereo audio
-				stage.prefs.stereo = !stage.prefs.stereo;
-				
-				if (stage.prefs.stereo) {
-					Audio_SetVolume(0, 0x3fff, 0x0000);
-					Audio_SetVolume(1, 0x0000, 0x3fff);
-				} else {
-					Audio_SetVolume(0, 0x1fff, 0x1fff);
-					Audio_SetVolume(1, 0x1fff, 0x1fff);
-				}
 				break;
-			case 10: //Debug mode
+			case 9: //Debug mode
 				stage.prefs.debug = !stage.prefs.debug;
 				break;
 		}

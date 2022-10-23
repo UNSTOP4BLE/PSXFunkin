@@ -16,7 +16,7 @@
 //Loading screen functions
 void LoadScr_Start(void)
 {
-	Audio_StopMus();
+	Audio_StopXA();
 
 	//free all sounds it loaded before and make sure frame has been drawn
 	Audio_ClearAlloc();

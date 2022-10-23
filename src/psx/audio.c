@@ -1,30 +1,34 @@
- /*
+/*
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
-/*
-  The bulk of this code was written by spicyjpeg
-  (C) 2021 spicyjpeg
-*/
-
 #include "../audio.h"
-#include "../main.h"
 #include <hwregs_c.h>
-#include <stdlib.h> 
+#include <stdlib.h>
 
-#include "../timer.h"
 #include "../io.h"
-#include "../stage.h"
+#include "../main.h"
 
-//Audio constants
-#define SAMPLE_RATE 0x1000 //44100 Hz
+//XA state
+#define XA_STATE_INIT    (1 << 0)
+#define XA_STATE_PLAYING (1 << 1)
+#define XA_STATE_LOOPS   (1 << 2)
+#define XA_STATE_SEEKING (1 << 3)
+static u8 xa_state, xa_resync, xa_volume, xa_channel;
+static u32 xa_pos, xa_start, xa_end;
 
+//audio stuff
 #define BUFFER_SIZE (13 << 11) //13 sectors
-#define CHUNK_SIZE (BUFFER_SIZE * audio_streamcontext.header.s.channels)
+#define CHUNK_SIZE (BUFFER_SIZE)
+#define CHUNK_SIZE_MAX (BUFFER_SIZE * 4) // there are never more than 4 channels
 
 #define BUFFER_TIME FIXED_DEC(((BUFFER_SIZE * 28) / 16), 44100)
+
+#define BUFFER_START_ADDR 0x1010
+#define DUMMY_ADDR (BUFFER_START_ADDR + (CHUNK_SIZE_MAX * 2))
+#define ALLOC_START_ADDR (BUFFER_START_ADDR + (CHUNK_SIZE_MAX * 2) + 64)
 
 //SPU registers
 typedef struct
@@ -41,174 +45,129 @@ typedef struct
 #define SPU_CHANNELS    ((volatile Audio_SPUChannel*)0x1f801c00)
 #define SPU_RAM_ADDR(x) ((u16)(((u32)(x)) >> 3))
 
-#define DUMMY_ADDR 0x1000
-#define BUFFER_START_ADDR 0x1040
+static volatile u32 audio_alloc_ptr = 0;
 
-#define CHUNK_SIZE_MAX (BUFFER_SIZE * 4) // there are never more than 4 channels
-#define ALLOC_START_ADDR (BUFFER_START_ADDR + (CHUNK_SIZE_MAX * 2))
-//Audio streaming
-typedef struct
+//XA files and tracks
+static CdlFILE xa_files[XA_Max];
+
+#include "../audio_def.h"
+
+static void IO_SeekFile(CdlFILE *file)
 {
-	//CD state
-	enum
-	{
-		Audio_StreamState_Stopped,
-		Audio_StreamState_Ini,
-		Audio_StreamState_Play,
-		Audio_StreamState_Playing,
-	} state;
-	boolean loops;
-	
-	u32 cd_lba;
-	u32 cd_length;
-	u32 cd_pos;
-	
-	//SPU state
-	u32 spu_addr;
-	u32 spu_pos;
-	u32 spu_swap;
-	
-	//Timing state
-	u32 timing_chunk;
-	fixed_t timing_pos, timing_start;
-	
-	//Header
-	union
-	{
-		struct
-		{
-			u8 channels;
-		} s;
-		u8 d[2048];
-	} header;
-} Audio_StreamContext;
-
-static volatile Audio_StreamContext audio_streamcontext;
-static volatile u32 audio_alloc_ptr = ALLOC_START_ADDR;
-
-void Audio_StreamCallback(u32 *sector) {
-	
-	//Don't run if stopped
-	if (audio_streamcontext.state == Audio_StreamState_Stopped)
-		return;
-
-	audio_streamcontext.cd_pos++;
-	
-	//DMA to SPU
-	SpuSetTransferMode(SPU_TRANSFER_BY_DMA);
-	SpuSetTransferStartAddr(audio_streamcontext.spu_addr + audio_streamcontext.spu_pos);
-	SpuWrite((uint32_t *)sector, 2048);
-	audio_streamcontext.spu_pos += 2048;
-
-	//Start SPU IRQ if finished reading
-	if (audio_streamcontext.spu_pos >= CHUNK_SIZE)
-	{
-		switch (audio_streamcontext.state)
-		{
-			case Audio_StreamState_Ini:
-			{
-				//Update addresses
-				audio_streamcontext.spu_addr = BUFFER_START_ADDR + CHUNK_SIZE;
-				audio_streamcontext.spu_swap = 1;
-				audio_streamcontext.spu_pos = 0;
-				
-				//Set state
-				audio_streamcontext.state = Audio_StreamState_Play;
-				break;
-			}
-			case Audio_StreamState_Play:
-			{
-				//Stop and turn on SPU IRQ
-				SPU_IRQ_ADDR = SPU_RAM_ADDR(audio_streamcontext.spu_addr);
-				SPU_CTRL |= 0x0040;
-				
-				//Set state
-				audio_streamcontext.state = Audio_StreamState_Playing;
-				break;
-			}
-			case Audio_StreamState_Playing:
-			{
-				//Stop and turn on SPU IRQ
-				SPU_IRQ_ADDR = SPU_RAM_ADDR(audio_streamcontext.spu_addr);
-				SPU_CTRL |= 0x0040;
-				break;
-			}
-			default:
-				break;
-		}
-	}
+	//Seek to file position
+	CdControl(CdlSetloc, (u8*)&file->pos, NULL);
+	CdControlB(CdlSeekL, NULL, NULL);
 }
 
-void Audio_StreamIRQ_SPU(void)
+u32 Audio_GetLength(XA_Track lengthtrack)
 {
-	//Disable SPU IRQ until we've finished streaming more data
-	SPU_CTRL &= 0xffbf;
-
-	//Don't run if stopped
-	if (audio_streamcontext.state == Audio_StreamState_Stopped)
-		return;
-	
-	//Update timing state
-	audio_streamcontext.timing_chunk++;
-	audio_streamcontext.timing_pos = (audio_streamcontext.timing_chunk << FIXED_SHIFT) * (BUFFER_SIZE / 16) / 1575;
-	audio_streamcontext.timing_start = timer_sec;
-	
-	//Update addresses
-	if ((audio_streamcontext.spu_swap ^= 1) != 0)
-		audio_streamcontext.spu_addr = BUFFER_START_ADDR + CHUNK_SIZE;
-	else
-		audio_streamcontext.spu_addr = BUFFER_START_ADDR;
-	audio_streamcontext.spu_pos = 0;
-	
-	for (int i = 0; i < audio_streamcontext.header.s.channels; i++)
-		SPU_CHANNELS[i].loop_addr = SPU_RAM_ADDR(audio_streamcontext.spu_addr + BUFFER_SIZE * i);
-	
-	//Check for loop
-	if (audio_streamcontext.loops)
-	{
-		//Return to beginning of mus
-		if (audio_streamcontext.cd_pos >= audio_streamcontext.cd_length)
-		{
-			audio_streamcontext.timing_pos = 0;
-			audio_streamcontext.cd_pos = 0;
-		}
-	}
-	else
-	{
-		//Stop playing
-		if (audio_streamcontext.cd_pos == audio_streamcontext.cd_length)
-		{
-			//Continue streaming from CD (wrap to prevent unintended errors)
-			IO_ReadAudioChunk(audio_streamcontext.cd_lba, CHUNK_SIZE / 2048, &Audio_StreamCallback);
-			return;
-		}
-		else if (audio_streamcontext.cd_pos > audio_streamcontext.cd_length)
-		{
-			//Stop playing
-			Audio_StopMus();
-			return;
-		}
-	}
-
-	//Continue streaming from CD
-	IO_ReadAudioChunk(
-		audio_streamcontext.cd_lba + audio_streamcontext.cd_pos,
-		CHUNK_SIZE / 2048, &Audio_StreamCallback
-	);
+	return (xa_tracks[lengthtrack].length / 75) / IO_SECT_SIZE;
 }
 
-//Audio interface
+//Internal XA functions
+static u8 XA_BCD(u8 x)
+{
+	return x - 6 * (x >> 4);
+}
+
+static u32 XA_TellSector(void)
+{
+	u8 result[8];
+	CdControl(CdlGetlocP, NULL, result);
+	return (XA_BCD(result[2]) * 75 * 60) + (XA_BCD(result[3]) * 75) + XA_BCD(result[4]);
+}
+
+static void XA_SetVolume(u8 x)
+{
+	//Set CD mix volume
+	CdlATV cd_vol;
+	xa_volume = cd_vol.val0 = cd_vol.val1 = cd_vol.val2 = cd_vol.val3 = x;
+	CdMix(&cd_vol);
+}
+
+static void XA_Init(void)
+{
+	u8 param[4];
+	
+	//Set XA state
+	if (xa_state & XA_STATE_INIT)
+		return;
+	xa_state = XA_STATE_INIT;
+	xa_resync = 0;
+
+	//Set volume
+	SPU_CD_VOL_L = 0x6000;
+	SPU_CD_VOL_R = 0x6000;
+
+	//Set initial volume
+	XA_SetVolume(0);
+	
+	//Prepare CD drive for XA reading
+	param[0] = CdlModeRT | CdlModeSF | CdlModeSize;
+	
+	CdControl(CdlSetmode, param, NULL);
+	CdControlB(CdlPause, NULL, NULL);
+}
+
+static void XA_Quit(void)
+{
+	//Set XA state
+	if (!(xa_state & XA_STATE_INIT))
+		return;
+	xa_state = 0;
+	
+	//Stop playing XA
+	XA_SetVolume(0);
+	CdControlB(CdlPause, NULL, NULL);
+}
+
+static void XA_Play(u32 start)
+{
+	//Play at given position
+	CdlLOC cd_loc;
+	CdIntToPos(start, &cd_loc);
+	CdControl(CdlSetloc, (u8*)&cd_loc, NULL);
+	CdControl(CdlReadS, NULL, NULL);
+}
+
+static void XA_Pause(void)
+{
+	//Set XA state
+	if (!(xa_state & XA_STATE_PLAYING))
+		return;
+	xa_state &= ~XA_STATE_PLAYING;
+	
+	//Pause playback
+	CdControlB(CdlPause, NULL, NULL);
+}
+
+static void XA_SetFilter(u8 channel)
+{
+	//Change CD filter
+	CdlFILTER filter;
+	filter.file = 1;
+	xa_channel = filter.chan = channel;
+	CdControlF(CdlSetfilter, (u8*)&filter);
+}
+
+//Audio functions
 void Audio_Init(void)
 {
 	//Initialize SPU
 	SpuInit();
+	Audio_ClearAlloc();
 	
 	//Set volume (this is done by default but i just put it here cus why not)
 	SPU_MASTER_VOL_L = 0x3fff;
 	SPU_MASTER_VOL_R = 0x3fff;
 	
-	//Reset context
-	audio_streamcontext.timing_start = -1;
+	//Set XA state
+	xa_state = 0;
+	
+	//Get file positions
+	CdlFILE *filep = xa_files;
+	for (const char **pathp = xa_paths; *pathp != NULL; pathp++)
+		IO_FindFile(filep++, *pathp);
 }
 
 void Audio_Quit(void)
@@ -216,178 +175,212 @@ void Audio_Quit(void)
 	
 }
 
-void Audio_Reset(void)
+static void Audio_GetXAFile(CdlFILE *file, XA_Track track)
 {
-	//Reset SPU
-	//InterruptCallback(9, NULL);
-	SPU_CTRL &= 0xffbf;
-	
-	//Upload dummy block (not needed, psn00b already does this)
-	/*static u8 dummy[64] = {0, 5};
-	
-	SpuSetTransferMode(SPU_TRANSFER_BY_DMA);
-	SpuSetTransferStartAddr(DUMMY_ADDR);
-	SpuWrite((const uint32_t *)dummy, sizeof(dummy));
-	SpuIsTransferCompleted(SPU_TRANSFER_WAIT);*/
-	
-	//Reset keys
-	SPU_KEY_OFF = 0x00FFFFFF;
-
-	for (int i = 0; i < 24; i++)
-	{
-		SPU_CHANNELS[i].vol_left   = 0x0000;
-		SPU_CHANNELS[i].vol_right  = 0x0000;
-		SPU_CHANNELS[i].addr       = SPU_RAM_ADDR(DUMMY_ADDR);
-		SPU_CHANNELS[i].freq       = 0x1000;
-		SPU_CHANNELS[i].adsr_param = 0x1fc080ff;
-	}
-
-	SPU_KEY_ON = 0x00FFFFFF;
+	const XA_TrackDef *track_def = &xa_tracks[track];
+	file->pos = xa_files[track_def->file].pos;
+	file->size = track_def->length;
 }
 
-void Audio_LoadMusFile(CdlFILE *file)
+static void Audio_PlayXA_File(CdlFILE *file, u8 volume, u8 channel, boolean loop)
 {
-	//Stop playing mus
-	Audio_StopMus();
-
-	//Read header
-	IO_ReadDataChunk(CdPosToInt(&file->pos), 1, (u32 *)audio_streamcontext.header.d);
-	IO_WaitRead();
-	printf(
-		"[Audio_LoadMusFile] Loaded %s (%d ch)\n",
-		file->name,
-		audio_streamcontext.header.s.channels
-	);
+	//Initialize XA system and stop previous song
+	XA_Init();
+	XA_SetVolume(0);
 	
-	//Reset context
-	audio_streamcontext.state = Audio_StreamState_Ini;
+	//Set XA state
+	xa_start = xa_pos = CdPosToInt(&file->pos);
+	xa_end = xa_start + (file->size / IO_SECT_SIZE) - 1;
+	xa_state = XA_STATE_INIT | XA_STATE_PLAYING | XA_STATE_SEEKING;
+	xa_resync = 0;
+	if (loop)
+		xa_state |= XA_STATE_LOOPS;
 	
-	audio_streamcontext.timing_chunk = 0;
-	audio_streamcontext.timing_pos = 0;
-	audio_streamcontext.timing_start = -1;
-	
-	audio_streamcontext.spu_addr = BUFFER_START_ADDR;
-	audio_streamcontext.spu_swap = 0;
-	audio_streamcontext.spu_pos = 0;
-	
-	//Use mus file
-	audio_streamcontext.cd_lba = CdPosToInt(&file->pos) + 1;
-	audio_streamcontext.cd_length = ((file->size + 2047) >> 11) - 1;
-	audio_streamcontext.cd_pos = 0;
-
-	//Setup SPU
-	Audio_Reset();
-
-	EnterCriticalSection();
-	InterruptCallback(9, &Audio_StreamIRQ_SPU);
-	IO_ReadAudioChunk(audio_streamcontext.cd_lba, CHUNK_SIZE / 2048 * 2, &Audio_StreamCallback);
-	ExitCriticalSection();
+	//Start seeking to XA and use parameters
+	IO_SeekFile(file);
+	XA_SetFilter(channel);
+	XA_SetVolume(volume);
 }
 
-int Audio_GetLength()
+void Audio_PlayXA_Track(XA_Track track, u8 volume, u8 channel, boolean loop)
 {
-	return (audio_streamcontext.cd_length / audio_streamcontext.header.s.channels) * 0xe00 * 1 / 44100;
-}
-
-void Audio_LoadMus(const char *path)
-{
-	//Find requested file
+	//Get track information
 	CdlFILE file;
-	IO_FindFile(&file, path);
-	
-	//Load found file
-	Audio_LoadMusFile(&file);
+	Audio_GetXAFile(&file, track);
+
+	//Play track
+	Audio_PlayXA_File(&file, volume, channel, loop);
 }
 
-void Audio_PlayMus(boolean loops)
+void Audio_SeekXA_Track(XA_Track track)
 {
-	//Wait for play state
-	while (audio_streamcontext.state != Audio_StreamState_Playing)
-		__asm__ volatile("");
+	//Get track file and seek
+	CdlFILE file;
+	Audio_GetXAFile(&file, track);
+	IO_SeekFile(&file);
+}
 
-	//Start timing
-	audio_streamcontext.timing_chunk = 0;
-	audio_streamcontext.timing_pos = 0;
-	audio_streamcontext.timing_start = timer_sec;
-	
-	//Play keys
-	audio_streamcontext.loops = loops;
-	u32 key_or = 0x00ffffff >> (24 - audio_streamcontext.header.s.channels);
+void Audio_PauseXA(void)
+{
+	//Pause playing XA file
+	XA_Pause();
+}
 
-	SPU_KEY_OFF = key_or;
+void Audio_ResumeXA(void)
+{
+	if (xa_state & XA_STATE_PLAYING)
+		return;
+	xa_state |= XA_STATE_PLAYING;
 
-	for (int i = 0; i < audio_streamcontext.header.s.channels; i++)
+	XA_Play(xa_pos);
+}
+
+void Audio_StopXA(void)
+{
+	//Deinitialize XA system
+	XA_Quit();
+}
+
+void Audio_ChannelXA(u8 channel)
+{
+	//Set XA filter to the given channel
+	XA_SetFilter(channel);
+}
+
+s32 Audio_TellXA_Sector(void)
+{
+	//Get CD position
+	return (s32)xa_pos - (s32)xa_start; //Meh casting
+}
+
+s32 Audio_TellXA_Milli(void)
+{
+	return ((s32)xa_pos - (s32)xa_start) * 1000 / 75; //1000 / (75 * speed (1x))
+}
+
+boolean Audio_PlayingXA(void)
+{
+	return (xa_state & XA_STATE_PLAYING) != 0;
+}
+
+void Audio_WaitPlayXA(void)
+{
+	while (1)
 	{
-		SPU_CHANNELS[i].addr       = SPU_RAM_ADDR(BUFFER_START_ADDR + BUFFER_SIZE * i);
-		SPU_CHANNELS[i].loop_addr  = SPU_CHANNELS[i].addr + SPU_RAM_ADDR(CHUNK_SIZE);
-		SPU_CHANNELS[i].freq       = SAMPLE_RATE;
-		SPU_CHANNELS[i].adsr_param = 0x1fc080ff;
+		Audio_ProcessXA();
+		if (Audio_PlayingXA())
+			return;
+		VSync(0);
 	}
+}
 
-	SPU_KEY_ON = key_or;
-	//Audio_StreamIRQ_SPU();
-	if (stage.prefs.stereo) {
-		Audio_SetVolume(0, 0x3fff, 0x0000);
-		Audio_SetVolume(1, 0x0000, 0x3fff);
-	} else {
-		Audio_SetVolume(0, 0x1fff, 0x1fff);
-		Audio_SetVolume(1, 0x1fff, 0x1fff);
+void Audio_ProcessXA(void)
+{
+	//Handle playing state
+	if (xa_state & XA_STATE_PLAYING)
+	{
+		//Retrieve CD status
+		CdControl(CdlNop, NULL, NULL);
+		u8 cd_status = CdStatus();
+		
+		//Handle resync timer
+		if (xa_resync != 0)
+		{
+			//Wait for resync timer
+			if (--xa_resync != 0)
+				return;
+			
+			//Check if we're in a proper state
+			if (cd_status & CdlStatShellOpen)
+				return;
+			
+			//Attempt to get CD drive active
+			while (1)
+			{
+				CdControl(CdlNop, NULL, NULL);
+				cd_status = CdStatus();
+				if (cd_status & CdlStatStandby)
+					break;
+			}
+			
+			//Re-initialize XA system
+			u8 prev_state = xa_state;
+			XA_Init();
+			xa_state = prev_state;
+			
+			XA_SetFilter(xa_channel);
+			XA_SetVolume(xa_volume);
+			
+			//Get new CD status
+			CdControl(CdlNop, NULL, NULL);
+			cd_status = CdStatus();
+		}
+		
+		//Check CD status for issues
+		if (cd_status & CdlStatShellOpen)
+		{
+			//Seek just ahead of last reported valid position
+			if (!(xa_state & XA_STATE_SEEKING))
+			{
+				xa_pos++;
+				xa_state |= XA_STATE_SEEKING;
+			}
+			
+			//Wait a moment before attempting the actual resync
+			xa_resync = 60;
+			return;
+		}
+		
+		//Handle seeking state
+		if (xa_state & XA_STATE_SEEKING)
+		{
+			//Check if CD is still seeking to the XA's beginning
+			if (!(cd_status & CdlStatSeek))
+			{
+				//Stopped seeking
+				xa_state &= ~XA_STATE_SEEKING;
+				XA_Play(xa_pos);
+			}
+			else
+			{
+				//Still seeking
+				return;
+			}
+		}
+		
+		//Get CD position
+		u32 next_pos = XA_TellSector();
+		if (next_pos > xa_pos)
+			xa_pos = next_pos;
+		
+		//Check position
+		if (xa_pos >= xa_end)
+		{
+			if (xa_state & XA_STATE_LOOPS)
+			{
+				//Reset XA playback
+				CdlLOC cd_loc;
+				CdIntToPos(xa_pos = xa_start, &cd_loc);
+				CdControl(CdlSetloc, (u8*)&cd_loc, NULL);
+				CdControlB(CdlSeekL, NULL, NULL);
+				xa_state |= XA_STATE_SEEKING;
+			}
+			else
+			{
+				//Stop XA playback
+				Audio_StopXA();
+			}
+		}
 	}
-
-}
-
-void Audio_StopMus(void)
-{
-	//Reset context
-	audio_streamcontext.state = Audio_StreamState_Stopped;
-
-	Audio_Reset();
-
-	//Reset CD
-	IO_AbortAudioRead();
-}
-
-void Audio_PauseMus()
-{	
-	u32 key_or = 0x00ffffff >> (24 - audio_streamcontext.header.s.channels);
-	SPU_KEY_OFF = key_or;
-
-	for (int i = 0; i < 24; i++)
-		SPU_CH_ADDR(i) = SPU_RAM_ADDR(DUMMY_ADDR);
-
-	SPU_KEY_ON = key_or;
-}
-
-void Audio_SetVolume(u8 i, u16 vol_left, u16 vol_right)
-{
-	SPU_CHANNELS[i].vol_left = vol_left;
-	SPU_CHANNELS[i].vol_right = vol_right;
-}
-
-fixed_t Audio_GetTime(void)
-{
-	if (audio_streamcontext.timing_pos < 0 || audio_streamcontext.timing_start < 0)
-		return 0;
-	fixed_t dt = timer_sec - audio_streamcontext.timing_start;
-	if (dt > BUFFER_TIME)
-		return audio_streamcontext.timing_pos + BUFFER_TIME;
-	return audio_streamcontext.timing_pos + dt;
-}
-
-boolean Audio_IsPlaying(void)
-{
-	return audio_streamcontext.state != Audio_StreamState_Stopped;
 }
 
 /* .VAG file loader */
 #define VAG_HEADER_SIZE 48
-static int lastChannelUsed = 23;
+static int lastChannelUsed = 0;
 
 static int getFreeChannel(void) {
     int channel = lastChannelUsed;
-    lastChannelUsed--;
-	if (lastChannelUsed < audio_streamcontext.header.s.channels)
-		lastChannelUsed = 23;
+    lastChannelUsed = (channel + 1) % 24;
     return channel;
 }
 
@@ -409,8 +402,9 @@ u32 Audio_LoadVAGData(u32 *sound, u32 sound_size) {
 	audio_alloc_ptr += xfer_size;
 
 	if (audio_alloc_ptr > 0x80000) {
-		sprintf(error_msg, "[Audio_LoadVAGData] SPU RAM overflow");
-		ErrorLock();
+		// TODO: add proper error handling code
+		printf("FATAL: SPU RAM overflow! (%d bytes overflowing)\n", audio_alloc_ptr - 0x80000);
+		while (1);
 	}
 
 	SpuSetTransferStartAddr(addr); // set transfer starting address to malloced area
@@ -418,7 +412,7 @@ u32 Audio_LoadVAGData(u32 *sound, u32 sound_size) {
 	SpuWrite((uint32_t *)data + VAG_HEADER_SIZE, xfer_size); // perform actual transfer
 	SpuIsTransferCompleted(SPU_TRANSFER_WAIT); // wait for DMA to complete
 
-	printf("[Audio_LoadVAGData] Allocated new sound (addr=%08x size=%d)\n", addr, xfer_size);
+	printf("Allocated new sound (addr=%08x, size=%d)\n", addr, xfer_size);
 	return addr;
 }
 
@@ -429,7 +423,7 @@ void Audio_PlaySoundOnChannel(u32 addr, u32 channel, int volume) {
 	SPU_CHANNELS[channel].vol_right  = volume;
 	SPU_CHANNELS[channel].addr       = SPU_RAM_ADDR(addr);
 	SPU_CHANNELS[channel].loop_addr  = SPU_RAM_ADDR(DUMMY_ADDR);
-	SPU_CHANNELS[channel].freq       = SAMPLE_RATE; // 44100 Hz
+	SPU_CHANNELS[channel].freq       = 0x1000; // 44100 Hz
 	SPU_CHANNELS[channel].adsr_param = 0x1fc080ff;
 
 	SPU_KEY_ON = (1 << channel);
@@ -437,6 +431,7 @@ void Audio_PlaySoundOnChannel(u32 addr, u32 channel, int volume) {
 
 void Audio_PlaySound(u32 addr, int volume) {
     Audio_PlaySoundOnChannel(addr, getFreeChannel(), volume);
+   // printf("Could not find free channel to play sound (addr=%08x)\n", addr);
 }
 
 u32 Audio_LoadSound(const char *path)

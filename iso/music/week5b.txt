@@ -1,0 +1,4 @@
+1 xa ${PROJECT_BINARY_DIR}/iso/music/winter-horrorland/Vocals.xa 1 0
+1 xa ${PROJECT_BINARY_DIR}/iso/music/winter-horrorland/Inst.xa 1 1
+1 null
+1 null

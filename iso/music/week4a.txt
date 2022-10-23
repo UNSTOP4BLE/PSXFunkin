@@ -1,0 +1,4 @@
+1 xa ${PROJECT_BINARY_DIR}/iso/music/satin-panties/Vocals.xa 1 0
+1 xa ${PROJECT_BINARY_DIR}/iso/music/satin-panties/Inst.xa 1 1
+1 xa ${PROJECT_BINARY_DIR}/iso/music/high/Vocals.xa 1 2
+1 xa ${PROJECT_BINARY_DIR}/iso/music/high/Inst.xa 1 3

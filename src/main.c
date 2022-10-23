@@ -29,8 +29,6 @@ char error_msg[0x200];
 
 void ErrorLock(void)
 {
-	Audio_Reset();
-
 	while (1)
 	{
 		FntPrint(-1, "A fatal error has occured:\n\n%s\n", error_msg);
@@ -76,6 +74,7 @@ int main(int argc, char **argv)
 
 		//Prepare frame
 		Timer_Tick();
+		Audio_ProcessXA();
 		Pad_Update();
 
 		//Tick and draw game

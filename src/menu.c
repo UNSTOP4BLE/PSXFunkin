@@ -296,8 +296,8 @@ void Menu_Load(MenuPage page)
     Sounds[2] = Audio_LoadSound("\\SOUNDS\\CANCEL.VAG;1");
 
 	//Play menu music
-	Audio_LoadMus("\\MUSIC\\MENU.MUS;1");
-	Audio_PlayMus(true);
+	Audio_PlayXA_Track(XA_GettinFreaky, 0x40, 0, 1);
+	Audio_ResumeXA();
 	
 	//Set background colour
 	Gfx_SetClear(0, 0, 0);
@@ -326,7 +326,7 @@ void Menu_Tick(void)
 	stage.flag &= ~STAGE_FLAG_JUST_STEP;
 	
 	//Get song position
-	u16 next_step = Audio_GetTime() / FIXED_DEC(15, 102);
+	u16 next_step = Audio_TellXA_Milli();
 	if (next_step != stage.song_step)
 	{
 		if (next_step >= stage.song_step)
@@ -1078,7 +1078,6 @@ void Menu_Tick(void)
 				{OptType_Boolean, "SHOW SONG TIME", &stage.prefs.songtimer, {.spec_boolean = {0}}},
 				{OptType_Boolean, "PRACTICE MODE", &stage.prefs.practice, {.spec_boolean = {0}}},
 				{OptType_Boolean, "WIDESCREEN", &stage.prefs.widescreen, {.spec_boolean = {0}}},
-				{OptType_Boolean, "STEREO AUDIO", &stage.prefs.stereo, {.spec_boolean = {0}}},
 				{OptType_SubMenu, "ADJUST SCREEN BORDERS", &adjustscreen, {.spec_boolean = {0}}},
 				{OptType_Boolean, "DEBUG MODE", &stage.prefs.debug, {.spec_boolean = {0}}},
 			};
@@ -1130,17 +1129,8 @@ void Menu_Tick(void)
 							*((boolean*)menu_options[menu.select].value) ^= 1;
 
 							// this shit needs to go
-							if ((menu.select == 1) || (menu.select == 9)) {
+							if ((menu.select == 1) || (menu.select == 9))
 								Gfx_ScreenSetup();
-							} else if (menu.select == 10) {
-								if (stage.prefs.stereo) {
-									Audio_SetVolume(0, 0x3fff, 0x0000);
-									Audio_SetVolume(1, 0x0000, 0x3fff);
-								} else {
-									Audio_SetVolume(0, 0x1fff, 0x1fff);
-									Audio_SetVolume(1, 0x1fff, 0x1fff);
-								}
-							}
 						}
 						break;	
 					case OptType_SubMenu:

@@ -96,6 +96,8 @@ void IO_Quit(void)
 
 void IO_FindFile(CdlFILE *file, const char *path)
 {
+
+	printf("ye\n");
 	if (data_sectors_pending || audio_sectors_pending) {
 		sprintf(
 			error_msg,
@@ -105,7 +107,11 @@ void IO_FindFile(CdlFILE *file, const char *path)
 		ErrorLock();
 	}
 
-	// TODO: make sure it's not called during audio playback
+	printf("ye\n");
+	//Stop XA playback
+	Audio_StopXA();
+	
+	printf("ye\n");
 	printf("[IO_FindFile] Searching for %s\n", path);
 	
 	//Search for file
@@ -114,10 +120,15 @@ void IO_FindFile(CdlFILE *file, const char *path)
 		sprintf(error_msg, "[IO_FindFile] %s not found", path);
 		ErrorLock();
 	}
+	
+	printf("ye\n");
 }
 
 IO_Data IO_AsyncReadFile(CdlFILE *file)
 {	
+	//Stop XA playback
+	Audio_StopXA();
+	
 	//Get number of sectors for the file
 	size_t sects = (file->size + IO_SECT_SIZE - 1) / IO_SECT_SIZE;
 	

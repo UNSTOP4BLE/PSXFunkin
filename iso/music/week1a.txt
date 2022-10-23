@@ -1,0 +1,4 @@
+1 xa ${PROJECT_BINARY_DIR}/iso/music/bopeebo/Vocals.xa 1 0
+1 xa ${PROJECT_BINARY_DIR}/iso/music/bopeebo/Inst.xa 1 1
+1 xa ${PROJECT_BINARY_DIR}/iso/music/fresh/Vocals.xa 1 2
+1 xa ${PROJECT_BINARY_DIR}/iso/music/fresh/Inst.xa 1 3

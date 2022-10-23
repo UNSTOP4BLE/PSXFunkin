@@ -1,0 +1,4 @@
+1 xa ${PROJECT_BINARY_DIR}/iso/music/pico/Vocals.xa 1 0
+1 xa ${PROJECT_BINARY_DIR}/iso/music/pico/Inst.xa 1 1
+1 xa ${PROJECT_BINARY_DIR}/iso/music/philly/Vocals.xa 1 2
+1 xa ${PROJECT_BINARY_DIR}/iso/music/philly/Inst.xa 1 3
