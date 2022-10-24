@@ -96,8 +96,6 @@ void IO_Quit(void)
 
 void IO_FindFile(CdlFILE *file, const char *path)
 {
-
-	printf("ye\n");
 	if (data_sectors_pending || audio_sectors_pending) {
 		sprintf(
 			error_msg,
@@ -107,11 +105,9 @@ void IO_FindFile(CdlFILE *file, const char *path)
 		ErrorLock();
 	}
 
-	printf("ye\n");
 	//Stop XA playback
 	Audio_StopXA();
 	
-	printf("ye\n");
 	printf("[IO_FindFile] Searching for %s\n", path);
 	
 	//Search for file
@@ -120,8 +116,6 @@ void IO_FindFile(CdlFILE *file, const char *path)
 		sprintf(error_msg, "[IO_FindFile] %s not found", path);
 		ErrorLock();
 	}
-	
-	printf("ye\n");
 }
 
 IO_Data IO_AsyncReadFile(CdlFILE *file)
@@ -179,7 +173,7 @@ IO_Data IO_ReadFile(CdlFILE *file)
 IO_Data IO_Read(const char *path)
 {
 	printf("[IO_Read] Reading file %s\n", path);
-	
+
 	//Search for file
 	CdlFILE file;
 	IO_FindFile(&file, path);
@@ -192,15 +186,17 @@ boolean IO_IsReading(void) {
 }
 
 boolean IO_WaitRead(void) {
-	int start = VSync(-1);
+    int start = VSync(-1);
 
-	while ((VSync(-1) - start) < 300) { // about 5 seconds
-		if (!data_sectors_pending)
-			return true;
-	}
+    while ((VSync(-1) - start) < 300) { // about 5 seconds
+        if (!data_sectors_pending) {
+            CdSync(0, NULL);
+            return true;
+        }
+    }
 
-	printf("[IO_WaitRead] Timeout\n");
-	return false;
+    printf("[IO_WaitRead] Timeout\n");
+    return false;
 }
 
 // must be called from critical section

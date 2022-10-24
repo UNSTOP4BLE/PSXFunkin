@@ -16,10 +16,13 @@
 #define XA_STATE_PLAYING (1 << 1)
 #define XA_STATE_LOOPS   (1 << 2)
 #define XA_STATE_SEEKING (1 << 3)
+
 static u8 xa_state, xa_resync, xa_volume, xa_channel;
-static u32 xa_pos, xa_start, xa_end;
+static u32 xa_pos, xa_start;
 
 //audio stuff
+#define XA_FLAG_EOR (1 << 0)
+#define XA_FLAG_EOF (1 << 7)
 #define BUFFER_SIZE (13 << 11) //13 sectors
 #define CHUNK_SIZE (BUFFER_SIZE)
 #define CHUNK_SIZE_MAX (BUFFER_SIZE * 4) // there are never more than 4 channels
@@ -72,9 +75,12 @@ static u8 XA_BCD(u8 x)
 
 static u32 XA_TellSector(void)
 {
-	u8 result[8];
-	CdControl(CdlGetlocP, NULL, result);
-	return (XA_BCD(result[2]) * 75 * 60) + (XA_BCD(result[3]) * 75) + XA_BCD(result[4]);
+    u8 result[8];
+    CdControl(CdlGetlocL, NULL, result);
+    if (result[6] & (XA_FLAG_EOF | XA_FLAG_EOR))
+        return -1; // file ended
+
+    return CdPosToInt((CdlLOC *) result);
 }
 
 static void XA_SetVolume(u8 x)
@@ -128,6 +134,12 @@ static void XA_Play(u32 start)
 	CdIntToPos(start, &cd_loc);
 	CdControl(CdlSetloc, (u8*)&cd_loc, NULL);
 	CdControl(CdlReadS, NULL, NULL);
+}
+
+static void XA_WaitPlay(void) {
+    CdControl(CdlNop, NULL, NULL);
+    while (!(CdStatus() & CdlStatRead))
+        CdControl(CdlNop, NULL, NULL);
 }
 
 static void XA_Pause(void)
@@ -190,7 +202,7 @@ static void Audio_PlayXA_File(CdlFILE *file, u8 volume, u8 channel, boolean loop
 	
 	//Set XA state
 	xa_start = xa_pos = CdPosToInt(&file->pos);
-	xa_end = xa_start + (file->size / IO_SECT_SIZE) - 1;
+	//xa_end = xa_start + (file->size / IO_SECT_SIZE) - 1;
 	xa_state = XA_STATE_INIT | XA_STATE_PLAYING | XA_STATE_SEEKING;
 	xa_resync = 0;
 	if (loop)
@@ -233,6 +245,7 @@ void Audio_ResumeXA(void)
 	xa_state |= XA_STATE_PLAYING;
 
 	XA_Play(xa_pos);
+	XA_WaitPlay();
 }
 
 void Audio_StopXA(void)
@@ -255,7 +268,9 @@ s32 Audio_TellXA_Sector(void)
 
 s32 Audio_TellXA_Milli(void)
 {
-	return ((s32)xa_pos - (s32)xa_start) * 1000 / 75; //1000 / (75 * speed (1x))
+	int pos = XA_TellSector();
+	if (pos != -1)	
+		return ((s32)pos - (s32)xa_start) * 1000 / 75; //1000 / (75 * speed (1x))
 }
 
 boolean Audio_PlayingXA(void)
@@ -271,7 +286,9 @@ void Audio_WaitPlayXA(void)
 		if (Audio_PlayingXA())
 			return;
 		VSync(0);
-	}
+	}	
+
+	XA_WaitPlay();
 }
 
 void Audio_ProcessXA(void)
@@ -354,7 +371,7 @@ void Audio_ProcessXA(void)
 			xa_pos = next_pos;
 		
 		//Check position
-		if (xa_pos >= xa_end)
+		if (XA_TellSector() == -1)
 		{
 			if (xa_state & XA_STATE_LOOPS)
 			{

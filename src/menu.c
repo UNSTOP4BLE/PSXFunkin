@@ -326,14 +326,14 @@ void Menu_Tick(void)
 	stage.flag &= ~STAGE_FLAG_JUST_STEP;
 	
 	//Get song position
-	u16 next_step = Audio_TellXA_Milli();
+	int next_step = Audio_TellXA_Milli() / 147;
 	if (next_step != stage.song_step)
 	{
 		if (next_step >= stage.song_step)
 			stage.flag |= STAGE_FLAG_JUST_STEP;
 		stage.song_step = next_step;
 	}
-	
+
 	//Handle transition out
 	if (Trans_Tick())
 	{
@@ -357,10 +357,9 @@ void Menu_Tick(void)
 	{
 		case MenuPage_Opening:
 		{
-			u16 beat = stage.song_step >> 2;
-			
+			int beat = stage.song_step >> 2;
 			//Start title screen if opening ended
-			if (beat >= 16)
+			if (beat >= 16 && beat < 20)
 			{
 				menu.page = menu.next_page = MenuPage_Title;
 				menu.page_swap = true;
