@@ -22,11 +22,7 @@ IO_Data IO_ReadFile(CdlFILE *file);
 IO_Data IO_AsyncReadFile(CdlFILE *file);
 IO_Data IO_Read(const char *path);
 IO_Data IO_AsyncRead(const char *path);
+boolean IO_IsSeeking(void);
 boolean IO_IsReading(void);
-boolean IO_WaitRead(void);
-
-void IO_ReadDataChunk(int lba, int sectors, u32 *buf);
-void IO_ReadAudioChunk(int lba, int sectors, void (*callback)(u32 *sector));
-void IO_AbortAudioRead(void);
 
 #endif

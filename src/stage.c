@@ -2301,7 +2301,7 @@ void Stage_Tick(void)
 			stage.song_time = 0;
 			
 			stage.state = StageState_DeadLoad;
-			IO_WaitRead();
+
 			if (stage.stage_id >= StageId_6_1 && stage.stage_id <= StageId_6_3)			
 				Sounds[0] = Audio_LoadSound("\\SOUNDS\\LOSSP.VAG;1");
 			else
@@ -2327,12 +2327,10 @@ void Stage_Tick(void)
 			if (stage.stage_id >= StageId_6_1 && stage.stage_id <= StageId_6_3)			
 			{
 				Sounds[1] = Audio_LoadSound("\\SOUNDS\\ENDP.VAG;1");
-				IO_WaitRead();
 			}
 			else
 			{
 				Sounds[1] = Audio_LoadSound("\\SOUNDS\\END.VAG;1");
-				IO_WaitRead();
 			}
 
 			stage.player->set_anim(stage.player, PlayerAnim_Dead2);
