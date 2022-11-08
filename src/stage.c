@@ -1473,6 +1473,8 @@ static void Stage_LoadState(void)
 		timer.secondtimer = 0;
 		timer.timer = 0;
 		timer.timermin = 0;
+		timer.timersec = 0;
+		stage.paused = false;
 		strcpy(stage.player_state[i].accuracy_text, "Accuracy: ?");
 		strcpy(stage.player_state[i].miss_text, "Misses: 0");
 		strcpy(stage.player_state[i].score_text, "Score: 0");
