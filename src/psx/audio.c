@@ -245,7 +245,7 @@ void Audio_ResumeXA(void)
 	xa_state |= XA_STATE_PLAYING;
 
 	XA_Play(xa_pos);
-	XA_WaitPlay();
+	Audio_WaitPlayXA();
 }
 
 void Audio_StopXA(void)
@@ -434,7 +434,7 @@ u32 Audio_LoadVAGData(u32 *sound, u32 sound_size) {
 }
 
 void Audio_PlaySoundOnChannel(u32 addr, u32 channel, int volume) {
-	SPU_KEY_OFF = (1 << channel);
+	SpuSetKey(0, 1 << channel);
 
 	SPU_CHANNELS[channel].vol_left   = volume;
 	SPU_CHANNELS[channel].vol_right  = volume;
@@ -443,7 +443,7 @@ void Audio_PlaySoundOnChannel(u32 addr, u32 channel, int volume) {
 	SPU_CHANNELS[channel].freq       = 0x1000; // 44100 Hz
 	SPU_CHANNELS[channel].adsr_param = 0x1fc080ff;
 
-	SPU_KEY_ON = (1 << channel);
+	SpuSetKey(1, 1 << channel);
 }
 
 void Audio_PlaySound(u32 addr, int volume) {
