@@ -1718,7 +1718,11 @@ void Stage_Tick(void)
 	SeamLoad:;
 	
 	//Tick transition
-	if (stage.paused == false && pad_state.press & PAD_START && stage.state == StageState_Play)
+	//im sorry for this if statement
+	if (stage.paused == false && 
+		pad_state.press & PAD_START && 
+		stage.state == StageState_Play && 
+		stage.song_step > 0)
 	{
 		stage.pause_scroll = -1;
 		pad_state.press = false;
@@ -1820,7 +1824,8 @@ void Stage_Tick(void)
 			if (stage.prefs.debug)
 				Debug_StageDebug();
 
-			//FntPrint("step %d, beat %d", stage.song_step, stage.song_beat);
+			if (Audio_PlayingXA())
+			FntPrint(-1, "step %d, beat %d time %d", stage.song_step, stage.song_beat, stage.song_time);
 
 			Stage_CountDown();
 

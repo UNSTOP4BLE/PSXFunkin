@@ -109,10 +109,13 @@ void Timer_Reset(void)
 
 void StageTimer_Tick()
 {
-	timer.timer = 1;	
-	if (timer.timer >= 60) {
-		timer.timermin ++;
-	}	
+	//has the song started?
+	if (stage.song_step > 0) //if song starts decrease the timer
+   		timer.timer = (Audio_GetLength(stage.stage_def->music_track)+1) - (stage.song_time / 1000); //seconds (ticks down)
+    else //if not keep the timer at the song starting length	
+ 	    timer.timer = (Audio_GetLength(stage.stage_def->music_track)+1); //seconds (ticks down)
+    timer.timermin = timer.timer / 60; //minutes left till song ends
+    timer.timersec = timer.timer % 60; //seconds left till song ends
 }
 
 void StageTimer_Draw()
@@ -130,14 +133,15 @@ void StageTimer_Draw()
 	sprintf(timer.timer_display, ":");
 	stage.font_cdr.draw(&stage.font_cdr,
 		timer.timer_display,
+
 		FIXED_DEC(-1,1) + stage.noteshakex,
 		FIXED_DEC(-109,1) + stage.noteshakey,
 		FontAlign_Left
 	);
-	if (timer.timer >= 10)
-		sprintf(timer.timer_display, "%d", timer.timer);
+	if (timer.timersec >= 10)
+		sprintf(timer.timer_display, "%d", timer.timersec);
 	else
-		sprintf(timer.timer_display, "0%d", timer.timer);
+		sprintf(timer.timer_display, "0%d", timer.timersec);
 
 	stage.font_cdr.draw(&stage.font_cdr,
 		timer.timer_display,
