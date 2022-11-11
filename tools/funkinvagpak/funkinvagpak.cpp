@@ -228,7 +228,8 @@ int main(int argc, char *argv[])
 		//Write chunk buffers
 		for (auto &channel : vag_channels)
 		{
-			size_t length = std::min(channel.adpcm.size() - offset, buffer_size);
+			int length = (int)channel.adpcm.size() - (int)offset;
+			length = std::min(std::max(length, 0), (int)buffer_size);
 
 			if (length) {
 				channel.adpcm[offset + length - (spu::BLOCK_LENGTH - 1)] = 0x03; // add loop flag

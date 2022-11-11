@@ -267,7 +267,7 @@
 
 				<file name = "6_1.vag" type = "data" source = "iso/music/senpai/senpai.vag"/>
 				<file name = "6_2.vag" type = "data" source = "iso/music/roses/roses.vag"/>
-				<file name = "7_3.vag" type = "data" source = "iso/music/thorns/thorns.vag"/>
+				<file name = "6_3.vag" type = "data" source = "iso/music/thorns/thorns.vag"/>
 			</dir>
 			
 			<!-- Dummy sectors -->

@@ -1734,7 +1734,7 @@ void Stage_Tick(void)
 				PausedState();
 				break;
 			case 1:
-				OptionsState(&note_x);
+				OptionsState(&note_x[0]);
 				break;
 		}
 
