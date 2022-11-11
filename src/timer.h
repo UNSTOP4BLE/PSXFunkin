@@ -10,26 +10,29 @@
 #include "psx.h"
 #include "fixed.h"
 
-//Timer state
-extern u32 frame_count, animf_count;
-extern fixed_t timer_sec, timer_dt;
+#define TIMER_SHIFT   4
+#define TICKS_PER_SEC ((F_CPU / 8) >> (16 - TIMER_SHIFT))
 
 typedef struct
 {
-	u32 cursonglength;
 	int secondtimer;
 	int timer;
 	int timersec;
 	int timermin;
 	char timer_display[13];
+	volatile uint32_t timer_irq_count;
 } Timer;
 
 extern Timer timer;
 
 //Timer interface 
 void Timer_Init(void);
-void Timer_Tick(void);
-void Timer_Reset(void); 
+u32 Timer_GetAnimfCount(void);
+u32 Timer_GetTime(void);
+u32 Timer_GetTimeMS(void);
+void Timer_Reset(void);
+void Timer_CalcDT();
+int Timer_GetDT();
 void StageTimer_Tick();
 void StageTimer_Draw();
 

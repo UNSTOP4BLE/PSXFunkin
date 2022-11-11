@@ -120,8 +120,8 @@ typedef struct
 	
 	//Song info
 	u8 week, week_song;
-	u8 music_track, music_channel;
-	
+	const char *vag_path;
+
 	StageId next_stage;
 	u8 next_load;
 } StageDef;

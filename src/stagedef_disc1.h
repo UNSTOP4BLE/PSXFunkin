@@ -11,7 +11,7 @@
 		
 		//Song info
 		1, 1,
-		XA_Bopeebo, 0,
+		"\\MUSIC\\1_1.VAG;1",
 		
 		StageId_1_2, STAGE_LOAD_FLAG
 	},
@@ -28,7 +28,7 @@
 		
 		//Song info
 		1, 2,
-		XA_Fresh, 2,
+		"\\MUSIC\\1_2.VAG;1",
 		
 		StageId_1_3, STAGE_LOAD_FLAG
 	},
@@ -45,7 +45,7 @@
 		
 		//Song info
 		1, 3,
-		XA_Dadbattle, 0,
+		"\\MUSIC\\1_3.VAG;1",
 		
 		StageId_1_3, 0
 	},
@@ -62,7 +62,7 @@
 		
 		//Song info
 		1, 4,
-		XA_Tutorial, 2,
+		"\\MUSIC\\1_4.VAG;1",
 		
 		StageId_1_4, 0
 	},
@@ -80,7 +80,7 @@
 		
 		//Song info
 		2, 1,
-		XA_Spookeez, 0,
+		"\\MUSIC\\2_1.VAG;1",
 		
 		StageId_2_2, STAGE_LOAD_FLAG
 	},
@@ -97,7 +97,7 @@
 		
 		//Song info
 		2, 2,
-		XA_South, 2,
+		"\\MUSIC\\2_2.VAG;1",
 		
 		StageId_2_3, STAGE_LOAD_FLAG | STAGE_LOAD_OPPONENT
 	},
@@ -114,7 +114,7 @@
 		
 		//Song info
 		2, 3,
-		XA_Monster, 0,
+		"\\MUSIC\\2_3.VAG;1",
 		
 		StageId_2_3, 0
 	},
@@ -132,8 +132,8 @@
 		
 		//Song info
 		3, 1,
-		XA_Pico, 0,
-		
+		"\\MUSIC\\3_1.VAG;1",
+
 		StageId_3_2, STAGE_LOAD_FLAG
 	},
 	{ //StageId_3_2 (Philly)
@@ -149,7 +149,7 @@
 		
 		//Song info
 		3, 2,
-		XA_Philly, 2,
+		"\\MUSIC\\3_2.VAG;1",
 		
 		StageId_3_3, STAGE_LOAD_FLAG
 	},
@@ -166,7 +166,7 @@
 		
 		//Song info
 		3, 3,
-		XA_Blammed, 0,
+		"\\MUSIC\\3_3.VAG;1",
 		
 		StageId_3_3, 0
 	},
@@ -184,7 +184,7 @@
 		
 		//Song info
 		4, 1,
-		XA_SatinPanties, 0,
+		"\\MUSIC\\4_1.VAG;1",
 		
 		StageId_4_2, STAGE_LOAD_FLAG
 	},
@@ -201,7 +201,7 @@
 		
 		//Song info
 		4, 2,
-		XA_High, 2,
+		"\\MUSIC\\4_2.VAG;1",
 		
 		StageId_4_3, STAGE_LOAD_FLAG
 	},
@@ -218,7 +218,7 @@
 		
 		//Song info
 		4, 3,
-		XA_MILF, 0,
+		"\\MUSIC\\4_3.VAG;1",
 		
 		StageId_4_3, 0
 	},
@@ -235,7 +235,7 @@
 		
 		//Song info
 		4, 4,
-		XA_Test, 2,
+		"\\MUSIC\\4_4.VAG;1",
 		
 		StageId_4_4, 0
 	},
@@ -253,7 +253,7 @@
 		
 		//Song info
 		5, 1,
-		XA_Cocoa, 0,
+		"\\MUSIC\\5_1.VAG;1",
 		
 		StageId_5_2, STAGE_LOAD_FLAG
 	},
@@ -270,7 +270,7 @@
 		
 		//Song info
 		5, 2,
-		XA_Eggnog, 2,
+		"\\MUSIC\\5_2.VAG;1",
 		
 		StageId_5_3, STAGE_LOAD_FLAG | STAGE_LOAD_OPPONENT | STAGE_LOAD_STAGE
 	},
@@ -287,7 +287,7 @@
 		
 		//Song info
 		5, 3,
-		XA_WinterHorrorland, 0,
+		"\\MUSIC\\5_3.VAG;1",
 		
 		StageId_5_3, 0
 	},
@@ -305,7 +305,7 @@
 		
 		//Song info
 		6, 1,
-		XA_Senpai, 0,
+		"\\MUSIC\\6_1.VAG;1",
 		
 		StageId_6_2, STAGE_LOAD_FLAG | STAGE_LOAD_OPPONENT
 	},
@@ -322,7 +322,7 @@
 		
 		//Song info
 		6, 2,
-		XA_Roses, 2,
+		"\\MUSIC\\6_2.VAG;1",
 		
 		StageId_6_3, 0
 	},
@@ -339,7 +339,7 @@
 		
 		//Song info
 		6, 3,
-		XA_Thorns, 0,
+		"\\MUSIC\\6_3.VAG;1",
 		
 		StageId_6_3, 0
 	},

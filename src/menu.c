@@ -156,7 +156,7 @@ static void Menu_DrawBack(boolean flash, s32 scroll, u8 r0, u8 g0, u8 b0, u8 r1,
 	RECT back_src = {0, 0, 255, 255};
 	RECT back_dst = {0, -scroll - screen.SCREEN_WIDEADD2, screen.SCREEN_WIDTH, screen.SCREEN_WIDTH * 4 / 5};
 	
-	if (flash || (animf_count & 4) == 0)
+	if (flash || (Timer_GetAnimfCount() & 4) == 0)
 		Gfx_DrawTexCol(&menu.tex_back, &back_src, &back_dst, r0, g0, b0);
 	else
 		Gfx_DrawTexCol(&menu.tex_back, &back_src, &back_dst, r1, g1, b1);
@@ -296,8 +296,8 @@ void Menu_Load(MenuPage page)
     Sounds[2] = Audio_LoadSound("\\SOUNDS\\CANCEL.VAG;1");
 
 	//Play menu music
-	Audio_PlayXA_Track(XA_GettinFreaky, 0x40, 0, 1);
-	Audio_ResumeXA();
+	Audio_LoadStream("\\MUSIC\\FREAKY.VAG;1", true);
+	Audio_StartStream();
 	
 	//Set background colour
 	Gfx_SetClear(0, 0, 0);
@@ -326,7 +326,7 @@ void Menu_Tick(void)
 	stage.flag &= ~STAGE_FLAG_JUST_STEP;
 	
 	//Get song position
-	int next_step = Audio_TellXA_Milli() / 147;
+	int next_step = Audio_GetTimeMS() / 147;
 	if (next_step != stage.song_step)
 	{
 		if (next_step >= stage.song_step)
@@ -344,12 +344,12 @@ void Menu_Tick(void)
 
 		if (adjustscreen)
 		{	
-			if (menu.trans_time > 0 && (menu.trans_time -= timer_dt) <= 0)
+			if (menu.trans_time > 0 && (menu.trans_time -= Timer_GetDT()) <= 0)
 				Trans_Start();
 
 			menu.page = MenuPage_MoveSCR;
 		}
-	}
+	}	
 
 	//Tick menu page
 	MenuPage exec_page;
@@ -436,11 +436,11 @@ void Menu_Tick(void)
 				RECT flash = {0, 0, screen.SCREEN_WIDTH, screen.SCREEN_HEIGHT};
 				u8 flash_col = menu.page_state.title.fade >> FIXED_SHIFT;
 				Gfx_BlendRect(&flash, flash_col, flash_col, flash_col, 1);
-				menu.page_state.title.fade -= FIXED_MUL(menu.page_state.title.fadespd, timer_dt);
+				menu.page_state.title.fade -= FIXED_MUL(menu.page_state.title.fadespd, Timer_GetDT());
 			}
 			
 			//Go to main menu when start is pressed
-			if (menu.trans_time > 0 && (menu.trans_time -= timer_dt) <= 0)
+			if (menu.trans_time > 0 && (menu.trans_time -= Timer_GetDT()) <= 0)
 				Trans_Start();
 			
 			if ((pad_state.press & (PAD_START | PAD_CROSS)) && menu.next_page == menu.page && Trans_Idle())
@@ -481,14 +481,14 @@ void Menu_Tick(void)
 			Gfx_DrawTex(&menu.tex_title, &logo_src, &logo_dst);
 			
 			if (menu.page_state.title.logo_bump > 0)
-				if ((menu.page_state.title.logo_bump -= timer_dt) < 0)
+				if ((menu.page_state.title.logo_bump -= Timer_GetDT()) < 0)
 					menu.page_state.title.logo_bump = 0;
 			
 			//Draw "Press Start to Begin"
 			if (menu.next_page == menu.page)
 			{
 				//Blinking blue
-				s16 press_lerp = (MUtil_Cos(animf_count << 3) + 0x100) >> 1;
+				s16 press_lerp = (MUtil_Cos(Timer_GetAnimfCount() << 3) + 0x100) >> 1;
 				u8 press_r = 51 >> 1;
 				u8 press_g = (58  + ((press_lerp * (255 - 58))  >> 8)) >> 1;
 				u8 press_b = (206 + ((press_lerp * (255 - 206)) >> 8)) >> 1;
@@ -499,7 +499,7 @@ void Menu_Tick(void)
 			else
 			{
 				//Flash white
-				RECT press_src = {0, (animf_count & 1) ? 144 : 112, 256, 32};
+				RECT press_src = {0, (Timer_GetAnimfCount() & 1) ? 144 : 112, 256, 32};
 				Gfx_BlitTex(&menu.tex_title, &press_src, (screen.SCREEN_WIDTH - 256) / 2, screen.SCREEN_HEIGHT - 48);
 			}
 			
@@ -530,7 +530,7 @@ void Menu_Tick(void)
 			);
 			
 			//Handle option and selection
-			if (menu.trans_time > 0 && (menu.trans_time -= timer_dt) <= 0)
+			if (menu.trans_time > 0 && (menu.trans_time -= Timer_GetDT()) <= 0)
 				Trans_Start();
 			
 			if (menu.next_page == menu.page && Trans_Idle())
@@ -607,7 +607,7 @@ void Menu_Tick(void)
 					);
 				}
 			}
-			else if (animf_count & 2)
+			else if (Timer_GetAnimfCount() & 2)
 			{
 				//Draw selected option
 				menu.font_bold.draw(&menu.font_bold,
@@ -671,14 +671,14 @@ void Menu_Tick(void)
 				RECT flash2 = {0, 0, screen.SCREEN_WIDTH, screen.SCREEN_HEIGHT};
 				u8 flash_col = menu.page_state.title.fade >> FIXED_SHIFT;
 				Gfx_BlendRect(&flash2, flash_col, flash_col, flash_col, 1);
-				menu.page_state.title.fade -= FIXED_MUL(menu.page_state.title.fadespd, timer_dt);
+				menu.page_state.title.fade -= FIXED_MUL(menu.page_state.title.fadespd, Timer_GetDT());
 			}
 			
 			//Draw difficulty selector
 			Menu_DifficultySelector(screen.SCREEN_WIDTH - 75, 80);
 			
 			//Handle option and selection
-			if (menu.trans_time > 0 && (menu.trans_time -= timer_dt) <= 0)
+			if (menu.trans_time > 0 && (menu.trans_time -= Timer_GetDT()) <= 0)
 				Trans_Start();
 			
 			if (menu.next_page == menu.page && Trans_Idle())
@@ -768,7 +768,7 @@ void Menu_Tick(void)
 					Menu_DrawWeek(menu_options[i].week, 48, y);
 				}
 			}
-			else if (animf_count & 2)
+			else if (Timer_GetAnimfCount() & 2)
 			{
 				//Draw selected option
 				Menu_DrawWeek(menu_options[menu.select].week, 48, 64 + (menu.select * 48) - (menu.scroll >> FIXED_SHIFT));

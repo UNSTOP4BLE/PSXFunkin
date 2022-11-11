@@ -13,14 +13,6 @@
 
 //Timer state
 Timer timer;
-volatile u32 timer_count;
-u32 frame_count, animf_count;
-u32 timer_lcount, timer_countbase;
-u32 timer_persec;
-
-fixed_t timer_sec, timer_dt, timer_secbase;
-
-u8 timer_brokeconf;
 
 u16 profile_start, total_time;
 
@@ -35,76 +27,58 @@ int Timer_EndProfile(void) {
 	return 100 * cpu_time / (total_time + 1);
 }
 
-void Timer_Callback(void) {
-	timer_count++;
+static void timer_irq_handler(void) {
+    timer.timer_irq_count++;
 }
 
 void Timer_Init(void) {
-    //Initialize counters
-    frame_count = animf_count = timer_count = timer_lcount = timer_countbase = 0;
-    timer_sec = timer_dt = timer_secbase = 0;
-    
-    //Setup counter IRQ
-    timer_persec = 100;
-    
-    EnterCriticalSection();
+	EnterCriticalSection();
+	ChangeClearRCnt(2, 0);
+	InterruptCallback(IRQ_TIMER2, &timer_irq_handler);
 
-    TIMER_CTRL(2) = 0x0258; // F_CPU/8 input, IRQ on reload
-    TIMER_RELOAD(2) = (F_CPU / 8) / timer_persec; // 100 Hz
-
-    ChangeClearRCnt(2, 0);
-    InterruptCallback(6, &Timer_Callback); //IRQ6 is RCNT2
-
-    ExitCriticalSection();
-    timer_brokeconf = 0;
+	TIMER_CTRL(2)   = 0x0260; // SYSCLK/8, no reload, IRQ on overflow
+	timer.timer_irq_count = 0;
+	ExitCriticalSection();
 }
 
-void Timer_Tick(void)
+u32 Timer_GetAnimfCount(void)
 {
-	u32 status = *((volatile const u32*)0x1f801814);
-	
-	//Increment frame count
-	frame_count++;
-	
-	//Update counter time
-	if (timer_count == timer_lcount)
-	{
-		if (timer_brokeconf != 0xFF)
-			timer_brokeconf++;
-		if (timer_brokeconf >= 10)
-		{
-			if ((status & 0x00100000) != 0)
-				timer_count += timer_persec / 50;
-			else
-				timer_count += timer_persec / 60;
-		}
-	}
+	FntPrint(-1, "%d", (Timer_GetTime() * 24) / TICKS_PER_SEC);
+	if (stage.paused)
+		return 0;
 	else
-	{
-		if (timer_brokeconf != 0)
-			timer_brokeconf--;
-	}
-	
-	if (timer_count < timer_lcount)
-	{
-		timer_secbase = timer_sec;
-		timer_countbase = timer_lcount;
-	}
-	fixed_t next_sec = timer_secbase + FIXED_DIV(timer_count - timer_countbase, timer_persec);
-	
-	timer_dt = next_sec - timer_sec;
-	timer_sec = next_sec;
-	
-	if (!stage.paused)
-		animf_count = (timer_sec * 24) >> FIXED_SHIFT;
-	
-	timer_lcount = timer_count;
+		return (Timer_GetTime() * 24) / TICKS_PER_SEC;
+}
+
+u32 Timer_GetTime(void) {
+	return
+		(timer.timer_irq_count << TIMER_SHIFT) |
+		(TIMER_VALUE(2)  >> (16 - TIMER_SHIFT));
+}
+
+u32 Timer_GetTimeMS(void) {
+	return (Timer_GetTime() * 1000) / TICKS_PER_SEC;
 }
 
 void Timer_Reset(void)
 {
-	Timer_Tick();
-	timer_dt = 0;
+	TIMER_VALUE(2)  = 0;
+	timer.timer_irq_count = 0;
+}
+
+int last_time = 0;
+int delta = 0;
+
+void Timer_CalcDT()
+{
+    int time = Timer_GetTime();
+    delta = time - last_time;
+    last_time = time;
+}
+
+int Timer_GetDT()
+{
+	return delta;
 }
 
 void StageTimer_Tick()
@@ -112,9 +86,9 @@ void StageTimer_Tick()
 	//im deeply sorry for anyone reading this code
 	//has the song started?
 	if (stage.song_step > 0) //if song starts decrease the timer
-   		timer.timer = (Audio_GetLength(stage.stage_def->music_track)+1) - (stage.song_time / 1000); //seconds (ticks down)
+   		timer.timer = Audio_GetInitialTime() - (Audio_GetTimeMS() / 1000); //seconds (ticks down)
     else //if not keep the timer at the song starting length	
- 	    timer.timer = (Audio_GetLength(stage.stage_def->music_track)+1); //seconds (ticks down)
+ 	    timer.timer = Audio_GetInitialTime(); //seconds (initial)
     timer.timermin = timer.timer / 60; //minutes left till song ends
     timer.timersec = timer.timer % 60; //seconds left till song ends
 }

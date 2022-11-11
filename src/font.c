@@ -35,7 +35,7 @@ void Font_Bold_DrawCol(struct FontData *this, const char *text, s32 x, s32 y, Fo
 	
 	//Get animation offsets
 	u32 v0 = 0;
-	u8 v1 = (animf_count >> 1) & 1;
+	u8 v1 = (Timer_GetAnimfCount() >> 1) & 1;
 	
 	//Draw string character by character
 	u8 c;

@@ -73,8 +73,8 @@ int main(int argc, char **argv)
 #endif
 
 		//Prepare frame
-		Timer_Tick();
-		Audio_ProcessXA();
+		Timer_CalcDT();
+		Audio_FeedStream();
 		Pad_Update();
 
 		//Tick and draw game
@@ -105,12 +105,5 @@ int main(int argc, char **argv)
 		Gfx_Flip();
 	}
 	
-	//Deinitialize system
-	Pad_Quit();
-	Gfx_Quit();
-	Audio_Quit();
-	IO_Quit();
-	
-	PSX_Quit();
 	return 0;
 }

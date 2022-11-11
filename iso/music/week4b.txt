@@ -1,4 +1,0 @@
-1 xa ${PROJECT_BINARY_DIR}/iso/music/milf/Vocals.xa 1 0
-1 xa ${PROJECT_BINARY_DIR}/iso/music/milf/Inst.xa 1 1
-1 xa ${PROJECT_BINARY_DIR}/iso/music/test/Vocals.xa 1 2
-1 xa ${PROJECT_BINARY_DIR}/iso/music/test/Inst.xa 1 3

@@ -78,7 +78,7 @@ static void Stage_StartVocal(void)
 {
 	if (!(stage.flag & STAGE_FLAG_VOCAL_ACTIVE))
 	{
-		Audio_ChannelXA(stage.stage_def->music_channel);
+		Audio_SetVolume(2, 0x3FFF, 0x3FFF);
 		stage.flag |= STAGE_FLAG_VOCAL_ACTIVE;
 	}
 }
@@ -87,7 +87,7 @@ static void Stage_CutVocal(void)
 {
 	if (stage.flag & STAGE_FLAG_VOCAL_ACTIVE)
 	{
-		Audio_ChannelXA(stage.stage_def->music_channel + 1);
+		Audio_SetVolume(2, 0x0000, 0x0000);
 		stage.flag &= ~STAGE_FLAG_VOCAL_ACTIVE;
 	}
 }
@@ -945,7 +945,7 @@ static void Stage_DrawStrum(u8 i, RECT *note_src, RECT_FIXED *note_dst)
 		note_src->x = (i + 1) << 5;
 		note_src->y = 64 - (frame << 5);
 		
-		this->arrow_hitan[i] -= timer_dt;
+		this->arrow_hitan[i] -= Timer_GetDT();
 		if (this->arrow_hitan[i] <= 0)
 		{
 			if (this->pad_held & note_key[i])
@@ -1144,8 +1144,8 @@ static void Stage_DrawNotes(void)
 					Stage_DrawTex(&stage.tex_hud0, &note_src, &note_dst, stage.bump);
 				
 				//Draw note fire
-				note_src.x = 192 + ((animf_count & 0x1) << 5);
-				note_src.y = 64 + ((animf_count & 0x2) * 24);
+				note_src.x = 192 + ((Timer_GetAnimfCount() & 0x1) << 5);
+				note_src.y = 64 + ((Timer_GetAnimfCount() & 0x2) * 24);
 				note_src.w = 32;
 				note_src.h = 48;
 					
@@ -1405,7 +1405,7 @@ static void Stage_LoadMusic(void)
 		stage.gf->sing_end -= stage.note_scroll;
 	
 	//Find music file and begin seeking to it
-	Audio_SeekXA_Track(stage.stage_def->music_track);
+	Audio_LoadStream(stage.stage_def->vag_path, false);
 
 	//Initialize music state
 	stage.note_scroll = FIXED_DEC(-5 * 6 * 12,1);
@@ -1722,7 +1722,7 @@ void Stage_Tick(void)
 	{
 		stage.pause_scroll = -1;
 		pad_state.press = false;
-		Audio_PauseXA();
+		Audio_StopStream();
 		stage.paused = true;
 	}
 
@@ -1734,7 +1734,7 @@ void Stage_Tick(void)
 				PausedState();
 				break;
 			case 1:
-				OptionsState((int **)&note_x);
+				OptionsState(&note_x);
 				break;
 		}
 
@@ -1744,9 +1744,9 @@ void Stage_Tick(void)
 	{
 		if (deadtimer == 0)
 		{
-			inctimer = true;
-			Audio_StopXA();
-			Audio_PlaySound(Sounds[1], 0x3fff);
+			inctimer = true;		                                                                                                                                                                              
+            Audio_StopStream();
+      		Audio_PlaySound(Sounds[1], 0x3fff);
 		}
 	}
 	else if (pad_state.press & PAD_CIRCLE && stage.state != StageState_Play)
@@ -1820,7 +1820,6 @@ void Stage_Tick(void)
 			if (stage.prefs.debug)
 				Debug_StageDebug();
 
-			if (Audio_PlayingXA())
 			FntPrint(-1, "step %d, beat %d time %d", stage.song_step, stage.song_beat, stage.song_time);
 
 			Stage_CountDown();
@@ -1864,7 +1863,7 @@ void Stage_Tick(void)
 				if (stage.note_scroll < 0)
 				{
 					//Play countdown sequence
-					stage.song_time += timer_dt;
+					stage.song_time += Timer_GetDT();
 						
 					//Update song
 					if (stage.song_time >= 0)
@@ -1872,10 +1871,10 @@ void Stage_Tick(void)
 						//Song has started
 						playing = true;
 
-						Audio_PlayXA_Track(stage.stage_def->music_track, 0x40, stage.stage_def->music_channel, 0);
-							
+						Audio_StartStream();
+
 						//Update song time
-						fixed_t audio_time = (fixed_t)Audio_TellXA_Milli() - stage.offset;
+						fixed_t audio_time = (fixed_t)Audio_GetTimeMS() - stage.offset;
 						if (audio_time < 0)
 							audio_time = 0;
 						stage.interp_ms = (audio_time << FIXED_SHIFT) / 1000;
@@ -1891,9 +1890,9 @@ void Stage_Tick(void)
 					//Update scroll
 					next_scroll = FIXED_MUL(stage.song_time, stage.step_crochet);
 				}
-				else if (Audio_PlayingXA())
+				else if (Audio_IsPlaying())
 				{
-					fixed_t audio_time_pof = (fixed_t)Audio_TellXA_Milli();
+					fixed_t audio_time_pof = (fixed_t)Audio_GetTimeMS();
 					fixed_t audio_time = (audio_time_pof > 0) ? (audio_time_pof - stage.offset) : 0;
 					
 					//Old sync
@@ -1910,7 +1909,7 @@ void Stage_Tick(void)
 				{
 					//Song has ended
 					playing = false;
-					stage.song_time += timer_dt;
+					stage.song_time += Timer_GetDT();
 						
 					//Update scroll
 					next_scroll = ((fixed_t)stage.step_base << FIXED_SHIFT) + FIXED_MUL(stage.song_time - stage.time_base, stage.step_crochet);
@@ -2263,7 +2262,7 @@ void Stage_Tick(void)
 		case StageState_Dead: //Start BREAK animation and reading extra data from CD
 		{
 			//Stop music immediately
-			Audio_StopXA();
+			Audio_StopStream();
 			deadtimer = 0;
 			inctimer = false;
 
@@ -2303,10 +2302,18 @@ void Stage_Tick(void)
 			
 			stage.state = StageState_DeadLoad;
 
-			if (stage.stage_id >= StageId_6_1 && stage.stage_id <= StageId_6_3)			
+			if (stage.stage_id >= StageId_6_1 && stage.stage_id <= StageId_6_3)		
+			{	
 				Sounds[0] = Audio_LoadSound("\\SOUNDS\\LOSSP.VAG;1");
+				Sounds[1] = Audio_LoadSound("\\SOUNDS\\ENDP.VAG;1");
+				Audio_LoadStream("\\MUSIC\\GOVERP.VAG;1", true);
+			}
 			else
+			{
 				Sounds[0] = Audio_LoadSound("\\SOUNDS\\LOSS.VAG;1");
+				Sounds[1] = Audio_LoadSound("\\SOUNDS\\END.VAG;1");
+				Audio_LoadStream("\\MUSIC\\GOVER.VAG;1", true);
+			}
 			Audio_PlaySound(Sounds[0], 0x3fff);
 		}
 	//Fallthrough
@@ -2323,16 +2330,7 @@ void Stage_Tick(void)
 			//Drop mic and change state if CD has finished reading and animation has ended
 			if (IO_IsReading() || stage.player->animatable.anim != PlayerAnim_Dead1)
 				break;
-			
-			//load sounds
-			if (stage.stage_id >= StageId_6_1 && stage.stage_id <= StageId_6_3)			
-			{
-				Sounds[1] = Audio_LoadSound("\\SOUNDS\\ENDP.VAG;1");
-			}
-			else
-			{
-				Sounds[1] = Audio_LoadSound("\\SOUNDS\\END.VAG;1");
-			}
+		
 
 			stage.player->set_anim(stage.player, PlayerAnim_Dead2);
 			stage.camera.td = FIXED_DEC(25, 1000);
@@ -2349,7 +2347,7 @@ void Stage_Tick(void)
 			if (stage.player->animatable.anim == PlayerAnim_Dead3)
 			{
 				stage.state = StageState_DeadRetry;
-				Audio_PlayXA_Track(XA_GameOver, 0x40, 1, true);
+				Audio_StartStream();
 			}
 			break;
 		}

@@ -58,7 +58,7 @@ boolean Trans_Tick(void)
 		case TransState_In:
 		{
 			//Decrement transition coverage
-			if ((transition.cover -= (timer_dt * TRANS_COVER_INC)) <= FIXED_DEC(-TRANS_FADE_LEN,1))
+			if ((transition.cover -= (Timer_GetDT() * TRANS_COVER_INC)) <= FIXED_DEC(-TRANS_FADE_LEN,1))
 			{
 				transition.state = TransState_Idle;
 				return false;
@@ -101,7 +101,7 @@ boolean Trans_Tick(void)
 			{
 				result = false;
 			}
-			transition.cover += (timer_dt * TRANS_COVER_INC);
+			transition.cover += (Timer_GetDT() * TRANS_COVER_INC);
 			
 			//Draw transition cover
 			s16 cover = transition.cover >> FIXED_SHIFT;

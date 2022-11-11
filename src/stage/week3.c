@@ -65,7 +65,7 @@ void Back_Week3_DrawBG(StageBack *back)
 	//Update window
 	if (this->win_time > 0 && !stage.paused)
 	{
-		this->win_time -= timer_dt;
+		this->win_time -= Timer_GetDT();
 		if (this->win_time < 0)
 			this->win_time = 0;
 	}
@@ -134,7 +134,7 @@ void Back_Week3_DrawBG(StageBack *back)
 	{
 		//Move train to end position
 		if (!stage.paused)
-			this->train_x  -= timer_dt * 2000;
+			this->train_x  -= Timer_GetDT() * 2000;
 		
 		//Draw train
 		RECT train_src = {78, 0, 178, 256};

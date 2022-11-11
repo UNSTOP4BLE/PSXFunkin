@@ -135,8 +135,8 @@ void Back_Week6_DrawBG(StageBack *back)
 		};
 		for (int j = 0; j < 4; j++)
 		{
-			treep[j].x += ((MUtil_Cos(FIXED_MUL(animf_count, fg_tree_p->off[j])) * FIXED_DEC(3,1)) >> 8) - fx;
-			treep[j].y += ((MUtil_Sin(FIXED_MUL(animf_count, fg_tree_p->off[j])) * FIXED_DEC(3,1)) >> 8) - fy;
+			treep[j].x += ((MUtil_Cos(FIXED_MUL(Timer_GetAnimfCount(), fg_tree_p->off[j])) * FIXED_DEC(3,1)) >> 8) - fx;
+			treep[j].y += ((MUtil_Sin(FIXED_MUL(Timer_GetAnimfCount(), fg_tree_p->off[j])) * FIXED_DEC(3,1)) >> 8) - fy;
 		}
 		
 		Stage_DrawTexArb(&this->tex_back0, &fg_tree_p->src, &treep[0], &treep[1], &treep[2], &treep[3], stage.camera.bzoom);
@@ -253,12 +253,12 @@ static fixed_t week6_back_warpy[] = {
 
 static s32 Back_Week6_GetX(int x, int y)
 {
-	return ((fixed_t)x << (FIXED_SHIFT + 5)) + FIXED_DEC(-128,1) - FIXED_MUL(stage.camera.x, week6_back_paraly[y]) + ((MUtil_Cos((animf_count << 2) + ((x + y) << 5)) * week6_back_warpx[y]) >> 8);
+	return ((fixed_t)x << (FIXED_SHIFT + 5)) + FIXED_DEC(-128,1) - FIXED_MUL(stage.camera.x, week6_back_paraly[y]) + ((MUtil_Cos((Timer_GetAnimfCount() << 2) + ((x + y) << 5)) * week6_back_warpx[y]) >> 8);
 }
 
 static s32 Back_Week6_GetY(int x, int y)
 {
-	return ((fixed_t)y << (FIXED_SHIFT + 5)) + FIXED_DEC(-86,1) - FIXED_MUL(stage.camera.y, week6_back_paraly[y]) + ((MUtil_Sin((animf_count << 2) + ((x + y) << 5)) * week6_back_warpy[y]) >> 8);
+	return ((fixed_t)y << (FIXED_SHIFT + 5)) + FIXED_DEC(-86,1) - FIXED_MUL(stage.camera.y, week6_back_paraly[y]) + ((MUtil_Sin((Timer_GetAnimfCount() << 2) + ((x + y) << 5)) * week6_back_warpy[y]) >> 8);
 }
 
 void Back_Week6_DrawBG3(StageBack *back)

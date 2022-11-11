@@ -8,6 +8,6 @@
 #define PSXF_GUARD_PAUSE_H
 
 void PausedState();
-void OptionsState(int *note_x[8]);
+void OptionsState(int *note_x);
 
 #endif

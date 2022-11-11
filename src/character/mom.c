@@ -126,7 +126,7 @@ void Char_Mom_Tick(Character *character)
 	
 	const struct Char_Mom_HairDef *hair_def = &hair_defs[this->frame];
 	RECT hair_src = {
-		(animf_count & 1) << 7,
+		(Timer_GetAnimfCount() & 1) << 7,
 		hair_def->sy << 7,
 		128,
 		128

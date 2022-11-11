@@ -102,7 +102,7 @@ void Back_Week4_DrawFG(StageBack *back)
 	//Move car
 	if (!stage.paused)
 	{
-		this->car_timer -= timer_dt;
+		this->car_timer -= Timer_GetDT();
 		
 		if (this->car_timer <= 0)
 		{
@@ -111,7 +111,7 @@ void Back_Week4_DrawFG(StageBack *back)
 		}
 		
 		if (this->car_x < CAR_END_X)
-			this->car_x += timer_dt * 2700;
+			this->car_x += Timer_GetDT() * 2700;
 	}
 
 	//Draw car

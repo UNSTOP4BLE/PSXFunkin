@@ -25,18 +25,10 @@ find_program(_timconv
 	funkintimconv REQUIRED
 	HINTS ${PROJECT_SOURCE_DIR}/tools/build
 )
-find_program(_psxavenc
-	psxavenc REQUIRED
+find_program(_vagpak
+	funkinvagpak REQUIRED
 	HINTS ${PROJECT_SOURCE_DIR}/tools/build
 )
-find_program(_xainterleave
-	xainterleave REQUIRED
-	HINTS ${PROJECT_SOURCE_DIR}/tools/build
-)
-
-# custom functions
-set(_built_archives "")
-set(_built_xa "")
 
 function(funkin_add_archive _out)
 	set(_built_archives ${_built_archives} ${_out} PARENT_SCOPE)
@@ -46,19 +38,6 @@ function(funkin_add_archive _out)
 		COMMAND ${_arcpak} ${_out} ${ARGN}
 		DEPENDS ${ARGN}
 		COMMENT "Building archive ${_out}"
-	)
-endfunction()
-
-function(funkin_interleave _out _in)
-	set(_built_xa ${_built_xa} ${_out} PARENT_SCOPE)
-
-	# this actually copies the manifest to the build directory
-	configure_file(${_in} ${_in} NEWLINE_STYLE LF)
-	add_custom_command(
-		OUTPUT ${_out}
-		COMMAND ${_xainterleave} ${_out} ${_in}
-		DEPENDS ${_in} ${ARGN}
-		COMMENT "Interleaving xa ${_out}"
 	)
 endfunction()
 
@@ -102,24 +81,30 @@ foreach(_in _out IN ZIP_LISTS _images _built_images)
 	)
 endforeach()
 
-# build .xa files
+# build stream .vag files
 file(
-	GLOB_RECURSE _xa
-	RELATIVE ${PROJECT_SOURCE_DIR}
-	iso/*.ogg
+    GLOB_RECURSE _music_files
+    RELATIVE ${PROJECT_SOURCE_DIR}
+    iso/music/*.txt
 )
 list(
-	TRANSFORM _xa REPLACE "\.ogg$" ".xa"
-	OUTPUT_VARIABLE _built_audio
+    TRANSFORM _music_files REPLACE "\.txt$" ".vag"
+    OUTPUT_VARIABLE _built_music
 )
 
-foreach(_in _out IN ZIP_LISTS _xa _built_audio)
-	add_custom_command(
-		OUTPUT ${_out}
-		COMMAND ${_psxavenc} -f 37800 -t xa -b 4 -c 2 -F 1 -C 0 ${PROJECT_SOURCE_DIR}/${_in} ${_out} 
-		DEPENDS ${PROJECT_SOURCE_DIR}/${_in}
-		COMMENT "Building xa ${_out}"
-	)
+foreach(_in _out IN ZIP_LISTS _music_files _built_music)
+    cmake_path(GET _in PARENT_PATH _dir)
+    file(
+        GLOB _in_files
+        RELATIVE ${PROJECT_SOURCE_DIR}
+        ${_dir}/*
+    )
+    add_custom_command(
+        OUTPUT ${_out}
+        COMMAND ${_vagpak} ${_out} ${PROJECT_SOURCE_DIR}/${_in}
+        DEPENDS ${_in_files}
+        COMMENT "Building vag file ${_out}"
+    )
 endforeach()
 
 # build .arc files
@@ -331,75 +316,6 @@ funkin_add_archive(iso/week6/back.arc
 
 # ADD ARCHIVES HERE
 
-# interleave xa
-funkin_interleave(iso/music/menu.xa iso/music/menu.txt
-	iso/music/freaky.xa
-	iso/music/gameover.xa
-)
-funkin_interleave(iso/music/week1a.xa iso/music/week1a.txt
-	iso/music/bopeebo/Inst.xa
-	iso/music/bopeebo/Vocals.xa
-	iso/music/fresh/Inst.xa
-	iso/music/fresh/Vocals.xa
-)
-funkin_interleave(iso/music/week1b.xa iso/music/week1b.txt
-	iso/music/dadbattle/Inst.xa
-	iso/music/dadbattle/Vocals.xa
-	iso/music/tutorial/Inst.xa
-)
-funkin_interleave(iso/music/week2a.xa iso/music/week2a.txt
-	iso/music/spookeez/Inst.xa
-	iso/music/spookeez/Vocals.xa
-	iso/music/south/Inst.xa
-	iso/music/south/Vocals.xa
-)
-funkin_interleave(iso/music/week2b.xa iso/music/week2b.txt
-	iso/music/monster/Inst.xa
-	iso/music/monster/Vocals.xa
-)
-funkin_interleave(iso/music/week3a.xa iso/music/week3a.txt
-	iso/music/pico/Inst.xa
-	iso/music/pico/Vocals.xa
-	iso/music/philly/Inst.xa
-	iso/music/philly/Vocals.xa
-)
-funkin_interleave(iso/music/week3b.xa iso/music/week3b.txt
-	iso/music/blammed/Inst.xa
-	iso/music/blammed/Vocals.xa
-)
-funkin_interleave(iso/music/week4a.xa iso/music/week4a.txt
-	iso/music/satin-panties/Inst.xa
-	iso/music/satin-panties/Vocals.xa
-	iso/music/high/Inst.xa
-	iso/music/high/Vocals.xa
-)
-funkin_interleave(iso/music/week4b.xa iso/music/week4b.txt
-	iso/music/milf/Inst.xa
-	iso/music/milf/Vocals.xa
-	iso/music/test/Inst.xa
-	iso/music/test/Vocals.xa
-)
-funkin_interleave(iso/music/week5a.xa iso/music/week5a.txt
-	iso/music/cocoa/Inst.xa
-	iso/music/cocoa/Vocals.xa
-	iso/music/eggnog/Inst.xa
-	iso/music/eggnog/Vocals.xa
-)
-funkin_interleave(iso/music/week5b.xa iso/music/week5b.txt
-	iso/music/winter-horrorland/Inst.xa
-	iso/music/winter-horrorland/Vocals.xa
-)
-funkin_interleave(iso/music/week6a.xa iso/music/week6a.txt
-	iso/music/senpai/Inst.xa
-	iso/music/senpai/Vocals.xa
-	iso/music/roses/Inst.xa
-	iso/music/roses/Vocals.xa
-)
-funkin_interleave(iso/music/week6b.xa iso/music/week6b.txt
-	iso/music/thorns/Inst.xa
-	iso/music/thorns/Vocals.xa
-)
-
 # compile the source code
 set(_sources
 	src/main.c 
@@ -458,7 +374,7 @@ psn00bsdk_add_cd_image(iso
 	funkin   
 	${_built_images}
 	${_built_charts} 
-	${_built_audio} 
+	${_built_music} 
 	${_built_archives}
 	${_built_xa}
 )

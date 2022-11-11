@@ -16,8 +16,10 @@
 //Loading screen functions
 void LoadScr_Start(void)
 {
-	Audio_StopXA();
-
+	//Stop VAG playback
+	Audio_StopStream();
+	Audio_ResetChannels();
+	
 	//free all sounds it loaded before and make sure frame has been drawn
 	Audio_ClearAlloc();
 	Gfx_Flip();
@@ -36,7 +38,6 @@ void LoadScr_Start(void)
 	while (!Trans_Idle())
 	{
 		//Draw loading screen and end frame
-		Timer_Tick();
 		Trans_Tick();
 		Gfx_DrawTex(&loading_tex, &loading_src, &loading_dst);
 		Gfx_Flip();
@@ -56,7 +57,6 @@ void LoadScr_End(void)
 	Gfx_DisableClear();
 	while (!Trans_Tick())
 	{
-		Timer_Tick();
 		Gfx_Flip();
 	}
 	Gfx_EnableClear();

@@ -25,7 +25,7 @@ void PausedState()
 		switch (pause_select)
 		{
 			case 0: //Resume
-				Audio_ResumeXA();
+				Audio_StartStream();
 				stage.paused = false;
 				pause_select = 0;
 				break;
@@ -97,7 +97,7 @@ void PausedState()
 	Gfx_BlendRect(&scr, 0, 0, 0, 0);
 }
 
-void OptionsState(int note_x[8])
+void OptionsState(int *note_x)
 {
 	static const char *stage_options[] = {
 		"BACK",

@@ -36,7 +36,7 @@ void Speaker_Tick(Speaker *this, fixed_t x, fixed_t y, fixed_t parallax)
 	if (this->bump > 0)
 	{
 		frame = (this->bump * 24) >> FIXED_SHIFT;
-		this->bump -= timer_dt;
+		this->bump -= Timer_GetDT();
 	}
 	else
 	{

@@ -1,0 +1,2 @@
+"freakyMenu.ogg" 1.0 0.0
+"freakyMenu.ogg" 0.0 1.0

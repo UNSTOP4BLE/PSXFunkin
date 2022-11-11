@@ -55,7 +55,7 @@ void Animatable_Animate(Animatable *this, void *user, void (*set_frame)(void*, u
 					break;
 			}
 		}
-		this->anim_time -= timer_dt;
+		this->anim_time -= Timer_GetDT();
 	}
 }
 
