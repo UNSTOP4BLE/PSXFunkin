@@ -45,9 +45,15 @@ jobs:
           mv PSn00bSDK-0.21-Linux /opt/psn00bsdk
           export PATH=$PATH:/opt/psn00bsdk/bin
           export PSN00BSDK_LIBS=/opt/psn00bsdk/lib/libpsn00b
-          elf2x
-          mkpsxiso
-          cmake
-      #- name: upload export
-       # run: |
-        #  curl --upload-file export.rar https://transfer.sh/  
+          
+          cmake -S ./tools -B ./tools/build -G "Ninja"
+          cmake --build ./tools/build
+
+          cmake -S . -B ./build -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=/opt/psn00bsdk/lib/libpsn00b/cmake/sdk.cmake
+          cmake --build ./build
+      - uses: actions/upload-artifact@v3
+        with:
+          name: upload
+          path: |
+            build/funkin.bin
+            build/funkin.cue
