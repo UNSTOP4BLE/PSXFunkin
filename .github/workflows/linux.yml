@@ -24,29 +24,31 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+      - uses: robinraju/release-downloader@v1.6
+          with: 
+            repository: "https://github.com/spicyjpeg/PSn00bSDK"
+            latest: true
+            
+            # The name of the file to download.
+            # Use this field only to specify filenames other than tarball or zipball, if any.
+            # Supports wildcard pattern (eg: '*', '*.deb', '*.zip' etc..)
+            fileName: "PSn00bSDK-0.21-Linux.zip"
+            
+            # Download the attached zipball (*.zip)
+            zipBall: true
+            
+            # Relative path under $GITHUB_WORKSPACE to place the downloaded file(s)
+            # It will create the target directory automatically if not present
+            # eg: out-file-path: "my-downloads" => It will create directory $GITHUB_WORKSPACE/my-downloads
+            # out-file-path: "."
+
       # Runs a set of commands using the runners shell
-      - name: script run line haha
+      - name: script run line 
         run: |
           sudo apt update
           sudo apt install unzip
-          sudo apt install gcc-mipsel-linux-gnu g++-mipsel-linux-gnu binutils-mipsel-linux-gnu
-          sudo apt install wget
-          sudo apt install rar
-          sudo apt install libtinyxml2-dev
-          sudo apt install libswscale-dev
-          sudo apt install ffmpeg
-          sudo apt install libavformat-dev
-          wget http://psx.arthus.net/sdk/Psy-Q/psyq-4_7-converted-light.zip
-          wget https://github.com/Lameguy64/mkpsxiso/releases/download/v2.02/mkpsxiso-2.02-Linux.deb
-          sudo dpkg -i mkpsxiso-2.02-Linux.deb
-          unzip psyq-4_7-converted-light.zip
-          mv psyq-4_7-converted mips/psyq
-          make -f Makefile.assets -j8
-          mkdir export
-          mv funkin.bin export
-          mv funkin.cue export
-          rar a export.rar export
+          ls
 
-      - name: upload export
-        run: |
-          curl --upload-file export.rar https://transfer.sh/  
+      #- name: upload export
+       # run: |
+        #  curl --upload-file export.rar https://transfer.sh/  
