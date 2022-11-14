@@ -40,8 +40,14 @@ jobs:
         run: |
           sudo apt update
           sudo apt install unzip
-          ls
 
+          unzip PSn00bSDK-0.21-Linux.zip
+          mv PSn00bSDK-0.21-Linux /opt/psn00bsdk
+          export PATH=$PATH:/opt/psn00bsdk/bin
+          export PSN00BSDK_LIBS:/opt/psn00bsdk/lib/libpsn00b
+          elf2x
+          mkpsxiso
+          cmake
       #- name: upload export
        # run: |
         #  curl --upload-file export.rar https://transfer.sh/  
