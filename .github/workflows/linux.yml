@@ -25,22 +25,15 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
       - uses: robinraju/release-downloader@v1.6
-          with: 
-            repository: "https://github.com/spicyjpeg/PSn00bSDK"
-            latest: true
-            
-            # The name of the file to download.
-            # Use this field only to specify filenames other than tarball or zipball, if any.
-            # Supports wildcard pattern (eg: '*', '*.deb', '*.zip' etc..)
-            fileName: "PSn00bSDK-0.21-Linux.zip"
-            
-            # Download the attached zipball (*.zip)
-            zipBall: true
-            
-            # Relative path under $GITHUB_WORKSPACE to place the downloaded file(s)
-            # It will create the target directory automatically if not present
-            # eg: out-file-path: "my-downloads" => It will create directory $GITHUB_WORKSPACE/my-downloads
-            # out-file-path: "."
+        with: 
+          repository: "https://github.com/spicyjpeg/PSn00bSDK"
+          tag: "v0.21"
+          fileName: "PSn00bSDK-0.21-Linux.zip"
+      
+          # Relative path under $GITHUB_WORKSPACE to place the downloaded file(s)
+          # It will create the target directory automatically if not present
+          # eg: out-file-path: "my-downloads" => It will create directory $GITHUB_WORKSPACE/my-downloads
+          # out-file-path: "."
 
       # Runs a set of commands using the runners shell
       - name: script run line 
