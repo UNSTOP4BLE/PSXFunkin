@@ -3,68 +3,20 @@
 ## Setting up the Development Environment
 First off, you'll need a terminal one way or another.
 
-### Windows
-On Windows, you basically have two choices:
-- MSYS2 (follow the instructions at https://www.msys2.org/ to set it up)
-- WSL (Windows 10 Linux terminal from the Windows Store, maintained by Microsoft, follow Linux instructions from here on).
-
-### MSYS2
-Once you have MSYS2 set up, you'll need to copy the MIPS toolchain over. Download it here http://static.grumpycoder.net/pixel/mips/g++-mipsel-none-elf-11.2.0.zip.
-
-Once you have it downloaded, make sure MSYS2 is closed, then open the zip up and extract the following folders into `C:/msys64/usr/local/`
-- bin
-- include
-- lib
-- libexec
-- mipsel-none-elf
-
-**IMPORTANT - DELETE THESE FILES IN `bin` OR YOUR TERMINAL WILL BE FUCKED**
-- cat
-- cp
-- echo
-- make
-- mkdir
-- touch
-- rm
-- which
-
-Next, open up `MSYS2 MinGW 64-bit` from the Start Menu, and you'll need to install some libraries, so run the following command and accept the prompts that follow `pacman -S mingw-w64-x86_64-cmake mingw-w64-x86_64-tinyxml2 mingw-w64-x86_64-ffmpeg `
-
-### Linux
-First, you'll need to install the GCC toolchain, run one of the following commands depending on your distro.
-
-On Debian derivatives (Ubuntu, Mint...):
-
-`sudo apt-get install gcc-mipsel-linux-gnu g++-mipsel-linux-gnu binutils-mipsel-linux-gnu`
-
-On Arch derivatives (Manjaro), the mipsel environment can be installed from AUR : cross-mipsel-linux-gnu-binutils and cross-mipsel-linux-gnu-gcc using your AURhelper of choice:
-
-`trizen -S cross-mipsel-linux-gnu-binutils cross-mipsel-linux-gnu-gcc`
-
-You'll also need to install `tinyxml2`, `ffmpeg` (you may also need to install `avformat` and `swscale` separately), and `cmake`, which of course, depends on your distro of choice.
-
-### Mac OS
-First open the terminal and install brew https://brew.sh, after that run these commands one by one.
-
-`curl -o mipsel-none-elf-binutils.rb 'https://raw.githubusercontent.com/grumpycoders/pcsx-redux/main/tools/macos-mips/mipsel-none-elf-binutils.rb'`
-`curl -o mipsel-none-elf-gcc.rb 'https://raw.githubusercontent.com/grumpycoders/pcsx-redux/main/tools/macos-mips/mipsel-none-elf-gcc.rb'`
-`brew install mipsel-none-elf-binutils.rb`
-`brew install mipsel-none-elf-gcc.rb`
-`brew install cmake`
-`brew install ffmpeg`
-`brew install tinyxml2` 
+Follow the PSn00bSDK set up instructions here https://github.com/spicyjpeg/PSn00bSDK/blob/master/doc/installation.md
 
 ## Compiling PSXFunkin
-First, make sure to `cd` to the repo directory where the CMakeLists.txt is. You're gonna want to run a few commands from here, You'll need to either get a PSX license file and save it as licensea.dat in the same directory as funkin.xml (you can get them at http://www.psxdev.net/downloads.html 's `PsyQ SDK`), or remove the referencing line `<license file="licensea.dat"/>` from funkin.xml. Without the license file, the game may fail on a bunch of emulators due to bios checks (unless you use fast boot, I believe?)
+First, make sure to `cd` to the repo directory where the CMakeLists.txt is. You're gonna want to run a few commands from here;
 
 this will build the tools.
 `cmake -S ./tools -B ./tools/build -G "Ninja"` 
 `cmake --build ./tools/build`
 
 this builds the game itself.
-`cmake -S . -B ./build -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=C:\PSn00bSDK\lib\libpsn00b\cmake\sdk.cmake` (add -DCMAKE_BUILD_TYPE=Debug at the end to build for debug mode) replace C:\PSn00bSDK with the path you put PSn00bSDK in.
-`cmake --build ./tools/build`
+`cmake -S . -B ./build -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=C:\PSn00bSDK\lib\libpsn00b\cmake\sdk.cmake` Replace C:\PSn00bSDK with the path you put PSn00bSDK in.
+(add -DCMAKE_BUILD_TYPE=Debug at the end to build for debug mode) 
+`cmake --build ./build` 
 
 You can read more about the asset formats in [FORMATS.md](/FORMATS.md)
 
-If everything went well, you should have a `funkin.bin` and a `funkin.cue` in the same directory.
+If everything went well, you should have a `funkin.bin` and a `funkin.cue` in the build directory.
