@@ -26,3 +26,5 @@ add_executable(funkinvagpak
 	funkinvagpak/funkinvagpak.cpp
 	funkinvagpak/adpcm.cpp
 )
+find_package(Threads REQUIRED)
+target_link_libraries(funkinvagpak Threads::Threads)
