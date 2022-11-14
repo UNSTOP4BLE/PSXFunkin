@@ -47,6 +47,7 @@ typedef struct {
 
 static StreamContext str_ctx;
 static int lastChannelUsed = 0;
+boolean playing;
 
 //SPU registers
 typedef struct
@@ -102,6 +103,9 @@ static void spu_irq_handler() {
 	// at the end of the currently playing buffers.
 	int addr = BUFFER_START_ADDR + (str_ctx.db_active ? chunk_size : 0);
 	str_ctx.spu_addr = addr;
+
+	if (chunk == 0)
+		playing = false;
 
 	if (chunk == 0 && str_ctx.loop == false)
 	{
@@ -179,7 +183,7 @@ void Audio_LoadStream(const char *path, boolean loop) {
 	printf("OPENING STREAM FILE\n");
 	if (!CdSearchFile(&file, path))
 	{
-		sprintf(error_msg, "[Audio_LoadStream] failed to find stream file");
+		sprintf(error_msg, "[Audio_LoadStream] failed to find stream file %s", path);
 		ErrorLock();
 	}
 
@@ -260,6 +264,7 @@ void Audio_StartStream() {
 	spu_irq_handler();
 	str_ctx.last_paused = 0;
 	lastChannelUsed = str_ctx.channels;
+	playing = true;
 }
 
 void Audio_StopStream(void) {
@@ -272,6 +277,7 @@ void Audio_StopStream(void) {
 		SPU_CH_ADDR(i) = getSPUAddr(DUMMY_BLOCK_ADDR);
 
 	SpuSetKey(1, bits);
+	playing = false;
 }
 
 u32 Audio_GetTimeMS(void) {
@@ -292,7 +298,7 @@ u32 Audio_GetInitialTime(void) {
 
 boolean Audio_IsPlaying(void)
 {
-	return str_ctx.state != STATE_IDLE;
+	return playing;
 }
 
 void Audio_SetVolume(u8 i, u16 vol_left, u16 vol_right)
@@ -330,9 +336,8 @@ u32 Audio_LoadVAGData(u32 *sound, u32 sound_size) {
 	audio_alloc_ptr += xfer_size;
 
 	if (audio_alloc_ptr > 0x80000) {
-		// TODO: add proper error handling code
-		printf("FATAL: SPU RAM overflow! (%d bytes overflowing)\n", audio_alloc_ptr - 0x80000);
-		while (1);
+		sprintf(error_msg, "[Audio_LoadVAGData] FATAL: SPU RAM overflow! (%d bytes overflowing)\n", audio_alloc_ptr - 0x80000);
+		ErrorLock();
 	}
 
 	SpuSetTransferStartAddr(addr); // set transfer starting address to malloced area
