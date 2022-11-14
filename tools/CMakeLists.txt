@@ -6,6 +6,8 @@ project(
 	VERSION 1.0.0
 	DESCRIPTION "Tools used to build psxfunkin"
 )
+set(CMAKE_C_STANDARD           11)
+set(CMAKE_CXX_STANDARD         17)
 
 # funkinarcpak
 add_executable(funkinarcpak funkinarcpak/funkinarcpak.c)
