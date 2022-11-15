@@ -61,7 +61,7 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: script run line (debug)
         run: |
-          ls
+          mkpsxiso
           rm -r build
 
           cmake -S . -B ./build -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=/opt/psn00bsdk/lib/libpsn00b/cmake/sdk.cmake -DCMAKE_BUILD_TYPE=Debug 
