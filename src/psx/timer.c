@@ -43,7 +43,6 @@ void Timer_Init(void) {
 
 u32 Timer_GetAnimfCount(void)
 {
-	FntPrint(-1, "%d", (Timer_GetTime() * 24) / TICKS_PER_SEC);
 	if (stage.paused)
 		return 0;
 	else

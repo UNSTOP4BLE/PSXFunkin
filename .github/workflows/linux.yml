@@ -53,7 +53,19 @@ jobs:
           cmake --build ./build -j24
       - uses: actions/upload-artifact@v3
         with:
-          name: funkin-latest
+          name: funkin-release
+          path: |
+            build/funkin.bin
+            build/funkin.cue
+
+        run: |
+          rm -r build
+          cmake -S . -B ./build -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=/opt/psn00bsdk/lib/libpsn00b/cmake/sdk.cmake -DCMAKE_BUILD_TYPE=Debug
+          cmake --build ./build -j24
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: funkin-debug
           path: |
             build/funkin.bin
             build/funkin.cue
