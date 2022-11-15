@@ -61,7 +61,12 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: script run line (debug)
         run: |
-          mkpsxiso
+   
+          unzip PSn00bSDK-0.21-Linux.zip
+          mv PSn00bSDK-0.21-Linux /opt/psn00bsdk
+          export PATH=$PATH:/opt/psn00bsdk/bin
+          export PSN00BSDK_LIBS=/opt/psn00bsdk/lib/libpsn00b
+          
           rm -r build
 
           cmake -S . -B ./build -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=/opt/psn00bsdk/lib/libpsn00b/cmake/sdk.cmake -DCMAKE_BUILD_TYPE=Debug 
