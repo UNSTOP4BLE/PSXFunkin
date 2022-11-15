@@ -57,8 +57,7 @@ jobs:
           path: |
             build/funkin.bin
             build/funkin.cue
-
-    steps:
+            
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
       - uses: robinraju/release-downloader@v1.6
