@@ -43,6 +43,7 @@ typedef struct
 
 //Gfx functions
 void Gfx_Init(void);
+u8 Gfx_GetDB();
 void Gfx_ScreenSetup(void);
 void Gfx_Quit(void);
 void Gfx_Flip(void);

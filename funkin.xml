@@ -269,7 +269,14 @@
 				<file name = "6_2.vag" type = "data" source = "iso/music/roses/roses.vag"/>
 				<file name = "6_3.vag" type = "data" source = "iso/music/thorns/thorns.vag"/>
 			</dir>
-			
+		
+			<!-- Videos -->
+			<dir name = "str">
+				<file name="ugh.STR" type="mixed" source="${PROJECT_SOURCE_DIR}/iso/movie/ugh.str"/>
+				<file name="guns.STR" type="mixed" source="${PROJECT_SOURCE_DIR}/iso/movie/guns.str"/>
+				<file name="stress.STR" type="mixed" source="${PROJECT_SOURCE_DIR}/iso/movie/stress.str"/>
+			</dir>
+
 			<!-- Dummy sectors -->
 			<dummy sectors="1024"/>
 		</directory_tree>

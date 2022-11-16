@@ -66,11 +66,15 @@ typedef enum
 	StageId_6_1, //Senpai
 	StageId_6_2, //Roses
 	StageId_6_3, //Thorns
+
+	StageId_7_1, //Ugh
+	StageId_7_2, //Guns
+	StageId_7_3, //Stress
 	
 	StageId_Max
 } StageId;
 
-#define StageId_LastVanilla StageId_6_3
+#define StageId_LastVanilla StageId_7_3
 
 typedef enum
 {
@@ -185,6 +189,8 @@ typedef struct
 	//Stage settings
 	int pause_state;
 	fixed_t pause_scroll;
+	boolean str_playing;
+	
 	struct
 	{
 		boolean ghost, downscroll, middlescroll, practice, debug, palmode, widescreen, stereo, sfxmiss, songtimer, botplay;

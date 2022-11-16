@@ -12,6 +12,7 @@
 #include "io.h"
 #include "gfx.h"
 #include "audio.h"
+#include "str.h"
 #include "pad.h"
 #include "archive.h"
 #include "mutil.h"
@@ -320,6 +321,16 @@ void Menu_ToStage(StageId id, StageDiff diff, boolean story)
 
 boolean adjustscreen;
 
+void Menu_HandleSTR()
+{
+	switch (menu.page_param.stage.id)
+	{
+		case StageId_7_1:
+			STR_InitStream();
+			STR_StartStream("\\STR\\UGH.STR;1");
+			break;
+	}
+}
 void Menu_Tick(void)
 {
 	//Clear per-frame flags
@@ -644,6 +655,7 @@ void Menu_Tick(void)
 				{"4", StageId_4_1, "MOMMY MUST MURDER", {"SATIN PANTIES", "HIGH", "MILF"}, 3},
 				{"5", StageId_5_1, "RED SNOW", {"COCOA", "EGGNOG", "WINTER HORRORLAND"}, 3},
 				{"6", StageId_6_1, "HATING SIMULATOR", {"SENPAI", "ROSES", "THORNS"}, 3},
+				{"6", StageId_7_1, "HATING SIMULATOR", {"SENPAI", "ROSES", "THORNS"}, 3},
 			};
 	
 			//Draw week name and tracks
@@ -708,8 +720,16 @@ void Menu_Tick(void)
 				{
 					//play confirm sound
 					Audio_PlaySound(Sounds[1], 0x3fff);
-					menu.next_page = MenuPage_Stage;
 					menu.page_param.stage.id = menu_options[menu.select].stage;
+					if (menu.page_param.stage.id ==
+					   StageId_7_1)
+					{
+						Audio_StopStream();
+						Menu_HandleSTR();
+						menu.next_page = MenuPage_STR;
+					}
+					else
+						menu.next_page = MenuPage_Stage;
 					menu.page_param.stage.story = true;
 					menu.trans_time = FIXED_UNIT;
 					menu.page_state.title.fade = FIXED_DEC(255,1);
@@ -1278,8 +1298,17 @@ void Menu_Tick(void)
 			);
 			break;
 		}
-		default:
-			break;
+		case MenuPage_STR:
+		{
+			if (stage.str_playing = false)
+			{
+				menu.next_page = MenuPage_Stage;
+				menu.page_param.stage.story = true;
+				menu.trans_time = FIXED_UNIT;
+				menu.page_state.title.fade = FIXED_DEC(255,1);
+				menu.page_state.title.fadespd = FIXED_DEC(510,1);
+			}
+		}
 	}
 	
 	//Clear page swap flag

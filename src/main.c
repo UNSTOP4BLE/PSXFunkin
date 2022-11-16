@@ -10,6 +10,7 @@
 #include "io.h"
 #include "gfx.h"
 #include "audio.h"
+#include "str.h"
 #include "pad.h"
 
 #include "pause.h"
@@ -48,6 +49,7 @@ int main(int argc, char **argv)
 	PSX_Init();
 
 	Gfx_Init();
+	STR_Init();
 	Pad_Init();
 	InitCARD(1);
 	StartPAD();
@@ -102,7 +104,10 @@ int main(int argc, char **argv)
 #endif
 
 		//Flip gfx buffers
-		Gfx_Flip();
+		if (stage.str_playing)
+			STR_Proccess();
+		else
+			Gfx_Flip();
 	}
 	
 	return 0;

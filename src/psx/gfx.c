@@ -55,6 +55,11 @@ void Gfx_Init(void)
 	FntOpen(0, 8, 320, 224, 0, 100);
 }
 
+u8 Gfx_GetDB()
+{
+	return db;
+}
+
 void Gfx_ScreenSetup(void) {
 	screen.SCREEN_WIDTH   = stage.prefs.widescreen ? 512 : 320;
 	screen.SCREEN_HEIGHT  = 240;

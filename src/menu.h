@@ -22,6 +22,7 @@ typedef enum
 	
 	MenuPage_Stage, //Changes game loop
 	MenuPage_MoveSCR,
+	MenuPage_STR,
 } MenuPage;
 
 //Menu functions

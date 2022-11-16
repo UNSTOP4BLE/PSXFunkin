@@ -343,3 +343,54 @@
 		
 		StageId_6_3, 0
 	},
+	{ //StageId_7_1 (Ugh)
+		//Characters
+		{Char_BFWeeb_New,  FIXED_DEC(52,1),  FIXED_DEC(50,1)},
+        {NULL},
+		{Char_Senpai_New, FIXED_DEC(-60,1),  FIXED_DEC(50,1)},
+		{NULL},
+        {Char_GFWeeb_New,   FIXED_DEC(0,1),  FIXED_DEC(45,1)},
+		
+		//Stage background
+		Back_Week6_New,
+		
+		//Song info
+		6, 1,
+		"\\MUSIC\\6_1.VAG;1",
+		
+		StageId_7_2, STAGE_LOAD_FLAG | STAGE_LOAD_OPPONENT
+	},
+	{ //StageId_7_2 (Guns)
+		//Characters
+		{Char_BFWeeb_New,   FIXED_DEC(52,1),  FIXED_DEC(50,1)},
+        {NULL},
+		{Char_SenpaiM_New, FIXED_DEC(-60,1),  FIXED_DEC(50,1)},
+		{NULL},
+        {Char_GFWeeb_New,    FIXED_DEC(0,1),  FIXED_DEC(45,1)},
+		
+		//Stage background
+		Back_Week6_New,
+		
+		//Song info
+		6, 2,
+		"\\MUSIC\\6_2.VAG;1",
+		
+		StageId_7_3, 0
+	},
+	{ //StageId_7_3 (Stress)
+		//Characters
+		{Char_BFWeeb_New,  FIXED_DEC(52,1),  FIXED_DEC(50,1)},
+        {NULL},
+		{Char_Spirit_New, FIXED_DEC(-60,1),  FIXED_DEC(50,1)},
+        {NULL},
+		{Char_GFWeeb_New,   FIXED_DEC(0,1),  FIXED_DEC(45,1)},
+		
+		//Stage background
+		Back_Week6_New,
+		
+		//Song info
+		6, 3,
+		"\\MUSIC\\6_3.VAG;1",
+		
+		StageId_7_3, 0
+	}

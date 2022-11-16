@@ -335,6 +335,7 @@ set(_sources
 	src/psx/audio.c 
 	src/psx/pad.c 
 	src/psx/timer.c 
+	src/psx/str.c 
 	src/stage/dummy.c 
 	src/stage/week1.c 
 	src/stage/week2.c
