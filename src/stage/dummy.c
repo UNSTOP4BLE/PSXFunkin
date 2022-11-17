@@ -7,7 +7,7 @@
 #include "dummy.h"
 
 #include "../archive.h"
-#include <stdlib.h> 
+#include "../mem.h"
 #include "../stage.h"
 
 //Dummy background structure
@@ -23,13 +23,13 @@ void Back_Dummy_Free(StageBack *back)
 	Back_Dummy *this = (Back_Dummy*)back;
 	
 	//Free structure
-	free(this);
+	Mem_Free(this);
 }
 
 StageBack *Back_Dummy_New(void)
 {
 	//Allocate background structure
-	Back_Dummy *this = (Back_Dummy*)malloc(sizeof(Back_Dummy));
+	Back_Dummy *this = (Back_Dummy*)Mem_Alloc(sizeof(Back_Dummy));
 	if (this == NULL)
 		return NULL;
 	

@@ -6,7 +6,7 @@
 
 #include "../gfx.h"
 
-#include <stdlib.h>                  
+#include "../mem.h"
 #include "../main.h"
 #include "../mutil.h"
 #include "../stage.h"
@@ -24,96 +24,67 @@ static u8 *nextpri;          //Next primitive pointer
 //Gfx functions
 void Gfx_Init(void)
 {
-	int width = stage.prefs.widescreen ? 512 : 320;
-
-	//Initialize display environment
-	SetDefDispEnv(&stage.disp[0], 0, 0, width, 240);
-	SetDefDispEnv(&stage.disp[1], 0, 240, width, 240);				
-	//Initialize draw environment
-	SetDefDrawEnv(&stage.draw[0], 0, 240, width, 240);
-	SetDefDrawEnv(&stage.draw[1], 0, 0, width, 240);
+	ResetGraph(0);
+	if (stage.prefs.widescreen)
+	{
+		//Initialize display environment
+		SetDefDispEnv(&stage.disp[0], 0, 0, 512, 240);
+		SetDefDispEnv(&stage.disp[1], 0, 240, 512, 240);					
+		//Initialize draw environment
+		SetDefDrawEnv(&stage.draw[0], 0, 240, 512, 240);
+		SetDefDrawEnv(&stage.draw[1], 0, 0, 512, 240);
+	}
+	else
+	{
+		//Initialize display environment
+		SetDefDispEnv(&stage.disp[0], 0, 0, 320, 240);
+		SetDefDispEnv(&stage.disp[1], 0, 240, 320, 240);
+		//Initialize draw environment
+		SetDefDrawEnv(&stage.draw[0], 0, 240, 320, 240);
+		SetDefDrawEnv(&stage.draw[1], 0, 0, 320, 240);
+	}
 
 	//Set draw background
-	stage.draw[0].isbg = 1;
-	stage.draw[1].isbg = 1;
+	stage.draw[0].isbg = stage.draw[1].isbg = 1;
 	setRGB0(&stage.draw[0], 0, 0, 0);
 	setRGB0(&stage.draw[1], 0, 0, 0);
-
-	PutDispEnv(&stage.disp[0]);
-	PutDrawEnv(&stage.draw[0]);
-	SetDispMask(1);
-
-	//Initialize drawing state
-	nextpri = pribuff[0];
-	db = 0;
-
-	ClearOTagR((uint32_t *)ot[0], OTLEN);
-	ClearOTagR((uint32_t *)ot[1], OTLEN);
-
+	
 	//Load font
 	FntLoad(960, 0);
 	FntOpen(0, 8, 320, 224, 0, 100);
-}
-
-void Gfx_ScreenSetup(void) {
-	screen.SCREEN_WIDTH   = stage.prefs.widescreen ? 512 : 320;
-	screen.SCREEN_HEIGHT  = 240;
-	screen.SCREEN_WIDTH2  = (screen.SCREEN_WIDTH >> 1);
-	screen.SCREEN_HEIGHT2 = (screen.SCREEN_HEIGHT >> 1);
-
-	screen.SCREEN_WIDEADD = 0; // ???
-	screen.SCREEN_TALLADD = 0; // ???
-	screen.SCREEN_WIDEADD2 = (screen.SCREEN_WIDEADD >> 1);
-	screen.SCREEN_TALLADD2 = (screen.SCREEN_TALLADD >> 1);
-
-	screen.SCREEN_WIDEOADD = (screen.SCREEN_WIDEADD > 0 ? screen.SCREEN_WIDEADD : 0);
-	screen.SCREEN_TALLOADD = (screen.SCREEN_TALLADD > 0 ? screen.SCREEN_TALLADD : 0);
-	screen.SCREEN_WIDEOADD2 = (screen.SCREEN_WIDEOADD >> 1);
-	screen.SCREEN_TALLOADD2 = (screen.SCREEN_TALLOADD >> 1);
-
-	SetVideoMode(stage.prefs.palmode ? MODE_PAL : MODE_NTSC);
-
-	Gfx_Init();
-
-	//screen borders
-	if (stage.prefs.widescreen)
-	{
-		if (stage.prefs.scr_x > 217)
-			stage.prefs.scr_x = 217;
-
-		if (stage.prefs.scr_x < -134)
-			stage.prefs.scr_x = -134;
-	}
-	stage.disp[0].screen.x = stage.prefs.scr_x;
-	stage.disp[1].screen.x = stage.prefs.scr_x;
-	stage.disp[0].screen.y = stage.prefs.scr_y;
-	stage.disp[1].screen.y = stage.prefs.scr_y;
+	
+	//Initialize drawing state
+	nextpri = pribuff[0];
+	db = 0;
+	Gfx_Flip();
+	Gfx_Flip();
 }
 
 void Gfx_Quit(void)
-{
-	SetDispMask(0); // turn screen off
+{	
 }
 
 void Gfx_Flip(void)
 {
-	FntFlush(-1);
-
 	//Sync
-	//DrawSync(0); // not required, FntFlush already does it
+	DrawSync(0);
 	VSync(0);
-
-	//Flip buffers
-	db ^= 1;
-	nextpri = pribuff[db];
-	ClearOTagR((uint32_t *)ot[db], OTLEN);
-
+	
 	//Apply environments
 	PutDispEnv(&stage.disp[db]);
 	PutDrawEnv(&stage.draw[db]);
-
+	
+	//Enable display
+	SetDispMask(1);
+	
 	//Draw screen
-	DrawOTag((uint32_t *)&(ot[db ^ 1])[OTLEN - 1]);
+	DrawOTag(ot[db] + OTLEN - 1);
+	FntFlush(-1);
+	
+	//Flip buffers
+	db ^= 1;
+	nextpri = pribuff[db];
+	ClearOTagR(ot[db], OTLEN);
 }
 
 void Gfx_SetClear(u8 r, u8 g, u8 b)
@@ -143,7 +114,8 @@ void Gfx_LoadTex(Gfx_Tex *tex, IO_Data data, Gfx_LoadTex_Flag flag)
 	
 	//Read TIM information
 	TIM_IMAGE tparam;
-	GetTimInfo((uint32_t *)data, &tparam);
+	OpenTIM(data);
+	ReadTIM(&tparam);
 	
 	if (tex != NULL)
 	{
@@ -159,7 +131,7 @@ void Gfx_LoadTex(Gfx_Tex *tex, IO_Data data, Gfx_LoadTex_Flag flag)
 			tex->tim_prect = *tparam.prect;
 			tex->tpage = getTPage(tparam.mode & 0x3, 0, tparam.prect->x, tparam.prect->y);
 		}
-		LoadImage(tparam.prect, (uint32_t *)tparam.paddr);
+		LoadImage(tparam.prect, (u32*)tparam.paddr);
 		DrawSync(0);
 	}
 	
@@ -171,13 +143,13 @@ void Gfx_LoadTex(Gfx_Tex *tex, IO_Data data, Gfx_LoadTex_Flag flag)
 			tex->tim_crect = *tparam.crect;
 			tex->clut = getClut(tparam.crect->x, tparam.crect->y);
 		}
-		LoadImage(tparam.crect, (uint32_t *)tparam.caddr);
+		LoadImage(tparam.crect, (u32*)tparam.caddr);
 		DrawSync(0);
 	}
 	
 	//Free data
 	if (flag & GFX_LOADTEX_FREE)
-		free(data);
+		Mem_Free(data);
 }
 
 void Gfx_DrawRect(const RECT *rect, u8 r, u8 g, u8 b)

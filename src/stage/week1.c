@@ -7,7 +7,7 @@
 #include "week1.h"
 
 #include "../archive.h"
-#include <stdlib.h> 
+#include "../mem.h"
 #include "../stage.h"
 
 //Week 1 background structure
@@ -133,13 +133,13 @@ void Back_Week1_Free(StageBack *back)
 	Back_Week1 *this = (Back_Week1*)back;
 	
 	//Free structure
-	free(this);
+	Mem_Free(this);
 }
 
 StageBack *Back_Week1_New(void)
 {
 	//Allocate background structure
-	Back_Week1 *this = (Back_Week1*)malloc(sizeof(Back_Week1));
+	Back_Week1 *this = (Back_Week1*)Mem_Alloc(sizeof(Back_Week1));
 	if (this == NULL)
 		return NULL;
 	
@@ -153,7 +153,7 @@ StageBack *Back_Week1_New(void)
 	IO_Data arc_back = IO_Read("\\WEEK1\\BACK.ARC;1");
 	Gfx_LoadTex(&this->tex_back0, Archive_Find(arc_back, "back0.tim"), 0);
 	Gfx_LoadTex(&this->tex_back1, Archive_Find(arc_back, "back1.tim"), 0);
-	free(arc_back);
+	Mem_Free(arc_back);
 	
 	return (StageBack*)this;
 }

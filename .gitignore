@@ -3,6 +3,7 @@ do.sh
 pcsx.json
 memcard1.mcd
 memcard2.mcd
+mips/psyq/
 
 # Exclude executable files
 *.cue
@@ -18,8 +19,6 @@ tools/funkinpicopak/funkinpicopak
 tools/funkintimconv/funkintimconv
 tools/psxavenc/psxavenc
 tools/xainterleave/xainterleave
-tools/funkinchrpak/funkinchrpak
-tools/funkinmultitool/funkinmultitool
 
 # Exclude object and link files
 obj/
@@ -31,7 +30,16 @@ bin/
 
 # Exclude CMake build directory
 build/
-tools/build/
+
+# Exclude converted assets
+iso/*/*.tim
+iso/*/*.arc
+iso/*/*.xa
+iso/*/*/*.xa
+iso/*/*.cht
 
 # Big Chungus
 .DS_Store
+
+tools/funkinchrpak/funkinchrpak
+tools/funkinmultitool/funkinmultitool

@@ -6,7 +6,7 @@
 
 #include "menu.h"
 
-#include <stdlib.h>                  
+#include "mem.h"
 #include "main.h"
 #include "timer.h"
 #include "io.h"
@@ -15,6 +15,7 @@
 #include "pad.h"
 #include "archive.h"
 #include "mutil.h"
+#include "network.h"
 
 #include "font.h"
 #include "trans.h"
@@ -260,7 +261,7 @@ void Menu_Load(MenuPage page)
 	Gfx_LoadTex(&menu.tex_ng,    Archive_Find(menu_arc, "ng.tim"),    0);
 	Gfx_LoadTex(&menu.tex_story, Archive_Find(menu_arc, "story.tim"), 0);
 	Gfx_LoadTex(&menu.tex_title, Archive_Find(menu_arc, "title.tim"), 0);
-	free(menu_arc);
+	Mem_Free(menu_arc);
 	
 	FontData_Load(&menu.font_bold, Font_Bold);
 	FontData_Load(&menu.font_arial, Font_Arial);
@@ -291,13 +292,25 @@ void Menu_Load(MenuPage page)
 	stage.song_step = 0;
 
 	// to load
-    Sounds[0] = Audio_LoadSound("\\SOUNDS\\SCROLL.VAG;1");
-    Sounds[1] = Audio_LoadSound("\\SOUNDS\\CONFIRM.VAG;1");
-    Sounds[2] = Audio_LoadSound("\\SOUNDS\\CANCEL.VAG;1");
+	CdlFILE file;
+    IO_FindFile(&file, "\\SOUNDS\\SCROLL.VAG;1");
+    u32 *data = IO_ReadFile(&file);
+    Sounds[0] = Audio_LoadVAGData(data, file.size);
+    Mem_Free(data);
+
+	IO_FindFile(&file, "\\SOUNDS\\CONFIRM.VAG;1");
+    data = IO_ReadFile(&file);
+    Sounds[1] = Audio_LoadVAGData(data, file.size);
+    Mem_Free(data);
+
+	IO_FindFile(&file, "\\SOUNDS\\CANCEL.VAG;1");
+    data = IO_ReadFile(&file);
+    Sounds[2] = Audio_LoadVAGData(data, file.size);
+    Mem_Free(data);
 
 	//Play menu music
 	Audio_PlayXA_Track(XA_GettinFreaky, 0x40, 0, 1);
-	Audio_ResumeXA();
+	Audio_WaitPlayXA();
 	
 	//Set background colour
 	Gfx_SetClear(0, 0, 0);
@@ -318,22 +331,20 @@ void Menu_ToStage(StageId id, StageDiff diff, boolean story)
 	Trans_Start();
 }
 
-boolean adjustscreen;
-
 void Menu_Tick(void)
 {
 	//Clear per-frame flags
 	stage.flag &= ~STAGE_FLAG_JUST_STEP;
 	
 	//Get song position
-	int next_step = Audio_TellXA_Milli() / 147;
+	u16 next_step = Audio_TellXA_Milli() / 147; //100 BPM
 	if (next_step != stage.song_step)
 	{
 		if (next_step >= stage.song_step)
 			stage.flag |= STAGE_FLAG_JUST_STEP;
 		stage.song_step = next_step;
 	}
-
+	
 	//Handle transition out
 	if (Trans_Tick())
 	{
@@ -341,25 +352,18 @@ void Menu_Tick(void)
 		menu.page_swap = true;
 		menu.page = menu.next_page;
 		menu.select = menu.next_select;
-
-		if (adjustscreen)
-		{	
-			if (menu.trans_time > 0 && (menu.trans_time -= timer_dt) <= 0)
-				Trans_Start();
-
-			menu.page = MenuPage_MoveSCR;
-		}
 	}
-
+	
 	//Tick menu page
 	MenuPage exec_page;
 	switch (exec_page = menu.page)
 	{
 		case MenuPage_Opening:
 		{
-			int beat = stage.song_step >> 2;
+			u16 beat = stage.song_step >> 2;
+			
 			//Start title screen if opening ended
-			if (beat >= 16 && beat < 20)
+			if (beat >= 16)
 			{
 				menu.page = menu.next_page = MenuPage_Title;
 				menu.page_swap = true;
@@ -368,7 +372,7 @@ void Menu_Tick(void)
 			else
 			{
 				//Start title screen if start pressed
-				if (pad_state.held & (PAD_START | PAD_CROSS))
+				if (pad_state.held & PAD_START)
 					menu.page = menu.next_page = MenuPage_Title;
 				
 				//Draw different text depending on beat
@@ -443,7 +447,7 @@ void Menu_Tick(void)
 			if (menu.trans_time > 0 && (menu.trans_time -= timer_dt) <= 0)
 				Trans_Start();
 			
-			if ((pad_state.press & (PAD_START | PAD_CROSS)) && menu.next_page == menu.page && Trans_Idle())
+			if ((pad_state.press & PAD_START) && menu.next_page == menu.page && Trans_Idle())
 			{
 				//play confirm sound
 				Audio_PlaySound(Sounds[1], 0x3fff);
@@ -808,7 +812,7 @@ void Menu_Tick(void)
 
 			menu.font_arial.draw(&menu.font_arial,
 				scoredisp,
-				screen.SCREEN_WIDTH - 170,
+				150,
 				screen.SCREEN_HEIGHT / 2 - 75,
 				FontAlign_Left
 			);
@@ -1050,7 +1054,6 @@ void Menu_Tick(void)
 				{
 					OptType_Boolean,
 					OptType_Enum,
-					OptType_SubMenu,
 				} type;
 				const char *text;
 				void *value;
@@ -1068,6 +1071,7 @@ void Menu_Tick(void)
 				} spec;
 			} menu_options[] = {
 				{OptType_Enum,    "GAMEMODE", &stage.mode, {.spec_enum = {COUNT_OF(gamemode_strs), gamemode_strs}}},
+				{OptType_Boolean, "INTERPOLATION", &stage.prefs.expsync, {.spec_boolean = {0}}},
 				{OptType_Boolean, "PAL REFRESH RATE", &stage.prefs.palmode, {.spec_boolean = {0}}},
 				{OptType_Boolean, "GHOST TAP", &stage.prefs.ghost, {.spec_boolean = {0}}},
 				{OptType_Boolean, "MISS SOUNDS", &stage.prefs.sfxmiss, {.spec_boolean = {0}}},
@@ -1077,10 +1081,17 @@ void Menu_Tick(void)
 				{OptType_Boolean, "SHOW SONG TIME", &stage.prefs.songtimer, {.spec_boolean = {0}}},
 				{OptType_Boolean, "PRACTICE MODE", &stage.prefs.practice, {.spec_boolean = {0}}},
 				{OptType_Boolean, "WIDESCREEN", &stage.prefs.widescreen, {.spec_boolean = {0}}},
-				{OptType_SubMenu, "ADJUST SCREEN BORDERS", &adjustscreen, {.spec_boolean = {0}}},
 				{OptType_Boolean, "DEBUG MODE", &stage.prefs.debug, {.spec_boolean = {0}}},
 			};
+			if (menu.select == 2 && pad_state.press & (PAD_CROSS | PAD_LEFT | PAD_RIGHT))
+				stage.pal_i = 1;
 
+			if (menu.select == 10 && pad_state.press & (PAD_CROSS | PAD_LEFT | PAD_RIGHT))
+				stage.wide_i = 1;
+
+			if (stage.mode == StageMode_2P)
+				stage.prefs.middlescroll = false;
+			
 			//Initialize page
 			if (menu.page_swap)
 				menu.scroll = COUNT_OF(menu_options) * FIXED_DEC(24 + screen.SCREEN_HEIGHT2,1);
@@ -1124,19 +1135,8 @@ void Menu_Tick(void)
 				switch (menu_options[menu.select].type)
 				{
 					case OptType_Boolean:
-						if (pad_state.press & (PAD_CROSS | PAD_LEFT | PAD_RIGHT)) {
+						if (pad_state.press & (PAD_CROSS | PAD_LEFT | PAD_RIGHT))
 							*((boolean*)menu_options[menu.select].value) ^= 1;
-
-							// this shit needs to go
-							if ((menu.select == 1) || (menu.select == 9))
-								Gfx_ScreenSetup();
-						}
-						break;	
-					case OptType_SubMenu:
-						if (pad_state.press & (PAD_CROSS | PAD_START)) {
-							*((boolean*)menu_options[menu.select].value) ^= 1;
-							Trans_Start();
-						}
 						break;
 					case OptType_Enum:
 						if (pad_state.press & PAD_LEFT)
@@ -1147,7 +1147,7 @@ void Menu_Tick(void)
 								*((s32*)menu_options[menu.select].value) = 0;
 						break;
 				}
-
+				
 				if (pad_state.press & PAD_SELECT)
 					writeSaveFile();
 
@@ -1185,9 +1185,6 @@ void Menu_Tick(void)
 					case OptType_Enum:
 						sprintf(text, "%s %s", menu_options[i].text, menu_options[i].spec.spec_enum.strs[*((s32*)menu_options[i].value)]);
 						break;
-					case OptType_SubMenu:
-						sprintf(text, "%s", menu_options[i].text);
-						break;
 				}
 				menu.font_bold.draw(&menu.font_bold,
 					Menu_LowerIf(text, menu.select != i),
@@ -1216,66 +1213,6 @@ void Menu_Tick(void)
 			Stage_Load(menu.page_param.stage.id, menu.page_param.stage.diff, menu.page_param.stage.story);
 			gameloop = GameLoop_Stage;
 			LoadScr_End();
-			break;
-		}
-		case MenuPage_MoveSCR:
-		{
-			if (pad_state.held & PAD_LEFT && stage.prefs.scr_x > (stage.prefs.widescreen ? -134 : -150))
-			{
-				stage.prefs.scr_x --;
-			}
-			else if (pad_state.held & PAD_RIGHT && stage.prefs.scr_x < (stage.prefs.widescreen ? 217 : 233))
-			{
-				stage.prefs.scr_x ++;
-			}
-			else if (pad_state.held & PAD_UP && stage.prefs.scr_y > -16)
-			{
-				stage.prefs.scr_y --;
-			}
-			else if (pad_state.held & PAD_DOWN)
-			{
-				stage.prefs.scr_y ++;
-			}
-
-			stage.disp[0].screen.x = stage.prefs.scr_x;
-			stage.disp[1].screen.x = stage.prefs.scr_x;
-			stage.disp[0].screen.y = stage.prefs.scr_y;
-			stage.disp[1].screen.y = stage.prefs.scr_y;
-
-			//Return to options menu if circle is pressed
-			if (pad_state.press & PAD_CIRCLE)
-			{
-				adjustscreen = false;
-				//play cancel sound
-				Audio_PlaySound(Sounds[2], 0x3fff);
-				menu.next_page = MenuPage_Options;
-				Trans_Start();
-			}
-			//Draw background	
-			RECT save_src = {0, 121, 55, 7};
-			RECT save_dst = {screen.SCREEN_WIDTH / 2 - 53, screen.SCREEN_HEIGHT - 30, 53 * 2, 7 * 2};
-			Gfx_DrawTex(&menu.tex_story, &save_src, &save_dst);
-
-			if (pad_state.press & PAD_SELECT)
-				writeSaveFile();
-
-			RECT triangle_src = {56, 114, 15, 14};
-			RECT triangle_dst = {screen.SCREEN_WIDTH / 2 - 53, screen.SCREEN_HEIGHT - 15, 15, 14};
-			RECT reset_src = {74, 118, 42, 7};
-			RECT reset_dst = {screen.SCREEN_WIDTH / 2 - 19, screen.SCREEN_HEIGHT - 15, 42 * 2, 7 * 2};
-			Gfx_DrawTex(&menu.tex_story, &reset_src, &reset_dst);
-			Gfx_DrawTex(&menu.tex_story, &triangle_src, &triangle_dst);
-			if (pad_state.press & PAD_TRIANGLE)
-			{
-				stage.prefs.scr_x = stage.prefs.scr_y = 0;
-			}
-
-			Menu_DrawBack(
-				true,
-				8,
-				34 >> 1, 139 >> 1, 34 >> 1,
-				0, 0, 0
-			);
 			break;
 		}
 		default:

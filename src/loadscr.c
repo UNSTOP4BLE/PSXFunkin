@@ -11,15 +11,16 @@
 #include "io.h"
 #include "audio.h"
 #include "trans.h"
+#include "network.h"
 #include "stage.h"
 
 //Loading screen functions
 void LoadScr_Start(void)
 {
-	Audio_StopXA();
-
-	//free all sounds it loaded before and make sure frame has been drawn
+	//Stop music, free all sounds it loaded before and make sure frame has been drawn
 	Audio_ClearAlloc();
+	Audio_StopXA();
+	Network_Process();
 	Gfx_Flip();
 	
 	//Load loading screen texture
@@ -39,11 +40,13 @@ void LoadScr_Start(void)
 		Timer_Tick();
 		Trans_Tick();
 		Gfx_DrawTex(&loading_tex, &loading_src, &loading_dst);
+		Network_Process();
 		Gfx_Flip();
 	}
 	
 	//Draw an extra frame to avoid double buffering issues
 	Gfx_DrawTex(&loading_tex, &loading_src, &loading_dst);
+	Network_Process();
 	Gfx_Flip();
 }
 
@@ -57,6 +60,7 @@ void LoadScr_End(void)
 	while (!Trans_Tick())
 	{
 		Timer_Tick();
+		Network_Process();
 		Gfx_Flip();
 	}
 	Gfx_EnableClear();

@@ -6,12 +6,13 @@
 
 #include "stage.h"
 
-#include <stdlib.h>      
+#include "mem.h"
 #include "timer.h"
 #include "audio.h"
 #include "pad.h"
 #include "main.h"
 #include "random.h"
+#include "network.h"
 #include "mutil.h"
 #include "debug.h"
 #include "save.h"
@@ -220,9 +221,9 @@ static u8 Stage_HitNote(PlayerState *this, u8 type, fixed_t offset)
 		offset = -offset;
 	
 	u8 hit_type;
-	if (offset > stage.late_safe * 81 / 100)
+	if (offset > stage.late_safe * 9 / 11)
 		hit_type = 3; //SHIT
-	else if (offset > stage.late_safe * 54 / 100)
+	else if (offset > stage.late_safe * 6 / 11)
 		hit_type = 2; //BAD
 	else if (offset > stage.late_safe * 3 / 11)
 		hit_type = 1; //GOOD
@@ -243,22 +244,22 @@ static u8 Stage_HitNote(PlayerState *this, u8 type, fixed_t offset)
 	this->min_accuracy += 1;
 
 	if (hit_type == 3)
-		this->max_accuracy += 4;
+	this->max_accuracy += 4;
+
 	else if (hit_type == 2)
-		this->max_accuracy += 3;
+	this->max_accuracy += 3;
+
 	else if (hit_type == 1)
-		this->max_accuracy += 2;
+	this->max_accuracy += 2;
+
 	else
-		this->max_accuracy += 1;
-	
+	this->max_accuracy += 1;
 	this->refresh_accuracy = true;
 	this->refresh_score = true;
 	
 	//Restore vocals and health
 	Stage_StartVocal();
-
-	if (hit_type != 3 && hit_type != 2) //dont increase if shit or bad
-		this->health += 300;
+	this->health += 230;
 	
 	//Create combo object telling of our combo
 	Obj_Combo *combo = Obj_Combo_New(
@@ -382,7 +383,7 @@ static void Stage_NoteCheck(PlayerState *this, u8 type)
 			this->character->set_anim(this->character, note_anims[type & 0x3][0]);
 		Stage_MissNote(this);
 		
-		this->health -= 430;
+		this->health -= 400;
 		this->score -= 1;
 		this->refresh_score = true;
 	}
@@ -416,7 +417,7 @@ static void Stage_SustainCheck(PlayerState *this, u8 type)
 
 static void CheckNewScore()
 {
-	if (stage.mode == StageMode_Normal && !stage.prefs.botplay && !stage.prefs.practice && timer.timermin == 0 && timer.timer <= 5)
+	if (stage.mode == StageMode_Normal && !stage.prefs.botplay && timer.timermin == 0 && timer.timer <= 5)
 	{
 		if (stage.player_state[0].score >= stage.prefs.savescore[stage.stage_id][stage.stage_diff])
 			stage.prefs.savescore[stage.stage_id][stage.stage_diff] = stage.player_state[0].score;			
@@ -1333,7 +1334,7 @@ static void Stage_LoadChart(void)
 	
 	
 	if (stage.chart_data != NULL)
-		free(stage.chart_data);
+		Mem_Free(stage.chart_data);
 	stage.chart_data = IO_Read(chart_path);
 	u8 *chart_byte = (u8*)stage.chart_data;
 
@@ -1383,7 +1384,10 @@ static void Stage_LoadSFX(void)
 	{
 		char text[0x80];
 		sprintf(text, "\\SOUNDS\\INTRO%d%s.VAG;1", i, (stage.stage_id >= StageId_6_1 && stage.stage_id <= StageId_6_3) ? "P" : "");
-	    Sounds[i] = Audio_LoadSound(text);
+	  	IO_FindFile(&file, text);
+	    u32 *data = IO_ReadFile(&file);
+	    Sounds[i] = Audio_LoadVAGData(data, file.size);
+	    Mem_Free(data);
 	}
 
 	//miss sound
@@ -1393,7 +1397,10 @@ static void Stage_LoadSFX(void)
 		{
 			char text[0x80];
 			sprintf(text, "\\SOUNDS\\MISS%d.VAG;1", i + 1);
-		    Sounds[i + 4] = Audio_LoadSound(text);
+		  	IO_FindFile(&file, text);
+		    u32 *data = IO_ReadFile(&file);
+		    Sounds[i + 4] = Audio_LoadVAGData(data, file.size);
+		    Mem_Free(data);
 		}
     }
 }
@@ -1412,7 +1419,7 @@ static void Stage_LoadMusic(void)
 	
 	//Find music file and begin seeking to it
 	Audio_SeekXA_Track(stage.stage_def->music_track);
-
+	
 	//Initialize music state
 	stage.note_scroll = FIXED_DEC(-5 * 6 * 12,1);
 	stage.song_time = FIXED_DIV(stage.note_scroll, stage.step_crochet);
@@ -1471,7 +1478,7 @@ static void Stage_LoadState(void)
 		stage.player_state[i].score = 0;
 		stage.song_beat = 0;
 		timer.secondtimer = 0;
-		timer.timer = 0;
+		timer.timer = Audio_GetLength(stage.stage_def->music_track) - 1;
 		timer.timermin = 0;
 		strcpy(stage.player_state[i].accuracy_text, "Accuracy: ?");
 		strcpy(stage.player_state[i].miss_text, "Misses: 0");
@@ -1589,7 +1596,6 @@ void Stage_Load(StageId id, StageDiff difficulty, boolean story)
 	
 	//Test offset
 	stage.offset = 0;
-	printf("[Stage_Load] Done (id=%d)\n", id);
 }
 
 void Stage_Unload(void)
@@ -1604,7 +1610,7 @@ void Stage_Unload(void)
 	stage.back = NULL;
 	
 	//Unload stage data
-	free(stage.chart_data);
+	Mem_Free(stage.chart_data);
 	stage.chart_data = NULL;
 	
 	//Free objects
@@ -1710,57 +1716,34 @@ static boolean Stage_NextLoad(void)
 	}
 }
 
-static int deadtimer;
-static boolean inctimer;
-
 void Stage_Tick(void)
 {
 	SeamLoad:;
 	
 	//Tick transition
-	if (stage.paused == false && pad_state.press & PAD_START && stage.state == StageState_Play)
+	//Return to menu when start is pressed
+	if (pad_state.press & PAD_START && stage.state == StageState_Play)
 	{
-		stage.pause_scroll = -1;
-		pad_state.press = false;
-		Audio_PauseXA();
-		stage.paused = true;
-	}
-
-	if (stage.paused)
-	{
-		switch (stage.pause_state)
+		stage.paused = !stage.paused;
+	
+		if (stage.paused)
 		{
-			case 0:
-				PausedState();
-				break;
-			case 1:
-				OptionsState((int **)&note_x);
-				break;
+			Audio_PauseXA();
+			PausedState();
 		}
-
+		else
+		{
+			Audio_ResumeXA();
+		}
 	}
-
 	if (pad_state.press & (PAD_START | PAD_CROSS) && stage.state != StageState_Play)
 	{
-		if (deadtimer == 0)
-		{
-			inctimer = true;
-			Audio_StopXA();
-			Audio_PlaySound(Sounds[1], 0x3fff);
-		}
+		stage.trans = StageTrans_Reload;
+		Trans_Start();
 	}
 	else if (pad_state.press & PAD_CIRCLE && stage.state != StageState_Play)
 	{
 		stage.trans = StageTrans_Menu;
-		Trans_Start();
-	}
-
-	if (inctimer)
-		deadtimer ++;
-
-	if (deadtimer == 200 && stage.state != StageState_Play)
-	{
-		stage.trans = StageTrans_Reload;
 		Trans_Start();
 	}
 
@@ -1857,7 +1840,9 @@ void Stage_Tick(void)
 			//Get song position
 			boolean playing;
 			fixed_t next_scroll;
-		
+			
+			const fixed_t interp_int = FIXED_UNIT * 8 / 75;
+			
 			if (!stage.paused)
 			{
 				if (stage.note_scroll < 0)
@@ -1895,10 +1880,44 @@ void Stage_Tick(void)
 					fixed_t audio_time_pof = (fixed_t)Audio_TellXA_Milli();
 					fixed_t audio_time = (audio_time_pof > 0) ? (audio_time_pof - stage.offset) : 0;
 					
-					//Old sync
-					stage.interp_ms = (audio_time << FIXED_SHIFT) / 1000;
-					stage.interp_time = 0;
-					stage.song_time = stage.interp_ms;
+					if (stage.prefs.expsync)
+					{
+						//Get playing song position
+						if (audio_time_pof > 0)
+						{
+							stage.song_time += timer_dt;
+							stage.interp_time += timer_dt;
+						}
+						
+						if (stage.interp_time >= interp_int)
+						{
+							//Update interp state
+							while (stage.interp_time >= interp_int)
+								stage.interp_time -= interp_int;
+							stage.interp_ms = (audio_time << FIXED_SHIFT) / 1000;
+						}
+						
+						//Resync
+						fixed_t next_time = stage.interp_ms + stage.interp_time;
+						if (stage.song_time >= next_time + FIXED_DEC(25,1000) || stage.song_time <= next_time - FIXED_DEC(25,1000))
+						{
+							stage.song_time = next_time;
+						}
+						else
+						{
+							if (stage.song_time < next_time - FIXED_DEC(1,1000))
+								stage.song_time += FIXED_DEC(1,1000);
+							if (stage.song_time > next_time + FIXED_DEC(1,1000))
+								stage.song_time -= FIXED_DEC(1,1000);
+						}
+					}
+					else
+					{
+						//Old sync
+						stage.interp_ms = (audio_time << FIXED_SHIFT) / 1000;
+						stage.interp_time = 0;
+						stage.song_time = stage.interp_ms;
+					}
 					
 					playing = true;
 					
@@ -2039,8 +2058,8 @@ void Stage_Tick(void)
 			for (int i = 0; i < ((stage.mode >= StageMode_2P) ? 2 : 1); i++)
 			{
 				PlayerState *this = &stage.player_state[i];
-				if (this->max_accuracy) // prevent division by zero
-					this->accuracy = (this->min_accuracy * 100) / (this->max_accuracy);
+			
+				this->accuracy = (this->min_accuracy * 100) / (this->max_accuracy);
 
 				//Rank
 				if (this->accuracy == 100 && this->miss == 0)
@@ -2138,17 +2157,17 @@ void Stage_Tick(void)
 					Stage_DrawHealth(stage.player_state[0].health, stage.player_state[0].character->health_i,    1);
 					Stage_DrawHealth(stage.player_state[0].health, stage.player_state[1].character->health_i, -1);
 					
-                    //Draw health bar
-                    if (stage.mode == StageMode_Swap)
-                    {
+                                        //Draw health bar
+                                        if (stage.mode == StageMode_Swap)
+                                        {
 					    Stage_DrawHealthBar(255 - (255 * stage.player_state[0].health / 20000), stage.player->health_bar);
 					    Stage_DrawHealthBar(255, stage.opponent->health_bar);
-                    }
-                    else
-                    {
+                                        }
+                                        else
+                                        {
 					    Stage_DrawHealthBar(255 - (255 * stage.player_state[0].health / 20000), stage.opponent->health_bar);
 					    Stage_DrawHealthBar(255, stage.player->health_bar);
-                    }
+                                        }
 				}
 			
 				//Tick note splashes
@@ -2252,10 +2271,13 @@ void Stage_Tick(void)
 				stage.back->draw_bg(stage.back);
 			
 			if (stage.song_step > 0)
+			{
 				stage.song_beat = stage.song_step / 4;
 				
-			if (!stage.paused)	
 				StageTimer_Tick();
+			}
+			else
+				StageTimer_Calculate();
 
 			break;
 		}
@@ -2263,12 +2285,9 @@ void Stage_Tick(void)
 		{
 			//Stop music immediately
 			Audio_StopXA();
-			deadtimer = 0;
-			inctimer = false;
-
+			
 			//Unload stage data
-			Audio_ClearAlloc();
-			free(stage.chart_data);
+			Mem_Free(stage.chart_data);
 			stage.chart_data = NULL;
 			
 			//Free background
@@ -2301,12 +2320,6 @@ void Stage_Tick(void)
 			stage.song_time = 0;
 			
 			stage.state = StageState_DeadLoad;
-			IO_WaitRead();
-			if (stage.stage_id >= StageId_6_1 && stage.stage_id <= StageId_6_3)			
-				Sounds[0] = Audio_LoadSound("\\SOUNDS\\LOSSP.VAG;1");
-			else
-				Sounds[0] = Audio_LoadSound("\\SOUNDS\\LOSS.VAG;1");
-			Audio_PlaySound(Sounds[0], 0x3fff);
 		}
 	//Fallthrough
 		case StageState_DeadLoad:
@@ -2323,18 +2336,6 @@ void Stage_Tick(void)
 			if (IO_IsReading() || stage.player->animatable.anim != PlayerAnim_Dead1)
 				break;
 			
-			//load sounds
-			if (stage.stage_id >= StageId_6_1 && stage.stage_id <= StageId_6_3)			
-			{
-				Sounds[1] = Audio_LoadSound("\\SOUNDS\\ENDP.VAG;1");
-				IO_WaitRead();
-			}
-			else
-			{
-				Sounds[1] = Audio_LoadSound("\\SOUNDS\\END.VAG;1");
-				IO_WaitRead();
-			}
-
 			stage.player->set_anim(stage.player, PlayerAnim_Dead2);
 			stage.camera.td = FIXED_DEC(25, 1000);
 			stage.state = StageState_DeadDrop;

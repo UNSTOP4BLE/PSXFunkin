@@ -6,7 +6,7 @@
 
 #include "character.h"
 
-#include <stdlib.h>      
+#include "mem.h"
 #include "stage.h"
 
 //Character functions
@@ -18,7 +18,7 @@ void Character_Free(Character *this)
 	
 	//Free character
 	this->free(this);
-	free(this);
+	Mem_Free(this);
 }
 
 void Character_Init(Character *this, fixed_t x, fixed_t y)

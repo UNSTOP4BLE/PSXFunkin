@@ -5,8 +5,6 @@
 */
 
 #include "../audio.h"
-#include <hwregs_c.h>
-#include <stdlib.h>
 
 #include "../io.h"
 #include "../main.h"
@@ -16,13 +14,10 @@
 #define XA_STATE_PLAYING (1 << 1)
 #define XA_STATE_LOOPS   (1 << 2)
 #define XA_STATE_SEEKING (1 << 3)
-
 static u8 xa_state, xa_resync, xa_volume, xa_channel;
-static u32 xa_pos, xa_start;
+static u32 xa_pos, xa_start, xa_end;
 
 //audio stuff
-#define XA_FLAG_EOR (1 << 0)
-#define XA_FLAG_EOF (1 << 7)
 #define BUFFER_SIZE (13 << 11) //13 sectors
 #define CHUNK_SIZE (BUFFER_SIZE)
 #define CHUNK_SIZE_MAX (BUFFER_SIZE * 4) // there are never more than 4 channels
@@ -45,6 +40,12 @@ typedef struct
 	u16 loop_addr;
 } Audio_SPUChannel;
 
+#define SPU_CTRL     *((volatile u16*)0x1f801daa)
+#define SPU_DMA_CTRL *((volatile u16*)0x1f801dac)
+#define SPU_IRQ_ADDR *((volatile u16*)0x1f801da4)
+#define SPU_KEY_ON   *((volatile u32*)0x1f801d88)
+#define SPU_KEY_OFF  *((volatile u32*)0x1f801d8c)
+
 #define SPU_CHANNELS    ((volatile Audio_SPUChannel*)0x1f801c00)
 #define SPU_RAM_ADDR(x) ((u16)(((u32)(x)) >> 3))
 
@@ -54,13 +55,6 @@ static volatile u32 audio_alloc_ptr = 0;
 static CdlFILE xa_files[XA_Max];
 
 #include "../audio_def.h"
-
-static void IO_SeekFile(CdlFILE *file)
-{
-	//Seek to file position
-	CdControl(CdlSetloc, (u8*)&file->pos, NULL);
-	CdControlB(CdlSeekL, NULL, NULL);
-}
 
 u32 Audio_GetLength(XA_Track lengthtrack)
 {
@@ -75,12 +69,9 @@ static u8 XA_BCD(u8 x)
 
 static u32 XA_TellSector(void)
 {
-    u8 result[8];
-    CdControl(CdlGetlocL, NULL, result);
-    if (result[6] & (XA_FLAG_EOF | XA_FLAG_EOR))
-        return -1; // file ended
-
-    return CdPosToInt((CdlLOC *) result);
+	u8 result[8];
+	CdControlB(CdlGetlocP, NULL, result);
+	return (XA_BCD(result[2]) * 75 * 60) + (XA_BCD(result[3]) * 75) + XA_BCD(result[4]);
 }
 
 static void XA_SetVolume(u8 x)
@@ -100,19 +91,22 @@ static void XA_Init(void)
 		return;
 	xa_state = XA_STATE_INIT;
 	xa_resync = 0;
-
-	//Set volume
-	SPU_CD_VOL_L = 0x6000;
-	SPU_CD_VOL_R = 0x6000;
-
+	
+	//Set CD mix flag
+	SpuCommonAttr spu_attr;
+	spu_attr.mask = SPU_COMMON_CDMIX | SPU_COMMON_CDVOLL | SPU_COMMON_CDVOLR;
+	spu_attr.cd.mix = SPU_ON;
+	spu_attr.cd.volume.left = spu_attr.cd.volume.right = 0x6000; //Lame magic number
+	SpuSetCommonAttr(&spu_attr);
+	
 	//Set initial volume
 	XA_SetVolume(0);
 	
 	//Prepare CD drive for XA reading
-	param[0] = CdlModeRT | CdlModeSF | CdlModeSize;
+	param[0] = CdlModeRT | CdlModeSF | CdlModeSize1;
 	
-	CdControl(CdlSetmode, param, NULL);
-	CdControlB(CdlPause, NULL, NULL);
+	CdControlB(CdlSetmode, param, NULL);
+	CdControlF(CdlPause, NULL);
 }
 
 static void XA_Quit(void)
@@ -132,14 +126,7 @@ static void XA_Play(u32 start)
 	//Play at given position
 	CdlLOC cd_loc;
 	CdIntToPos(start, &cd_loc);
-	CdControl(CdlSetloc, (u8*)&cd_loc, NULL);
-	CdControl(CdlReadS, NULL, NULL);
-}
-
-static void XA_WaitPlay(void) {
-    CdControl(CdlNop, NULL, NULL);
-    while (!(CdStatus() & CdlStatRead))
-        CdControl(CdlNop, NULL, NULL);
+	CdControlF(CdlReadS, (u8*)&cd_loc);
 }
 
 static void XA_Pause(void)
@@ -165,13 +152,20 @@ static void XA_SetFilter(u8 channel)
 //Audio functions
 void Audio_Init(void)
 {
+	//Initialize sound system
+	SsInit();
+	SsSetSerialVol(SS_SERIAL_A, 0x7F, 0x7F);
+
 	//Initialize SPU
 	SpuInit();
 	Audio_ClearAlloc();
 	
-	//Set volume (this is done by default but i just put it here cus why not)
-	SPU_MASTER_VOL_L = 0x3fff;
-	SPU_MASTER_VOL_R = 0x3fff;
+	//Set SPU common attributes
+	SpuCommonAttr spu_attr;
+	spu_attr.mask = SPU_COMMON_MVOLL | SPU_COMMON_MVOLR;
+	spu_attr.mvol.left  = 0x3FFF;
+	spu_attr.mvol.right = 0x3FFF;
+	SpuSetCommonAttr(&spu_attr);
 	
 	//Set XA state
 	xa_state = 0;
@@ -202,7 +196,7 @@ static void Audio_PlayXA_File(CdlFILE *file, u8 volume, u8 channel, boolean loop
 	
 	//Set XA state
 	xa_start = xa_pos = CdPosToInt(&file->pos);
-	//xa_end = xa_start + (file->size / IO_SECT_SIZE) - 1;
+	xa_end = xa_start + (file->size / IO_SECT_SIZE) - 1;
 	xa_state = XA_STATE_INIT | XA_STATE_PLAYING | XA_STATE_SEEKING;
 	xa_resync = 0;
 	if (loop)
@@ -245,7 +239,6 @@ void Audio_ResumeXA(void)
 	xa_state |= XA_STATE_PLAYING;
 
 	XA_Play(xa_pos);
-	XA_WaitPlay();
 }
 
 void Audio_StopXA(void)
@@ -268,9 +261,7 @@ s32 Audio_TellXA_Sector(void)
 
 s32 Audio_TellXA_Milli(void)
 {
-	int pos = XA_TellSector();
-	if (pos != -1)	
-		return ((s32)pos - (s32)xa_start) * 1000 / 75; //1000 / (75 * speed (1x))
+	return ((s32)xa_pos - (s32)xa_start) * 1000 / 75; //1000 / (75 * speed (1x))
 }
 
 boolean Audio_PlayingXA(void)
@@ -286,9 +277,7 @@ void Audio_WaitPlayXA(void)
 		if (Audio_PlayingXA())
 			return;
 		VSync(0);
-	}	
-
-	XA_WaitPlay();
+	}
 }
 
 void Audio_ProcessXA(void)
@@ -371,15 +360,14 @@ void Audio_ProcessXA(void)
 			xa_pos = next_pos;
 		
 		//Check position
-		if (XA_TellSector() == -1)
+		if (xa_pos >= xa_end)
 		{
 			if (xa_state & XA_STATE_LOOPS)
 			{
 				//Reset XA playback
 				CdlLOC cd_loc;
 				CdIntToPos(xa_pos = xa_start, &cd_loc);
-				CdControl(CdlSetloc, (u8*)&cd_loc, NULL);
-				CdControlB(CdlSeekL, NULL, NULL);
+				CdControlB(CdlSeekL, (u8*)&cd_loc, NULL);
 				xa_state |= XA_STATE_SEEKING;
 			}
 			else
@@ -426,7 +414,7 @@ u32 Audio_LoadVAGData(u32 *sound, u32 sound_size) {
 
 	SpuSetTransferStartAddr(addr); // set transfer starting address to malloced area
 	SpuSetTransferMode(SPU_TRANSFER_BY_DMA); // set transfer mode to DMA
-	SpuWrite((uint32_t *)data + VAG_HEADER_SIZE, xfer_size); // perform actual transfer
+	SpuWrite(data + VAG_HEADER_SIZE, xfer_size); // perform actual transfer
 	SpuIsTransferCompleted(SPU_TRANSFER_WAIT); // wait for DMA to complete
 
 	printf("Allocated new sound (addr=%08x, size=%d)\n", addr, xfer_size);
@@ -451,15 +439,3 @@ void Audio_PlaySound(u32 addr, int volume) {
    // printf("Could not find free channel to play sound (addr=%08x)\n", addr);
 }
 
-u32 Audio_LoadSound(const char *path)
-{
-	CdlFILE file;
-	u32 Sound;
-
-  	IO_FindFile(&file, path);
-	u32 *data = IO_ReadFile(&file);
-	Sound = Audio_LoadVAGData(data, file.size);
-	free(data);
-
-	return Sound;
-}

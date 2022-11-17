@@ -6,7 +6,7 @@
 
 #include "bf.h"
 
-#include <stdlib.h>      
+#include "../mem.h"
 #include "../archive.h"
 #include "../stage.h"
 #include "../random.h"
@@ -369,7 +369,7 @@ void Char_BF_SetAnim(Character *character, u8 anim)
 			break;
 		case PlayerAnim_Dead2:
 			//Unload main.arc
-			free(this->arc_main);
+			Mem_Free(this->arc_main);
 			this->arc_main = this->arc_dead;
 			this->arc_dead = NULL;
 			
@@ -399,14 +399,14 @@ void Char_BF_Free(Character *character)
 	Char_BF *this = (Char_BF*)character;
 	
 	//Free art
-	free(this->arc_main);
-	free(this->arc_dead);
+	Mem_Free(this->arc_main);
+	Mem_Free(this->arc_dead);
 }
 
 Character *Char_BF_New(fixed_t x, fixed_t y)
 {
 	//Allocate boyfriend object
-	Char_BF *this = malloc(sizeof(Char_BF));
+	Char_BF *this = Mem_Alloc(sizeof(Char_BF));
 	if (this == NULL)
 	{
 		sprintf(error_msg, "[Char_BF_New] Failed to allocate boyfriend object");

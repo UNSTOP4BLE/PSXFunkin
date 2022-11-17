@@ -6,7 +6,7 @@
 
 #include "spirit.h"
 
-#include <stdlib.h>    
+#include "../mem.h"
 #include "../archive.h"
 #include "../stage.h"
 #include "../main.h"
@@ -182,13 +182,13 @@ void Char_Spirit_Free(Character *character)
 	Char_Spirit *this = (Char_Spirit*)character;
 	
 	//Free art
-	free(this->arc_main);
+	Mem_Free(this->arc_main);
 }
 
 Character *Char_Spirit_New(fixed_t x, fixed_t y)
 {
 	//Allocate spirit object
-	Char_Spirit *this = malloc(sizeof(Char_Spirit));
+	Char_Spirit *this = Mem_Alloc(sizeof(Char_Spirit));
 	if (this == NULL)
 	{
 		sprintf(error_msg, "[Char_Spirit_New] Failed to allocate spirit object");

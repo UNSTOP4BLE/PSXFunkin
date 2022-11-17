@@ -20,8 +20,18 @@ typedef enum
 	MenuPage_Credits,
 	MenuPage_Options,
 	
+	#ifdef PSXF_NETWORK
+		MenuPage_NetJoin,
+		MenuPage_NetHost,
+		MenuPage_NetConnect,
+		MenuPage_NetFail,
+		MenuPage_NetOpWait,
+		MenuPage_NetOp,
+		MenuPage_NetLobby,
+		MenuPage_NetInitFail,
+	#endif
+	
 	MenuPage_Stage, //Changes game loop
-	MenuPage_MoveSCR,
 } MenuPage;
 
 //Menu functions

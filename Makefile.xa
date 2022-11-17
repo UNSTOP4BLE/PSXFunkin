@@ -1,0 +1,35 @@
+all: \
+  iso/music/menu.xa \
+  iso/music/week1a.xa \
+  iso/music/week1b.xa \
+  iso/music/week2a.xa \
+  iso/music/week2b.xa \
+  iso/music/week3a.xa \
+  iso/music/week3b.xa \
+  iso/music/week4a.xa \
+  iso/music/week4b.xa \
+  iso/music/week5a.xa \
+  iso/music/week5b.xa \
+  iso/music/week6a.xa \
+  iso/music/week6b.xa 
+
+# XA converts
+iso/music/%.xa: iso/music/%.ogg
+	tools/psxavenc/psxavenc -f 37800 -t xa -b 4 -c 2 -F 1 -C 0 $< $@
+iso/music/%.xa:
+	tools/xainterleave/xainterleave $@
+
+# XA interleaves
+iso/music/menu.xa: iso/music/freaky.xa iso/music/gameover.xa
+iso/music/week1a.xa: iso/music/bopeebo/Inst.xa iso/music/bopeebo/Vocals.xa iso/music/fresh/Inst.xa iso/music/fresh/Vocals.xa
+iso/music/week1b.xa: iso/music/dadbattle/Inst.xa iso/music/dadbattle/Vocals.xa iso/music/tutorial/Inst.xa
+iso/music/week2a.xa: iso/music/spookeez/Inst.xa iso/music/spookeez/Vocals.xa iso/music/south/Inst.xa iso/music/south/Vocals.xa
+iso/music/week2b.xa: iso/music/monster/Inst.xa iso/music/monster/Vocals.xa
+iso/music/week3a.xa: iso/music/pico/Inst.xa iso/music/pico/Vocals.xa iso/music/philly/Inst.xa iso/music/philly/Vocals.xa
+iso/music/week3b.xa: iso/music/blammed/Inst.xa iso/music/blammed/Vocals.xa
+iso/music/week4a.xa: iso/music/satin-panties/Inst.xa iso/music/satin-panties/Vocals.xa iso/music/high/Inst.xa iso/music/high/Vocals.xa
+iso/music/week4b.xa: iso/music/milf/Inst.xa iso/music/milf/Vocals.xa iso/music/test/Inst.xa iso/music/test/Vocals.xa
+iso/music/week5a.xa: iso/music/cocoa/Inst.xa iso/music/cocoa/Vocals.xa iso/music/eggnog/Inst.xa iso/music/eggnog/Vocals.xa
+iso/music/week5b.xa: iso/music/winter-horrorland/Inst.xa iso/music/winter-horrorland/Vocals.xa
+iso/music/week6a.xa: iso/music/senpai/Inst.xa iso/music/senpai/Vocals.xa iso/music/roses/Inst.xa iso/music/roses/Vocals.xa
+iso/music/week6b.xa: iso/music/thorns/Inst.xa iso/music/thorns/Vocals.xa

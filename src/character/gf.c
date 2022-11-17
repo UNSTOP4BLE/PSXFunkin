@@ -6,7 +6,7 @@
 
 #include "gf.h"
 
-#include <stdlib.h>    
+#include "../mem.h"
 #include "../archive.h"
 #include "../stage.h"
 #include "../main.h"
@@ -174,14 +174,14 @@ void Char_GF_Free(Character *character)
 	Char_GF *this = (Char_GF*)character;
 	
 	//Free art
-	free(this->arc_main);
-	free(this->arc_scene);
+	Mem_Free(this->arc_main);
+	Mem_Free(this->arc_scene);
 }
 
 Character *Char_GF_New(fixed_t x, fixed_t y)
 {
 	//Allocate gf object
-	Char_GF *this = malloc(sizeof(Char_GF));
+	Char_GF *this = Mem_Alloc(sizeof(Char_GF));
 	if (this == NULL)
 	{
 		sprintf(error_msg, "[Char_GF_New] Failed to allocate gf object");

@@ -6,7 +6,7 @@
 
 #include "combo.h"
 
-#include <stdlib.h>  
+#include "../mem.h"
 #include "../timer.h"
 #include "../random.h"
 
@@ -253,7 +253,7 @@ Obj_Combo *Obj_Combo_New(fixed_t x, fixed_t y, u8 hit_type, u16 combo)
 	(void)x;
 	
 	//Allocate new object
-	Obj_Combo *this = (Obj_Combo*)malloc(sizeof(Obj_Combo));
+	Obj_Combo *this = (Obj_Combo*)Mem_Alloc(sizeof(Obj_Combo));
 	if (this == NULL)
 		return NULL;
 	

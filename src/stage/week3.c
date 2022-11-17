@@ -6,7 +6,7 @@
 
 #include "week3.h"
 
-#include <stdlib.h> 
+#include "../mem.h"
 #include "../archive.h"
 #include "../random.h"
 #include "../timer.h"
@@ -255,13 +255,13 @@ void Back_Week3_Free(StageBack *back)
 	Back_Week3 *this = (Back_Week3*)back;
 	
 	//Free structure
-	free(this);
+	Mem_Free(this);
 }
 
 StageBack *Back_Week3_New(void)
 {
 	//Allocate background structure
-	Back_Week3 *this = (Back_Week3*)malloc(sizeof(Back_Week3));
+	Back_Week3 *this = (Back_Week3*)Mem_Alloc(sizeof(Back_Week3));
 	if (this == NULL)
 		return NULL;
 	
@@ -278,7 +278,7 @@ StageBack *Back_Week3_New(void)
 	Gfx_LoadTex(&this->tex_back2, Archive_Find(arc_back, "back2.tim"), 0);
 	Gfx_LoadTex(&this->tex_back3, Archive_Find(arc_back, "back3.tim"), 0);
 	Gfx_LoadTex(&this->tex_back4, Archive_Find(arc_back, "back4.tim"), 0);
-	free(arc_back);
+	Mem_Free(arc_back);
 	
 	//Initialize window state
 	this->win_time = -1;

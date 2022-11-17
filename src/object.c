@@ -6,7 +6,7 @@
 
 #include "object.h"
 
-#include <stdlib.h>  
+#include "mem.h"
 
 //Object functions
 void ObjectList_Add(ObjectList *list, Object *obj)
@@ -30,7 +30,7 @@ void ObjectList_Remove(ObjectList *list, Object *obj)
 	
 	//Free object
 	obj->free(obj);
-	free(obj);
+	Mem_Free(obj);
 }
 
 void ObjectList_Tick(ObjectList *list)
@@ -58,7 +58,7 @@ void ObjectList_Free(ObjectList *list)
 		//Free object and iterate on next linked object
 		Object *next = obj->next;
 		obj->free(obj);
-		free(obj);
+		Mem_Free(obj);
 		obj = next;
 	}
 	

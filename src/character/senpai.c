@@ -6,7 +6,7 @@
 
 #include "senpai.h"
 
-#include <stdlib.h>    
+#include "../mem.h"
 #include "../archive.h"
 #include "../stage.h"
 #include "../main.h"
@@ -113,13 +113,13 @@ void Char_Senpai_Free(Character *character)
 	Char_Senpai *this = (Char_Senpai*)character;
 	
 	//Free art
-	free(this->arc_main);
+	Mem_Free(this->arc_main);
 }
 
 Character *Char_Senpai_New(fixed_t x, fixed_t y)
 {
 	//Allocate senpai object
-	Char_Senpai *this = malloc(sizeof(Char_Senpai));
+	Char_Senpai *this = Mem_Alloc(sizeof(Char_Senpai));
 	if (this == NULL)
 	{
 		sprintf(error_msg, "[Char_Senpai_New] Failed to allocate senpai object");

@@ -6,7 +6,7 @@
 
 #include "splash.h"
 
-#include <stdlib.h>  
+#include "../mem.h"
 #include "../timer.h"
 #include "../random.h"
 #include "../mutil.h"
@@ -65,7 +65,7 @@ void Obj_Splash_Free(Object *obj)
 Obj_Splash *Obj_Splash_New(fixed_t x, fixed_t y, u8 colour)
 {
 	//Allocate new object
-	Obj_Splash *this = (Obj_Splash*)malloc(sizeof(Obj_Splash));
+	Obj_Splash *this = (Obj_Splash*)Mem_Alloc(sizeof(Obj_Splash));
 	if (this == NULL)
 		return NULL;
 	

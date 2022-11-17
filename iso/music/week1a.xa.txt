@@ -1,0 +1,4 @@
+1 xa bopeebo/Vocals.xa 1 0
+1 xa bopeebo/Inst.xa 1 1
+1 xa fresh/Vocals.xa 1 2
+1 xa fresh/Inst.xa 1 3

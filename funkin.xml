@@ -13,13 +13,13 @@
 			publisher     = "CUCKYDEV"
 			copyright     = "NINJAMUFFIN99"
 		/>
-		<license file="${PROJECT_SOURCE_DIR}/licensea.dat"/>
+		<license file="licensea.dat"/>
 		
 		<!-- Data directory tree -->
 		<directory_tree>
 			<!-- System -->
-			<file name = "system.cnf" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/system.cnf"/>
-			<file name = "SCUS_000.00" type = "data" source = "funkin.exe"/>
+			<file name = "system.cnf" type = "data" source = "iso/system.cnf"/>
+			<file name = "SCUS_000.00" type = "data" source = "funkin.ps-exe"/>
 			
 			<!-- Menu assets -->
 			<dir name = "menu">
@@ -52,21 +52,21 @@
 				<file name = "back.arc" type = "data" source = "iso/week1/back.arc"/>
 				
 				<!-- Bopeebo charts -->
-				<file name = "1.1e.cht" type = "data" source = "iso/chart/bopeebo-easy.cht"/>
-				<file name = "1.1n.cht" type = "data" source = "iso/chart/bopeebo.cht"/>
-				<file name = "1.1h.cht" type = "data" source = "iso/chart/bopeebo-hard.cht"/>
+				<file name = "1.1e.cht" type = "data" source = "iso/chart/bopeebo-easy.json.cht"/>
+				<file name = "1.1n.cht" type = "data" source = "iso/chart/bopeebo.json.cht"/>
+				<file name = "1.1h.cht" type = "data" source = "iso/chart/bopeebo-hard.json.cht"/>
 				<!-- Fresh charts -->
-				<file name = "1.2e.cht" type = "data" source = "iso/chart/fresh-easy.cht"/>
-				<file name = "1.2n.cht" type = "data" source = "iso/chart/fresh.cht"/>
-				<file name = "1.2h.cht" type = "data" source = "iso/chart/fresh-hard.cht"/>
+				<file name = "1.2e.cht" type = "data" source = "iso/chart/fresh-easy.json.cht"/>
+				<file name = "1.2n.cht" type = "data" source = "iso/chart/fresh.json.cht"/>
+				<file name = "1.2h.cht" type = "data" source = "iso/chart/fresh-hard.json.cht"/>
 				<!-- Dadbattle charts -->
-				<file name = "1.3e.cht" type = "data" source = "iso/chart/dadbattle-easy.cht"/>
-				<file name = "1.3n.cht" type = "data" source = "iso/chart/dadbattle.cht"/>
-				<file name = "1.3h.cht" type = "data" source = "iso/chart/dadbattle-hard.cht"/>
+				<file name = "1.3e.cht" type = "data" source = "iso/chart/dadbattle-easy.json.cht"/>
+				<file name = "1.3n.cht" type = "data" source = "iso/chart/dadbattle.json.cht"/>
+				<file name = "1.3h.cht" type = "data" source = "iso/chart/dadbattle-hard.json.cht"/>
 				<!-- Tutorial charts -->
-				<file name = "1.4e.cht" type = "data" source = "iso/chart/tutorial-easy.cht"/>
-				<file name = "1.4n.cht" type = "data" source = "iso/chart/tutorial.cht"/>
-				<file name = "1.4h.cht" type = "data" source = "iso/chart/tutorial-hard.cht"/>
+				<file name = "1.4e.cht" type = "data" source = "iso/chart/tutorial-easy.json.cht"/>
+				<file name = "1.4n.cht" type = "data" source = "iso/chart/tutorial.json.cht"/>
+				<file name = "1.4h.cht" type = "data" source = "iso/chart/tutorial-hard.json.cht"/>
 			</dir>
 			
 			<!-- Week 2 assets -->
@@ -75,17 +75,17 @@
 				<file name = "back.arc" type = "data" source = "iso/week2/back.arc"/>
 				
 				<!-- Spookeez charts -->
-				<file name = "2.1e.cht" type = "data" source = "iso/chart/spookeez-easy.cht"/>
-				<file name = "2.1n.cht" type = "data" source = "iso/chart/spookeez.cht"/>
-				<file name = "2.1h.cht" type = "data" source = "iso/chart/spookeez-hard.cht"/>
+				<file name = "2.1e.cht" type = "data" source = "iso/chart/spookeez-easy.json.cht"/>
+				<file name = "2.1n.cht" type = "data" source = "iso/chart/spookeez.json.cht"/>
+				<file name = "2.1h.cht" type = "data" source = "iso/chart/spookeez-hard.json.cht"/>
 				<!-- South charts -->
-				<file name = "2.2e.cht" type = "data" source = "iso/chart/south-easy.cht"/>
-				<file name = "2.2n.cht" type = "data" source = "iso/chart/south.cht"/>
-				<file name = "2.2h.cht" type = "data" source = "iso/chart/south-hard.cht"/>
+				<file name = "2.2e.cht" type = "data" source = "iso/chart/south-easy.json.cht"/>
+				<file name = "2.2n.cht" type = "data" source = "iso/chart/south.json.cht"/>
+				<file name = "2.2h.cht" type = "data" source = "iso/chart/south-hard.json.cht"/>
 				<!-- Monster charts -->
-				<file name = "2.3e.cht" type = "data" source = "iso/chart/monster-easy.cht"/>
-				<file name = "2.3n.cht" type = "data" source = "iso/chart/monster.cht"/>
-				<file name = "2.3h.cht" type = "data" source = "iso/chart/monster-hard.cht"/>
+				<file name = "2.3e.cht" type = "data" source = "iso/chart/monster-easy.json.cht"/>
+				<file name = "2.3n.cht" type = "data" source = "iso/chart/monster.json.cht"/>
+				<file name = "2.3h.cht" type = "data" source = "iso/chart/monster-hard.json.cht"/>
 			</dir>
 			
 			<!-- Week 3 assets -->
@@ -94,17 +94,17 @@
 				<file name = "back.arc" type = "data" source = "iso/week3/back.arc"/>
 				
 				<!-- Pico charts -->
-				<file name = "3.1e.cht" type = "data" source = "iso/chart/pico-easy.cht"/>
-				<file name = "3.1n.cht" type = "data" source = "iso/chart/pico.cht"/>
-				<file name = "3.1h.cht" type = "data" source = "iso/chart/pico-hard.cht"/>
+				<file name = "3.1e.cht" type = "data" source = "iso/chart/pico-easy.json.cht"/>
+				<file name = "3.1n.cht" type = "data" source = "iso/chart/pico.json.cht"/>
+				<file name = "3.1h.cht" type = "data" source = "iso/chart/pico-hard.json.cht"/>
 				<!-- Philly charts -->
-				<file name = "3.2e.cht" type = "data" source = "iso/chart/philly-easy.cht"/>
-				<file name = "3.2n.cht" type = "data" source = "iso/chart/philly.cht"/>
-				<file name = "3.2h.cht" type = "data" source = "iso/chart/philly-hard.cht"/>
+				<file name = "3.2e.cht" type = "data" source = "iso/chart/philly-easy.json.cht"/>
+				<file name = "3.2n.cht" type = "data" source = "iso/chart/philly.json.cht"/>
+				<file name = "3.2h.cht" type = "data" source = "iso/chart/philly-hard.json.cht"/>
 				<!-- Blammed charts -->
-				<file name = "3.3e.cht" type = "data" source = "iso/chart/blammed-easy.cht"/>
-				<file name = "3.3n.cht" type = "data" source = "iso/chart/blammed.cht"/>
-				<file name = "3.3h.cht" type = "data" source = "iso/chart/blammed-hard.cht"/>
+				<file name = "3.3e.cht" type = "data" source = "iso/chart/blammed-easy.json.cht"/>
+				<file name = "3.3n.cht" type = "data" source = "iso/chart/blammed.json.cht"/>
+				<file name = "3.3h.cht" type = "data" source = "iso/chart/blammed-hard.json.cht"/>
 			</dir>
 			
 			<!-- Week 4 assets -->
@@ -114,19 +114,19 @@
 				<file name = "hench.arc" type = "data" source = "iso/week4/hench.arc"/>
 				
 				<!-- Satin Panties charts -->
-				<file name = "4.1e.cht" type = "data" source = "iso/chart/satin-panties-easy.cht"/>
-				<file name = "4.1n.cht" type = "data" source = "iso/chart/satin-panties.cht"/>
-				<file name = "4.1h.cht" type = "data" source = "iso/chart/satin-panties-hard.cht"/>
+				<file name = "4.1e.cht" type = "data" source = "iso/chart/satin-panties-easy.json.cht"/>
+				<file name = "4.1n.cht" type = "data" source = "iso/chart/satin-panties.json.cht"/>
+				<file name = "4.1h.cht" type = "data" source = "iso/chart/satin-panties-hard.json.cht"/>
 				<!-- High charts -->
-				<file name = "4.2e.cht" type = "data" source = "iso/chart/high-easy.cht"/>
-				<file name = "4.2n.cht" type = "data" source = "iso/chart/high.cht"/>
-				<file name = "4.2h.cht" type = "data" source = "iso/chart/high-hard.cht"/>
+				<file name = "4.2e.cht" type = "data" source = "iso/chart/high-easy.json.cht"/>
+				<file name = "4.2n.cht" type = "data" source = "iso/chart/high.json.cht"/>
+				<file name = "4.2h.cht" type = "data" source = "iso/chart/high-hard.json.cht"/>
 				<!-- MILF charts -->
-				<file name = "4.3e.cht" type = "data" source = "iso/chart/milf-easy.cht"/>
-				<file name = "4.3n.cht" type = "data" source = "iso/chart/milf.cht"/>
-				<file name = "4.3h.cht" type = "data" source = "iso/chart/milf-hard.cht"/>
+				<file name = "4.3e.cht" type = "data" source = "iso/chart/milf-easy.json.cht"/>
+				<file name = "4.3n.cht" type = "data" source = "iso/chart/milf.json.cht"/>
+				<file name = "4.3h.cht" type = "data" source = "iso/chart/milf-hard.json.cht"/>
 				<!-- Test charts -->
-				<file name = "4.4n.cht" type = "data" source = "iso/chart/test.cht"/>
+				<file name = "4.4n.cht" type = "data" source = "iso/chart/test.json.cht"/>
 			</dir>
 			
 			<!-- Week 5 assets -->
@@ -135,17 +135,17 @@
 				<file name = "back.arc" type = "data" source = "iso/week5/back.arc"/>
 				
 				<!-- Cocoa charts -->
-				<file name = "5.1e.cht" type = "data" source = "iso/chart/cocoa-easy.cht"/>
-				<file name = "5.1n.cht" type = "data" source = "iso/chart/cocoa.cht"/>
-				<file name = "5.1h.cht" type = "data" source = "iso/chart/cocoa-hard.cht"/>
+				<file name = "5.1e.cht" type = "data" source = "iso/chart/cocoa-easy.json.cht"/>
+				<file name = "5.1n.cht" type = "data" source = "iso/chart/cocoa.json.cht"/>
+				<file name = "5.1h.cht" type = "data" source = "iso/chart/cocoa-hard.json.cht"/>
 				<!-- Eggnog charts -->
-				<file name = "5.2e.cht" type = "data" source = "iso/chart/eggnog-easy.cht"/>
-				<file name = "5.2n.cht" type = "data" source = "iso/chart/eggnog.cht"/>
-				<file name = "5.2h.cht" type = "data" source = "iso/chart/eggnog-hard.cht"/>
+				<file name = "5.2e.cht" type = "data" source = "iso/chart/eggnog-easy.json.cht"/>
+				<file name = "5.2n.cht" type = "data" source = "iso/chart/eggnog.json.cht"/>
+				<file name = "5.2h.cht" type = "data" source = "iso/chart/eggnog-hard.json.cht"/>
 				<!-- Winter Horrorland charts -->
-				<file name = "5.3e.cht" type = "data" source = "iso/chart/winter-horrorland-easy.cht"/>
-				<file name = "5.3n.cht" type = "data" source = "iso/chart/winter-horrorland.cht"/>
-				<file name = "5.3h.cht" type = "data" source = "iso/chart/winter-horrorland-hard.cht"/>
+				<file name = "5.3e.cht" type = "data" source = "iso/chart/winter-horrorland-easy.json.cht"/>
+				<file name = "5.3n.cht" type = "data" source = "iso/chart/winter-horrorland.json.cht"/>
+				<file name = "5.3h.cht" type = "data" source = "iso/chart/winter-horrorland-hard.json.cht"/>
 			</dir>
 			
 			<!-- Week 6 assets -->
@@ -155,19 +155,17 @@
 				<file name = "back2.tim" type = "data" source = "iso/week6/back2.tim"/>
 				
 				<!-- Senpai charts -->
-				<file name = "6.1e.cht" type = "data" source = "iso/chart/senpai-easy.cht"/>
-				<file name = "6.1n.cht" type = "data" source = "iso/chart/senpai.cht"/>
-				<file name = "6.1h.cht" type = "data" source = "iso/chart/senpai-hard.cht"/>
-
-				<file name = "6.1_dlg.txt" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/week6/senpaidialogue.txt"/>
+				<file name = "6.1e.cht" type = "data" source = "iso/chart/senpai-easy.json.cht"/>
+				<file name = "6.1n.cht" type = "data" source = "iso/chart/senpai.json.cht"/>
+				<file name = "6.1h.cht" type = "data" source = "iso/chart/senpai-hard.json.cht"/>
 				<!-- Roses charts -->
-				<file name = "6.2e.cht" type = "data" source = "iso/chart/roses-easy.cht"/>
-				<file name = "6.2n.cht" type = "data" source = "iso/chart/roses.cht"/>
-				<file name = "6.2h.cht" type = "data" source = "iso/chart/roses-hard.cht"/>
+				<file name = "6.2e.cht" type = "data" source = "iso/chart/roses-easy.json.cht"/>
+				<file name = "6.2n.cht" type = "data" source = "iso/chart/roses.json.cht"/>
+				<file name = "6.2h.cht" type = "data" source = "iso/chart/roses-hard.json.cht"/>
 				<!-- Thorns charts -->
-				<file name = "6.3e.cht" type = "data" source = "iso/chart/thorns-easy.cht"/>
-				<file name = "6.3n.cht" type = "data" source = "iso/chart/thorns.cht"/>
-				<file name = "6.3h.cht" type = "data" source = "iso/chart/thorns-hard.cht"/>
+				<file name = "6.3e.cht" type = "data" source = "iso/chart/thorns-easy.json.cht"/>
+				<file name = "6.3n.cht" type = "data" source = "iso/chart/thorns.json.cht"/>
+				<file name = "6.3h.cht" type = "data" source = "iso/chart/thorns-hard.json.cht"/>
 			</dir>
 		
 			<!-- Character assets -->
@@ -215,29 +213,24 @@
 			<!-- Sound effects -->
 			<dir name = "sounds">
 				<!-- Menu Sounds -->
-				<file name = "scroll.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/menu/scroll.VAG"/>
-				<file name = "confirm.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/menu/confirm.VAG"/>
-				<file name = "cancel.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/menu/cancel.VAG"/>
+				<file name = "scroll.vag" type = "data" source = "iso/sounds/menu/scroll.VAG"/>
+				<file name = "confirm.vag" type = "data" source = "iso/sounds/menu/confirm.VAG"/>
+				<file name = "cancel.vag" type = "data" source = "iso/sounds/menu/cancel.VAG"/>
 				<!-- Stage Sounds -->
-				<file name = "intro0.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/intro0.VAG"/>
-				<file name = "intro1.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/intro1.VAG"/>
-				<file name = "intro2.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/intro2.VAG"/>
-				<file name = "intro3.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/intro3.VAG"/>
+				<file name = "intro0.vag" type = "data" source = "iso/sounds/stage/intro0.VAG"/>
+				<file name = "intro1.vag" type = "data" source = "iso/sounds/stage/intro1.VAG"/>
+				<file name = "intro2.vag" type = "data" source = "iso/sounds/stage/intro2.VAG"/>
+				<file name = "intro3.vag" type = "data" source = "iso/sounds/stage/intro3.VAG"/>
 				<!-- Weeb Sounds -->
-				<file name = "intro0p.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/weeb/intro0p.VAG"/>
-				<file name = "intro1p.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/weeb/intro1p.VAG"/>
-				<file name = "intro2p.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/weeb/intro2p.VAG"/>
-				<file name = "intro3p.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/weeb/intro3p.VAG"/>
-				<!-- Miss Sounds -->
-				<file name = "miss1.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/miss1.VAG"/>
-				<file name = "miss2.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/miss2.VAG"/>
-				<file name = "miss3.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/miss3.VAG"/>
-				<!-- Game Over Sounds -->
-				<file name = "loss.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/gameover/fnf_loss_sfx.VAG"/>
-				<file name = "lossp.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/gameover/fnf_loss_sfx-pixel.VAG"/>
-				<file name = "end.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/gameover/gameOverEnd.VAG"/>
-				<file name = "endp.vag" type = "data" source = "${PROJECT_SOURCE_DIR}/iso/sounds/stage/gameover/gameOverEnd-pixel.VAG"/>
+				<file name = "intro0p.vag" type = "data" source = "iso/sounds/stage/weeb/intro0p.VAG"/>
+				<file name = "intro1p.vag" type = "data" source = "iso/sounds/stage/weeb/intro1p.VAG"/>
+				<file name = "intro2p.vag" type = "data" source = "iso/sounds/stage/weeb/intro2p.VAG"/>
+				<file name = "intro3p.vag" type = "data" source = "iso/sounds/stage/weeb/intro3p.VAG"/>
 
+				<!-- Miss Sounds -->
+				<file name = "miss1.vag" type = "data" source = "iso/sounds/stage/miss1.VAG"/>
+				<file name = "miss2.vag" type = "data" source = "iso/sounds/stage/miss2.VAG"/>
+				<file name = "miss3.vag" type = "data" source = "iso/sounds/stage/miss3.VAG"/>
 			</dir>
 			
 			<!-- Music -->

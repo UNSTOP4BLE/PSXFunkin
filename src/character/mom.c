@@ -6,7 +6,7 @@
 
 #include "mom.h"
 
-#include <stdlib.h>    
+#include "../mem.h"
 #include "../archive.h"
 #include "../stage.h"
 #include "../main.h"
@@ -153,13 +153,13 @@ void Char_Mom_Free(Character *character)
 	Char_Mom *this = (Char_Mom*)character;
 	
 	//Free art
-	free(this->arc_main);
+	Mem_Free(this->arc_main);
 }
 
 Character *Char_Mom_New(fixed_t x, fixed_t y)
 {
 	//Allocate mom object
-	Char_Mom *this = malloc(sizeof(Char_Mom));
+	Char_Mom *this = Mem_Alloc(sizeof(Char_Mom));
 	if (this == NULL)
 	{
 		sprintf(error_msg, "[Char_Mom_New] Failed to allocate mom object");

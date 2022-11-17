@@ -1,0 +1,10 @@
+TOOLS = tools/funkinisopak tools/funkinarcpak tools/funkinchartpak \
+	tools/funkinpicopak tools/funkintimconv tools/funkinchrpak \
+	tools/psxavenc tools/xainterleave tools/funkinmultitool
+
+all: $(TOOLS)
+
+$(TOOLS):
+	cd $@ && $(MAKE)
+
+.PHONY: all $(TOOLS)

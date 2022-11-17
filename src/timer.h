@@ -26,13 +26,11 @@ typedef struct
 extern Timer timer;
 
 //Timer interface 
-void Timer_Init(void);
+void Timer_Init(boolean pal_console, boolean pal_video);
 void Timer_Tick(void);
-void Timer_Reset(void); 
+void Timer_Reset(void);
+void StageTimer_Calculate();
 void StageTimer_Tick();
 void StageTimer_Draw();
-
-void Timer_StartProfile(void);
-int Timer_EndProfile(void);
 
 #endif
