@@ -29,10 +29,26 @@ struct Section
 #define NOTE_FLAG_MINE        (1 << 6) //Note is a mine
 #define NOTE_FLAG_HIT         (1 << 7) //Note has been hit
 
+//EVENTS
+#define EVENTS_FLAG_VARIANT 0xFFFC
+
+#define EVENTS_FLAG_SPEED     (1 << 2) //Change Scroll Speed
+
+#define EVENTS_FLAG_PLAYED     (1 << 15) //Event has been already played
+
 struct Note
 {
-	uint16_t pos; //1/12 steps
+	uint16_t pos; // 1/12 steps
 	uint8_t type, pad = 0;
+};
+
+struct Event
+{
+	//psych engine events
+	uint16_t pos; // 1/12 steps
+	uint16_t event;
+	uint16_t value1;
+	uint16_t value2;
 };
 
 typedef int32_t fixed_t;
@@ -92,6 +108,7 @@ int main(int argc, char *argv[])
 	
 	std::vector<Section> sections;
 	std::vector<Note> notes;
+	std::vector<Event> events;
 	
 	uint16_t section_end = 0;
 	int score = 0, dups = 0;
@@ -173,6 +190,46 @@ int main(int argc, char *argv[])
 			return a.pos < b.pos;
 	});
 	
+	//Read Events lol
+	for (auto &i : song_info["events"]) //Iterate through sections
+	{
+		for (auto &j : i[1])
+		{
+			Event new_event;
+
+			//Start with 0 for avoid bugs
+			new_event.event = 0;
+
+			new_event.pos = (step_base * 12) + PosRound(((double)i[0] - milli_base) * 12.0, step_crochet);
+
+			//get values information
+			std::string value1 =  j[1];
+			std::string value2 =  j[2];
+
+			if (j[0] == "Change Scroll Speed")
+				new_event.event |= EVENTS_FLAG_SPEED;
+
+			if (new_event.event & EVENTS_FLAG_SPEED)
+			{
+				//Default values
+				if (j[1] == "")
+					j[1] = "1";
+
+				if (j[2] == "")
+					j[2] = "0";
+
+				//fixed value by 1024 to work perfect 
+				new_event.value1 = std::stof(value1) * FIXED_UNIT;
+
+				//make milliseconds instead seconds
+				new_event.value2 = std::stof(value2) * FIXED_UNIT;
+				std::cout << "founded event!: " << j[0] <<" step of event: " << new_event.pos / 12 << std::endl;
+			}
+
+			events.push_back(new_event);
+		}
+	}
+	
 	//Push dummy section and note
 	Section dum_section;
 	dum_section.end = 0xFFFF;
@@ -184,6 +241,12 @@ int main(int argc, char *argv[])
 	dum_note.type = NOTE_FLAG_HIT;
 	notes.push_back(dum_note);
 	
+	Event dum_event;
+	dum_event.pos = 0xFFFF;
+	dum_event.event = EVENTS_FLAG_PLAYED;
+	dum_event.value1 = dum_event.value2 = 0;
+	events.push_back(dum_event);
+	
 	//Write to output
 	std::ofstream out(std::string(argv[1]) + ".cht", std::ostream::binary);
 	if (!out.is_open())
@@ -194,7 +257,8 @@ int main(int argc, char *argv[])
 	
 	//Write header
 	WriteLong(out, (fixed_t)(speed * FIXED_UNIT));
-	WriteWord(out, 6 + (sections.size() << 2));
+	WriteWord(out, 8 + (sections.size() << 2));
+	WriteWord(out, (notes.size() << 2));
 	
 	//Write sections
 	for (auto &i : sections)
@@ -210,5 +274,15 @@ int main(int argc, char *argv[])
 		out.put(i.type);
 		out.put(0);
 	}
+	
+	//Write events
+	for (auto &i : events)
+	{
+		WriteWord(out, i.pos);
+		WriteWord(out, i.event);
+		WriteWord(out,i.value1);
+		WriteWord(out,i.value2);
+	}
+	
 	return 0;
 }

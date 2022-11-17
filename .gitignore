@@ -12,6 +12,7 @@ mips/psyq/
 *.map
 *.ps-exe
 *.exe
+*.bak
 tools/funkinisopak/funkinisopak
 tools/funkinarcpak/funkinarcpak
 tools/funkinchartpak/funkinchartpak

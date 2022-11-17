@@ -19,6 +19,7 @@
 #include "debug.h"
 
 #include "network.h"
+#include "events.h"
 
 //Stage constants
 #define INPUT_LEFT  (PAD_LEFT  | PAD_SQUARE | PAD_L2)
@@ -188,7 +189,7 @@ typedef struct
 	int pal_i, wide_i;
 	struct
 	{
-		boolean ghost, downscroll, middlescroll, expsync, practice, debug, palmode, widescreen, sfxmiss, songtimer, botplay;
+		boolean ghost, downscroll, middlescroll, expsync, practice, debug, palmode, widescreen, sfxmiss, songtimer, botplay, flash;
 		int savescore[StageId_Max][3];
 	} prefs;
 	boolean paused;
@@ -211,10 +212,14 @@ typedef struct
 	Section *sections;
 	Note *notes;
 	size_t num_notes;
+	Event* events;
 	
 	fixed_t speed;
 	fixed_t step_crochet, step_time;
 	fixed_t early_safe, late_safe, early_sus_safe, late_sus_safe;
+	
+	//if stage have intro or no
+	boolean intro;
 	
 	//Stage state
 	boolean story;
@@ -239,6 +244,7 @@ typedef struct
 	
 	Section *cur_section; //Current section
 	Note *cur_note; //First visible and hittable note, used for drawing and hit detection
+	Event* cur_event; //Current event
 	
 	fixed_t note_scroll, song_time, interp_time, interp_ms, interp_speed;
 	

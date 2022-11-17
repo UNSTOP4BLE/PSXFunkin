@@ -9,6 +9,7 @@ SRCS = src/main.c \
        src/trans.c \
        src/loadscr.c \
        src/menu.c \
+	   src/events.c \
        src/stage.c \
        src/debug.c \
        src/save.c \
