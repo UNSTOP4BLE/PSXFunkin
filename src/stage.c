@@ -1154,13 +1154,13 @@ static void Stage_CountDown(void)
 	}
 
 	RECT ready_src = {  0,  0,114, 55};	
-	RECT_FIXED ready_dst = {FIXED_DEC(103,1), FIXED_DEC(93,1), FIXED_DEC(125 * 2,1), FIXED_DEC(58 * 2,1)};	
+	RECT_FIXED ready_dst = {FIXED_DEC(-57,1), FIXED_DEC(-28,1), FIXED_DEC(125 * 2,1), FIXED_DEC(58 * 2,1)};	
 
 	RECT set_src = {  0, 55, 94, 44};	
-	RECT_FIXED set_dst = {FIXED_DEC(113,1), FIXED_DEC(98,1), FIXED_DEC(96 * 2,1), FIXED_DEC(54 * 2,1)};	
+	RECT_FIXED set_dst = {FIXED_DEC(-47,1), FIXED_DEC(-22,1), FIXED_DEC(96 * 2,1), FIXED_DEC(54 * 2,1)};	
 
 	RECT go_src = {115,  0, 46, 35};	
-	RECT_FIXED go_dst = {FIXED_DEC(137,1), FIXED_DEC(103,1), FIXED_DEC(95 * 2,1), FIXED_DEC(48 * 2,1)};	
+	RECT_FIXED go_dst = {FIXED_DEC(-23,1), FIXED_DEC(-18,1), FIXED_DEC(95 * 2,1), FIXED_DEC(48 * 2,1)};	
 
 	if (drawshit == 3 && stage.song_step >= -15 && stage.song_step <= -12)
 		Stage_DrawTex(&stage.tex_count, &ready_src, &ready_dst, stage.bump, -64);
@@ -1478,6 +1478,9 @@ void Stage_Load(StageId id, StageDiff difficulty, boolean story)
 	sprintf(iconpath, "\\STAGE\\HUD1-%d.TIM;1", stage.stage_def->week);
 	Gfx_LoadTex(&stage.tex_hud1, IO_Read(iconpath), GFX_LOADTEX_FREE);
 	Gfx_LoadTex(&stage.tex_count, IO_Read("\\STAGE\\COUNT.TIM;1"), GFX_LOADTEX_FREE);
+	
+	//Load death screen texture
+	Gfx_LoadTex(&stage.tex_ded, IO_Read("\\CHAR\\DEAD.TIM;1"), GFX_LOADTEX_FREE);
 
 	//Load stage background
 	Stage_LoadStage();
@@ -2236,6 +2239,8 @@ void Stage_Tick(void)
 		{
 			//Stop music immediately
 			Audio_StopXA();
+			deadtimer = 0;
+			inctimer = false;
 			
 			//Unload stage data
 			Mem_Free(stage.chart_data);
@@ -2250,9 +2255,11 @@ void Stage_Tick(void)
 			ObjectList_Free(&stage.objlist_bg);
 			
 			//Free opponent and girlfriend
+			Character_Free(stage.player2);
+			stage.player2 = NULL;
 			Character_Free(stage.opponent);
 			stage.opponent = NULL;
-            Character_Free(stage.opponent2);
+            		Character_Free(stage.opponent2);
 			stage.opponent2 = NULL;
 			Character_Free(stage.gf);
 			stage.gf = NULL;
@@ -2264,62 +2271,17 @@ void Stage_Tick(void)
 			//Change background colour to black
 			Gfx_SetClear(0, 0, 0);
 			
-			//Run death animation, focus on player, and change state
-			stage.player->set_anim(stage.player, PlayerAnim_Dead0);
-			
-			Stage_FocusCharacter(stage.player, 0);
 			stage.song_time = 0;
-			
+
+			Audio_PlayXA_Track(XA_GameOver, 0x40, 1, true);	
 			stage.state = StageState_DeadLoad;
 		}
 	//Fallthrough
 		case StageState_DeadLoad:
 		{
-			//Scroll camera and tick player
-			if (stage.song_time < FIXED_UNIT)
-				stage.song_time += FIXED_UNIT / 60;
-			stage.camera.td = FIXED_DEC(-2, 100) + FIXED_MUL(stage.song_time, FIXED_DEC(45, 1000));
-			if (stage.camera.td > 0)
-				Stage_ScrollCamera();
-			stage.player->tick(stage.player);
-			
-			//Drop mic and change state if CD has finished reading and animation has ended
-			if (IO_IsReading() || stage.player->animatable.anim != PlayerAnim_Dead1)
-				break;
-			
-			stage.player->set_anim(stage.player, PlayerAnim_Dead2);
-			stage.camera.td = FIXED_DEC(25, 1000);
-			stage.state = StageState_DeadDrop;
-			break;
-		}
-		case StageState_DeadDrop:
-		{
-			//Scroll camera and tick player
-			Stage_ScrollCamera();
-			stage.player->tick(stage.player);
-			
-			//Enter next state once mic has been dropped
-			if (stage.player->animatable.anim == PlayerAnim_Dead3)
-			{
-				stage.state = StageState_DeadRetry;
-				Audio_PlayXA_Track(XA_GameOver, 0x40, 1, true);
-			}
-			break;
-		}
-		case StageState_DeadRetry:
-		{
-			//Randomly twitch
-			if (stage.player->animatable.anim == PlayerAnim_Dead3)
-			{
-				if (RandomRange(0, 29) == 0)
-					stage.player->set_anim(stage.player, PlayerAnim_Dead4);
-				if (RandomRange(0, 29) == 0)
-					stage.player->set_anim(stage.player, PlayerAnim_Dead5);
-			}
-			
-			//Scroll camera and tick player
-			Stage_ScrollCamera();
-			stage.player->tick(stage.player);
+			RECT src = {0, 0,255,255};
+			RECT dst = { 33,-8,255,255};
+			Gfx_DrawTex(&stage.tex_ded, &src, &dst);
 			break;
 		}
 		default:
