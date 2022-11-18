@@ -43,7 +43,7 @@
 				<file name = "hud1-4.tim" type = "data" source = "iso/stage/hud1-4.tim"/>
 				<file name = "hud1-5.tim" type = "data" source = "iso/stage/hud1-5.tim"/>
 				<file name = "hud1-6.tim" type = "data" source = "iso/stage/hud1-6.tim"/>
-				<file name = "hud0weeb.tim" type = "data" source = "iso/stage/hud0weeb.tim"/>
+				<file name = "count.tim" type = "data" source = "iso/stage/count.tim"/>
 			</dir>
 			
 			<!-- Week 1 assets -->

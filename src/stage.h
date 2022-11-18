@@ -155,6 +155,7 @@ typedef struct
 typedef struct
 {
 	Character *character;
+	Character *character2;
 	
 	fixed_t arrow_hitan[4]; //Arrow hit animation for presses
 
@@ -198,7 +199,7 @@ typedef struct
 	u32 offset;
 	
 	//HUD textures
-	Gfx_Tex tex_hud0, tex_hud1;
+	Gfx_Tex tex_hud0, tex_hud1, tex_count;
 
 	//font
 	FontData font_cdr, font_bold;
@@ -259,9 +260,6 @@ typedef struct
 
 	s32 song_step;
 	s16 song_beat;
-
-	char* player2sing;
-	char* oppo2sing;
 
 	boolean freecam;
 	
