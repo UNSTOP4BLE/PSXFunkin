@@ -200,6 +200,7 @@ typedef struct
 	
 	//HUD textures
 	Gfx_Tex tex_hud0, tex_hud1, tex_count;
+	Gfx_Tex tex_ded;
 
 	//font
 	FontData font_cdr, font_bold;
