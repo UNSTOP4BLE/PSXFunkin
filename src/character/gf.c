@@ -114,21 +114,7 @@ void Char_GF_Tick(Character *character)
 	
 	//Initialize Pico test
 	if (stage.flag & STAGE_FLAG_JUST_STEP)
-	{
-		//Stage specific animations
-		if (stage.note_scroll >= 0)
-		{
-			switch (stage.stage_id)
-			{
-				case StageId_1_4: //Tutorial cheer
-					if (stage.song_step > 64 && stage.song_step < 192 && (stage.song_step & 0x3F) == 60)
-						character->set_anim(character, CharAnim_UpAlt);
-					break;
-				default:
-					break;
-			}
-		}
-			
+	{			
 		//Perform dance
 	    if (stage.note_scroll >= character->sing_end && (stage.song_step % stage.gf_speed) == 0)
 		{
@@ -145,10 +131,7 @@ void Char_GF_Tick(Character *character)
 
 	//Get parallax
 	fixed_t parallax;
-	if (stage.stage_id >= StageId_1_1 && stage.stage_id <= StageId_1_4)
-		parallax = FIXED_DEC(7,10);
-	else
-		parallax = FIXED_UNIT;
+	parallax = FIXED_UNIT;
 	
 	//Animate and draw
 	Animatable_Animate(&character->animatable, (void*)this, Char_GF_SetFrame);
@@ -209,58 +192,20 @@ Character *Char_GF_New(fixed_t x, fixed_t y)
 	this->character.focus_y = FIXED_DEC(-40,1);
 	this->character.focus_zoom = FIXED_DEC(2,1);
 	
-	if (stage.stage_id >= StageId_5_1 && stage.stage_id <= StageId_5_3)
-	{
-		//Load art
-		this->arc_main = IO_Read("\\CHAR\\GFX.ARC;1");
-		
-		const char **pathp = (const char *[]){
-			"xmasgf0.tim", //GF_ArcMain_GF0
-			"xmasgf1.tim", //GF_ArcMain_GF1
-			"xmasgf2.tim", //GF_ArcMain_GF2
-			NULL
-		};
-		IO_Data *arc_ptr = this->arc_ptr;
-		for (; *pathp != NULL; pathp++)
-			*arc_ptr++ = Archive_Find(this->arc_main, *pathp);
-	}
-	else
-	{
-		//Load art
-		this->arc_main = IO_Read("\\CHAR\\GF.ARC;1");
-		
-		const char **pathp = (const char *[]){
-			"gf0.tim", //GF_ArcMain_GF0
-			"gf1.tim", //GF_ArcMain_GF1
-			"gf2.tim", //GF_ArcMain_GF2
-			NULL
-		};
-		IO_Data *arc_ptr = this->arc_ptr;
-		for (; *pathp != NULL; pathp++)
-			*arc_ptr++ = Archive_Find(this->arc_main, *pathp);
-	}
+	this->character.size = FIXED_DEC(1,1);
 	
-	//Load scene specific art
-	switch (stage.stage_id)
-	{
-		case StageId_1_4: //Tutorial
-		{
-			this->arc_scene = IO_Read("\\CHAR\\GFTUT.ARC;1");
-			
-			const char **pathp = (const char *[]){
-				"tut0.tim", //GF_ArcScene_0
-				"tut1.tim", //GF_ArcScene_1
-				NULL
-			};
-			IO_Data *arc_ptr = &this->arc_ptr[GF_ArcScene_0];
-			for (; *pathp != NULL; pathp++)
-				*arc_ptr++ = Archive_Find(this->arc_scene, *pathp);
-			break;
-		}
-		default:
-			this->arc_scene = NULL;
-			break;
-	}
+	//Load art
+	this->arc_main = IO_Read("\\CHAR\\GF.ARC;1");
+		
+	const char **pathp = (const char *[]){
+		"gf0.tim", //GF_ArcMain_GF0
+		"gf1.tim", //GF_ArcMain_GF1
+		"gf2.tim", //GF_ArcMain_GF2
+		NULL
+	};
+	IO_Data *arc_ptr = this->arc_ptr;
+	for (; *pathp != NULL; pathp++)
+		*arc_ptr++ = Archive_Find(this->arc_main, *pathp);
 	
 	//Initialize render state
 	this->tex_id = this->frame = 0xFF;

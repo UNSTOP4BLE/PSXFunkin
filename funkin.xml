@@ -71,9 +71,7 @@
 			
 			<!-- Week 2 assets -->
 			<dir name = "week2">
-				<!-- Background art -->
-				<file name = "back.arc" type = "data" source = "iso/week2/back.arc"/>
-				
+			
 				<!-- Spookeez charts -->
 				<file name = "2.1e.cht" type = "data" source = "iso/chart/spookeez-easy.json.cht"/>
 				<file name = "2.1n.cht" type = "data" source = "iso/chart/spookeez.json.cht"/>
@@ -90,8 +88,6 @@
 			
 			<!-- Week 3 assets -->
 			<dir name = "week3">
-				<!-- Background art -->
-				<file name = "back.arc" type = "data" source = "iso/week3/back.arc"/>
 				
 				<!-- Pico charts -->
 				<file name = "3.1e.cht" type = "data" source = "iso/chart/pico-easy.json.cht"/>
@@ -109,9 +105,6 @@
 			
 			<!-- Week 4 assets -->
 			<dir name = "week4">
-				<!-- Background art -->
-				<file name = "back.arc" type = "data" source = "iso/week4/back.arc"/>
-				<file name = "hench.arc" type = "data" source = "iso/week4/hench.arc"/>
 				
 				<!-- Satin Panties charts -->
 				<file name = "4.1e.cht" type = "data" source = "iso/chart/satin-panties-easy.json.cht"/>
@@ -131,8 +124,6 @@
 			
 			<!-- Week 5 assets -->
 			<dir name = "week5">
-				<!-- Background art -->
-				<file name = "back.arc" type = "data" source = "iso/week5/back.arc"/>
 				
 				<!-- Cocoa charts -->
 				<file name = "5.1e.cht" type = "data" source = "iso/chart/cocoa-easy.json.cht"/>
@@ -150,9 +141,6 @@
 			
 			<!-- Week 6 assets -->
 			<dir name = "week6">
-				<!-- Background art -->
-				<file name = "back.arc" type = "data" source = "iso/week6/back.arc"/>
-				<file name = "back2.tim" type = "data" source = "iso/week6/back2.tim"/>
 				
 				<!-- Senpai charts -->
 				<file name = "6.1e.cht" type = "data" source = "iso/chart/senpai-easy.json.cht"/>
@@ -172,42 +160,15 @@
 			<dir name = "char">
 				<!-- Boyfriend assets -->
 				<file name = "bf.arc" type = "data" source = "iso/bf/main.arc"/>
-				<file name = "bfdead.arc" type = "data" source = "iso/bf/dead.arc"/>
-				<file name = "bfweeb.arc" type = "data" source = "iso/bf/weeb.arc"/>
+				<file name = "dead.tim" type = "data" source = "iso/bf/dead.tim"/>
 				
 				<!-- Dad assets -->
 				<file name = "dad.arc" type = "data" source = "iso/dad/main.arc"/>
-				
-				<!-- Spook assets -->
-				<file name = "spook.arc" type = "data" source = "iso/spook/main.arc"/>
 
-				<!-- Monster assets -->
-				<file name = "monster.arc" type = "data" source = "iso/monster/main.arc"/>
-				
-				<!-- Pico assets -->
-				<file name = "pico.arc" type = "data" source = "iso/pico/main.arc"/>
-				
-				<!-- Mom assets -->
-				<file name = "mom.arc" type = "data" source = "iso/mom/main.arc"/>
-				<file name = "momhair.tim" type = "data" source = "iso/mom/hair.tim"/>
-				
-				<!-- Christmas assets -->
-				<file name = "xmasbf.arc" type = "data" source = "iso/bf/xmas.arc"/>
-				<file name = "xmasp.arc" type = "data" source = "iso/xmasp/main.arc"/>
-				<file name = "monsterx.arc" type = "data" source = "iso/monster/xmas.arc"/>
-				
-				<!-- Senpai assets -->
-				<file name = "senpai.arc" type = "data" source = "iso/senpai/main.arc"/>
-				<file name = "senpaim.arc" type = "data" source = "iso/senpaim/main.arc"/>
-				<file name = "spirit.arc" type = "data" source = "iso/spirit/main.arc"/>
-				
 				<!-- Girlfriend assets -->
 				<file name = "gf.arc" type = "data" source = "iso/gf/main.arc"/>
 				<file name = "gftut.arc" type = "data" source = "iso/gf/tut.arc"/>
-				<file name = "gfweeb.arc" type = "data" source = "iso/gf/weeb.arc"/>
-				<file name = "gfx.arc" type = "data" source = "iso/gf/xmas.arc"/>
 				<file name = "speaker.tim" type = "data" source = "iso/gf/speaker.tim"/>
-				<file name = "speakerx.tim" type = "data" source = "iso/gf/speakerx.tim"/>
 			</dir>
 		    
 			<!-- Sound effects -->
