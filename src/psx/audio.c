@@ -280,15 +280,15 @@ void Audio_StopStream(void) {
 	playing = false;
 }
 
-u32 Audio_GetTimeMS(void) {
-	uint32_t chunk_start_time = (str_ctx.next_chunk - 1) *
+uint64_t Audio_GetTimeMS(void) {
+	uint64_t chunk_start_time = (str_ctx.next_chunk - 1) *
 	str_ctx.chunk_ticks / str_ctx.sample_rate;
 
-	uint32_t current_time = str_ctx.last_paused;
+	uint64_t current_time = str_ctx.last_paused;
 	if (!current_time)
 		current_time = Timer_GetTime();
 
-	int time = chunk_start_time + (current_time - str_ctx.last_irq);
+	uint64_t time = chunk_start_time + (current_time - str_ctx.last_irq);
 	return (time * 1000) / TICKS_PER_SEC;
 }
 

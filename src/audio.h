@@ -17,7 +17,7 @@ void Audio_FeedStream(void);
 void Audio_LoadStream(const char *path, boolean loop);
 void Audio_StartStream(void);
 void Audio_StopStream(void);
-u32 Audio_GetTimeMS(void);
+uint64_t Audio_GetTimeMS(void);
 u32 Audio_GetInitialTime(void);
 boolean Audio_IsPlaying(void);
 void Audio_SetVolume(u8 i, u16 vol_left, u16 vol_right);

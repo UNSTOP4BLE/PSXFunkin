@@ -49,13 +49,13 @@ u32 Timer_GetAnimfCount(void)
 		return (Timer_GetTime() * 24) / TICKS_PER_SEC;
 }
 
-u32 Timer_GetTime(void) {
+uint64_t Timer_GetTime(void) {
 	return
-		(timer.timer_irq_count << TIMER_SHIFT) |
-		(TIMER_VALUE(2)  >> (16 - TIMER_SHIFT));
+    ((uint64_t) timer.timer_irq_count << TIMER_SHIFT) |
+    ((uint64_t) TIMER_VALUE(2) >> (16 - TIMER_SHIFT));
 }
 
-u32 Timer_GetTimeMS(void) {
+uint64_t Timer_GetTimeMS(void) {
 	return (Timer_GetTime() * 1000) / TICKS_PER_SEC;
 }
 
