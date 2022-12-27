@@ -1857,10 +1857,10 @@ void Stage_Tick(void)
 			//Get song position
 			boolean playing;
 			fixed_t next_scroll;
-		
+			
 			if (!stage.paused)
 			{
-				if (stage.note_scroll < 0)
+				if (stage.song_time <= 0)
 				{
 					//Play countdown sequence
 					stage.song_time += Timer_GetDT();
@@ -1872,10 +1872,12 @@ void Stage_Tick(void)
 						playing = true;
 
 						Audio_StartStream();
-
+						Stage_CutVocal();
+						Stage_StartVocal();
+						
 						//Update song time
 						fixed_t audio_time = (fixed_t)Audio_GetTimeMS() - stage.offset;
-						if (audio_time < 0)
+						if (audio_time < 0 || audio_time > 4000)
 							audio_time = 0;
 						stage.interp_ms = (audio_time << FIXED_SHIFT) / 1000;
 						stage.interp_time = 0;
@@ -1893,6 +1895,9 @@ void Stage_Tick(void)
 				else if (Audio_IsPlaying())
 				{
 					fixed_t audio_time_pof = (fixed_t)Audio_GetTimeMS();
+					if (audio_time_pof >= 40000 && stage.song_step <= 20)
+						audio_time_pof = 0;
+
 					fixed_t audio_time = (audio_time_pof > 0) ? (audio_time_pof - stage.offset) : 0;
 					
 					//Old sync
@@ -1926,7 +1931,9 @@ void Stage_Tick(void)
 						Trans_Start();
 					}
 				}	
+
 				RecalcScroll:;
+				
 				//Update song scroll and step
 				if (next_scroll > stage.note_scroll)
 				{
@@ -1938,7 +1945,7 @@ void Stage_Tick(void)
 						stage.song_step -= 11;
 					stage.song_step /= 12;
 				}
-				
+
 				//Update section
 				if (stage.note_scroll >= 0)
 				{
