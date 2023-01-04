@@ -11,9 +11,9 @@ jobs:
         build: [Debug, Release]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@main
       - name: Download PSX SDK
-        uses: robinraju/release-downloader@v1.6
+        uses: robinraju/release-downloader@main
         with: 
           repository: "spicyjpeg/PSn00bSDK"
           tag: "v0.21"
@@ -29,7 +29,7 @@ jobs:
           cmake -S . -B ./build -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=/opt/psn00bsdk/lib/libpsn00b/cmake/sdk.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build }}
           cmake --build ./build -j24
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@main
         with:
           name: Funkin-${{ matrix.build }}
           path: |
