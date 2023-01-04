@@ -20,7 +20,7 @@ jobs:
           fileName: "PSn00bSDK-0.21-Linux.zip"
       - name: Unzip And Configure PSX SDK
         run: |
-          unzip PSn00bSDK-0.21-Linux.zip
+          unzip -q PSn00bSDK-0.21-Linux.zip
           mv PSn00bSDK-0.21-Linux /opt/psn00bsdk
           export PATH=$PATH:/opt/psn00bsdk/bin
           export PSN00BSDK_LIBS=/opt/psn00bsdk/lib/libpsn00b
