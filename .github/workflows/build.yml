@@ -1,0 +1,38 @@
+name: PSXFUNKIN BUILD?!?!?!
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        build: [Debug, Release]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Download PSX SDK
+        uses: robinraju/release-downloader@v1.6
+        with: 
+          repository: "spicyjpeg/PSn00bSDK"
+          tag: "v0.21"
+          fileName: "PSn00bSDK-0.21-Linux.zip"
+      - name: Unzip And Configure PSX SDK
+        run: |
+          unzip PSn00bSDK-0.21-Linux.zip
+          mv PSn00bSDK-0.21-Linux /opt/psn00bsdk
+          export PATH=$PATH:/opt/psn00bsdk/bin
+          export PSN00BSDK_LIBS=/opt/psn00bsdk/lib/libpsn00b
+      - name: Compile
+        run: |
+          cmake -S ./tools -B ./tools/build -G "Ninja"
+          cmake --build ./tools/build
+          cmake -S . -B ./build -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=/opt/psn00bsdk/lib/libpsn00b/cmake/sdk.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build }}
+          cmake --build ./build -j24
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Funkin-${{ matrix.build }}
+          path: |
+            build/funkin.bin
+            build/funkin.cue
