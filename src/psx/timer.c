@@ -85,7 +85,7 @@ void StageTimer_Tick()
 	//im deeply sorry for anyone reading this code
 	//has the song started?
 	if (stage.song_step > 0) //if song starts decrease the timer
-   		timer.timer = Audio_GetInitialTime() - (Audio_GetTimeMS() / 1000); //seconds (ticks down)
+   		timer.timer = Audio_GetInitialTime() - ((int)Audio_GetTimeMS() / 1000); //seconds (ticks down)
     else //if not keep the timer at the song starting length	
  	    timer.timer = Audio_GetInitialTime(); //seconds (initial)
     timer.timermin = timer.timer / 60; //minutes left till song ends

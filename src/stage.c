@@ -76,20 +76,12 @@ Debug debug;
 //Stage music functions
 static void Stage_StartVocal(void)
 {
-	if (!(stage.flag & STAGE_FLAG_VOCAL_ACTIVE))
-	{
-		Audio_SetVolume(2, 0x3FFF, 0x3FFF);
-		stage.flag |= STAGE_FLAG_VOCAL_ACTIVE;
-	}
+	Audio_SetVolume(2, 0x3FFF, 0x3FFF);
 }
 
 static void Stage_CutVocal(void)
 {
-	if (stage.flag & STAGE_FLAG_VOCAL_ACTIVE)
-	{
-		Audio_SetVolume(2, 0x0000, 0x0000);
-		stage.flag &= ~STAGE_FLAG_VOCAL_ACTIVE;
-	}
+	Audio_SetVolume(2, 0x0000, 0x0000);
 }
 
 //Stage camera functions
@@ -410,7 +402,7 @@ static void Stage_SustainCheck(PlayerState *this, u8 type)
 
 static void CheckNewScore()
 {
-	if (stage.mode == StageMode_Normal && !stage.prefs.botplay && !stage.prefs.practice && timer.timermin == 0 && timer.timer <= 5)
+	if (stage.mode == StageMode_Normal && !stage.prefs.botplay && !stage.prefs.practice)
 	{
 		if (stage.player_state[0].score >= stage.prefs.savescore[stage.stage_id][stage.stage_diff])
 			stage.prefs.savescore[stage.stage_id][stage.stage_diff] = stage.player_state[0].score;			
@@ -1410,10 +1402,7 @@ static void Stage_LoadMusic(void)
 	//Initialize music state
 	stage.note_scroll = FIXED_DEC(-5 * 6 * 12,1);
 	stage.song_time = FIXED_DIV(stage.note_scroll, stage.step_crochet);
-	stage.interp_time = 0;
-	stage.interp_ms = 0;
-	stage.interp_speed = 0;
-	
+
 	//Offset sing ends again
 	stage.player->sing_end += stage.note_scroll;
 	if (stage.player2 != NULL)
@@ -1428,8 +1417,6 @@ static void Stage_LoadMusic(void)
 static void Stage_LoadState(void)
 {
 	//Initialize stage state
-	stage.flag = STAGE_FLAG_VOCAL_ACTIVE;
-	
 	stage.gf_speed = 1 << 2;
 	
 	stage.state = StageState_Play;
@@ -1584,7 +1571,6 @@ void Stage_Load(StageId id, StageDiff difficulty, boolean story)
 	Stage_LoadMusic();
 	
 	//Test offset
-	stage.offset = 0;
 	printf("[Stage_Load] Done (id=%d)\n", id);
 }
 
@@ -1623,9 +1609,6 @@ void Stage_Unload(void)
 
 static boolean Stage_NextLoad(void)
 {
-	CheckNewScore();
-	writeSaveFile();
-
 	u8 load = stage.stage_def->next_load;
 	if (load == 0)
 	{
@@ -1769,8 +1752,6 @@ void Stage_Tick(void)
 		switch (stage.trans)
 		{
 			case StageTrans_Menu:
-				CheckNewScore();
-				writeSaveFile();
 				//Load appropriate menu
 				Stage_Unload();
 				
@@ -1820,7 +1801,7 @@ void Stage_Tick(void)
 			if (stage.prefs.debug)
 				Debug_StageDebug();
 
-			FntPrint(-1, "step %d, beat %d time %d", stage.song_step, stage.song_beat, stage.song_time);
+			FntPrint(-1, "step %d, beat %d time %d", stage.song_step, stage.song_beat, (int)stage.song_time);
 
 			Stage_CountDown();
 
@@ -1872,16 +1853,13 @@ void Stage_Tick(void)
 						playing = true;
 
 						Audio_StartStream();
-						Stage_CutVocal();
 						Stage_StartVocal();
 						
 						//Update song time
-						fixed_t audio_time = (fixed_t)Audio_GetTimeMS() - stage.offset;
-						if (audio_time < 0 || audio_time > 4000)
+						fixed_t audio_time = (fixed_t)Audio_GetTimeMS();
+						if (audio_time <= 0 || audio_time >= 5000)
 							audio_time = 0;
-						stage.interp_ms = (audio_time << FIXED_SHIFT) / 1000;
-						stage.interp_time = 0;
-						stage.song_time = stage.interp_ms;
+						stage.song_time = audio_time;
 					}
 					else
 					{
@@ -1894,16 +1872,8 @@ void Stage_Tick(void)
 				}
 				else if (Audio_IsPlaying())
 				{
-					fixed_t audio_time_pof = (fixed_t)Audio_GetTimeMS();
-					if (audio_time_pof >= 40000 && stage.song_step <= 20)
-						audio_time_pof = 0;
-
-					fixed_t audio_time = (audio_time_pof > 0) ? (audio_time_pof - stage.offset) : 0;
-					
-					//Old sync
-					stage.interp_ms = (audio_time << FIXED_SHIFT) / 1000;
-					stage.interp_time = 0;
-					stage.song_time = stage.interp_ms;
+					fixed_t audio_time = (fixed_t)Audio_GetTimeMS();
+					stage.song_time = audio_time;
 					
 					playing = true;
 					
@@ -1914,6 +1884,8 @@ void Stage_Tick(void)
 				{
 					//Song has ended
 					playing = false;
+					CheckNewScore();
+					writeSaveFile();
 					stage.song_time += Timer_GetDT();
 						
 					//Update scroll

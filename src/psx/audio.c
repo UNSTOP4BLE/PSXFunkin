@@ -34,7 +34,7 @@ typedef struct {
 typedef struct {
 	uint32_t *read_buffer;
 	int lba, chunk_secs, time;
-	int buffer_size, num_chunks, sample_rate, channels;
+	int buffer_size, num_chunks, sample_rate, samples, channels;
 	boolean loop;
 
 	volatile int    next_chunk, spu_addr;
@@ -221,6 +221,7 @@ void Audio_LoadStream(const char *path, boolean loop) {
 	str_ctx.db_active  = 1;
 	str_ctx.next_chunk = 0;
 	str_ctx.time = (SWAP_ENDIAN(vag->size) / 16) * (TICKS_PER_SEC * 28);
+	str_ctx.samples = (SWAP_ENDIAN(vag->size) / 16) * 28;
 
 	// Preload the first chunk into main RAM, then copy it into SPU RAM by
 	// invoking the IRQ handler manually and blocking until the second chunk is
@@ -259,6 +260,8 @@ void Audio_StartStream() {
 	SPU_CH_VOL_R(0) = 0x0000;
 	SPU_CH_VOL_L(1) = 0x0000;
 	SPU_CH_VOL_R(1) = 0x3fff;
+	SPU_CH_VOL_L(2) = 0x0000;
+	SPU_CH_VOL_R(2) = 0x3fff;
 
 	SpuSetKey(1, bits);
 	spu_irq_handler();
@@ -293,7 +296,7 @@ uint64_t Audio_GetTimeMS(void) {
 }
 
 u32 Audio_GetInitialTime(void) {
-	return str_ctx.time;
+	return str_ctx.samples / str_ctx.sample_rate;
 }
 
 boolean Audio_IsPlaying(void)

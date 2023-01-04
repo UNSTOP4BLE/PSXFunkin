@@ -25,8 +25,7 @@
 #define INPUT_RIGHT (PAD_RIGHT | PAD_CIRCLE | PAD_R2)
 
 #define STAGE_FLAG_JUST_STEP     (1 << 0) //Song just stepped this frame
-#define STAGE_FLAG_VOCAL_ACTIVE  (1 << 1) //Song's vocal track is currently active
-#define STAGE_FLAG_SCORE_REFRESH (1 << 2) //Score text should be refreshed
+#define STAGE_FLAG_SCORE_REFRESH (1 << 1) //Score text should be refreshed
 
 #define STAGE_LOAD_PLAYER     (1 << 0) //Reload player character
 #define STAGE_LOAD_PLAYER2    (1 << 1) //Reload player character
@@ -246,7 +245,7 @@ typedef struct
 	Section *cur_section; //Current section
 	Note *cur_note; //First visible and hittable note, used for drawing and hit detection
 	
-	fixed_t note_scroll, song_time, interp_time, interp_ms, interp_speed;
+	fixed_t note_scroll, song_time;
 	
 	u16 last_bpm;
 	
