@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@main
-      - name: Download PSX SDK
+      - name: Download PSn00bSDK
         uses: robinraju/release-downloader@main
         with: 
           repository: "spicyjpeg/PSn00bSDK"
