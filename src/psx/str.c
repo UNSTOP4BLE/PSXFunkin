@@ -1,8 +1,17 @@
+/*
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+*/
+
+//Most of this code is written by spicyjpeg
+
 #include "../str.h"
 #include <stdint.h>
 #include <string.h>
 #include <psxetc.h>
 #include <psxapi.h>
+#include <stdlib.h>
 #include <psxgpu.h>
 #include <psxgte.h>
 #include <psxspu.h>
@@ -11,6 +20,13 @@
 #include <hwregs_c.h>
 #include "../stage.h"
 #include "../main.h"
+#include "../gfx.h"
+
+// Uncomment to display the video in 24bpp mode. Note that the GPU does not
+// support 24bpp rendering, so the text overlay is only enabled in 16bpp mode.
+//#define DISP_24BPP
+
+/* CD and MDEC interrupt handlers */
 
 #ifdef DISP_24BPP
 #define BLOCK_SIZE 24
@@ -21,6 +37,10 @@
 
 #define VRAM_X_COORD(x) ((x) * BLOCK_SIZE / 16)
 
+// All non-audio sectors in .STR files begin with this 32-byte header, which
+// contains metadata about the sector and is followed by a chunk of frame
+// bitstream data.
+// https://problemkaputt.de/psx-spx.htm#cdromfilevideostrstreamingandbspicturecompressionsony
 typedef struct {
 	uint16_t magic;			// Always 0x0160
 	uint16_t type;			// 0x8001 for MDEC
@@ -33,20 +53,6 @@ typedef struct {
 	uint8_t  bs_header[8];
 	uint32_t _reserved;
 } STR_Header;
-
-typedef struct {
-	uint8_t file, channel;
-	uint8_t submode, coding_info;
-} XA_Header;
-
-typedef struct {
-	CdlLOC     pos;
-	XA_Header  xa_header[2];
-	STR_Header str_header;
-	uint8_t    data[2016];
-	uint32_t   edc;
-	uint8_t    ecc[276];
-} STR_Sector;
 
 typedef struct {
 	uint16_t width, height;
@@ -67,35 +73,24 @@ typedef struct {
 	volatile int8_t cur_frame, cur_slice;
 } StreamContext;
 
-StreamContext str_ctx;
-STR_Sector sector_buffer;
-STR_Header sector_header;
+static StreamContext str_ctx;
 
-static StreamBuffer *get_next_frame(void) {
-	while (!str_ctx.frame_ready)
-		__asm__ volatile("");
+// This buffer is used by cd_sector_handler() as a temporary area for sectors
+// read from the CD. Due to DMA limitations it can't be allocated on the stack
+// (especially not in the interrupt callbacks' stack, whose size is very
+// limited).
+static STR_Header sector_header;
 
-	if (str_ctx.frame_ready < 0)
-	{
-		STR_StopStream();
-		stage.str_playing = false;
-		return 0;
-	}
-
-	str_ctx.frame_ready = 0;
-	return &str_ctx.frames[str_ctx.cur_frame ^ 1];
-}
-
-static void cd_sector_handler(void) {
+void cd_sector_handler(void) {
 	StreamBuffer *frame = &str_ctx.frames[str_ctx.cur_frame];
 
-	// Fetch the .STR header of the sector that has been read and check if the
-	// end-of-file bit is set in the XA header.
+	// Fetch the .STR header of the sector that has been read and make sure it
+	// is valid. If not, assume the file has ended and set frame_ready as a
+	// signal for the main loop to stop playback.
 	CdGetSector(&sector_header, sizeof(STR_Header) / 4);
 
 	if (sector_header.magic != 0x0160) {
-		STR_StopStream();
-		stage.str_playing = false;
+		str_ctx.frame_ready = -1;
 		return;
 	}
 
@@ -128,11 +123,11 @@ static void cd_sector_handler(void) {
 	str_ctx.sector_count--;
 	CdGetSector(
 		&(frame->bs_data[2016 / 4 * sector_header.sector_id]),
-		(2048 - sizeof(STR_Header)) / 4
+		2016 / 4
 	);
 }
 
-static void mdec_dma_handler(void) {
+void mdec_dma_handler(void) {
 	// Handle any sectors that were not processed by cd_event_handler() (see
 	// below) while a DMA transfer from the MDEC was in progress. As the MDEC
 	// has just finished decoding a slice, they can be safely handled now.
@@ -155,7 +150,7 @@ static void mdec_dma_handler(void) {
 		);
 }
 
-static void cd_event_handler(int event, uint8_t *payload) {
+void cd_event_handler(CdlIntrResult event, uint8_t *payload) {
 	// Ignore all events other than a sector being ready.
 	if (event != CdlDataReady)
 		return;
@@ -170,16 +165,26 @@ static void cd_event_handler(int event, uint8_t *payload) {
 		cd_sector_handler();
 }
 
-/* Stream helpers */
-int decode_errors = 0;
+/* Stream functions */
+
+StreamBuffer *get_next_frame(void) {
+	while (!str_ctx.frame_ready)
+		__asm__ volatile("");
+
+	if (str_ctx.frame_ready < 0)
+		return 0;
+
+	str_ctx.frame_ready = 0;
+	return &str_ctx.frames[str_ctx.cur_frame ^ 1];
+}
 
 void STR_Init(void)
 {
-	InitGeom(); // Required for PSn00bSDK's DecDCTvlc()
+	InitGeom(); // GTE initialization required by the VLC decompressor
 	DecDCTReset(0);
 }
 
-void STR_InitStream(void) {
+void STR_InitStream(void) {	
 	EnterCriticalSection();
 	DMACallback(1, &mdec_dma_handler);
 	CdReadyCallback(&cd_event_handler);
@@ -190,31 +195,33 @@ void STR_InitStream(void) {
 	// optional but makes the decompressor slightly faster. See the libpsxpress
 	// documentation for more details.
 	DecDCTvlcSize(0x8000);
-	DecDCTvlcCopyTable((DECDCTTAB *) 0x1f800000);
+	DecDCTvlcCopyTableV3((VLC_TableV3 *) 0x1f800000);
 
-	str_ctx.dropped_frames = 0;
-	str_ctx.cur_frame      = 0;
-	str_ctx.cur_slice      = 0;
+	str_ctx.cur_frame = 0;
+	str_ctx.cur_slice = 0;
 }
 
-CdlFILE file;
 void STR_StartStream(const char* path) {
-	stage.str_playing = true;
+	STR_InitStream();
+	CdlFILE file;
+
 	if (!CdSearchFile(&file, path))
 	{
-		sprintf(error_msg, "[STR_StartStream] failed to find %d", path);
+		sprintf(error_msg, "[STR_StartStream] %s not found", path);
 		ErrorLock();
 	}
+	stage.str_playing = true;
 
 	str_ctx.frame_id       = -1;
+	str_ctx.dropped_frames =  0;
 	str_ctx.sector_pending =  0;
 	str_ctx.frame_ready    =  0;
 
 	CdSync(0, 0);
 
-	// Configure the CD drive to read 2340-byte sectors at 2x speed and to
-	// play any XA-ADPCM sectors that might be interleaved with the video data.
-	uint8_t mode = CdlModeSize | CdlModeRT | CdlModeSpeed;
+	// Configure the CD drive to read at 2x speed and to play any XA-ADPCM
+	// sectors that might be interleaved with the video data.
+	uint8_t mode = CdlModeRT | CdlModeSpeed;
 	CdControl(CdlSetmode, (const uint8_t *) &mode, 0);
 
 	// Start reading in real-time mode (i.e. without retrying in case of read
@@ -224,25 +231,6 @@ void STR_StartStream(const char* path) {
 	get_next_frame();
 }
 
-static void STR_StartStreamFile(CdlFILE *file) {
-
-	str_ctx.frame_id       = -1;
-	str_ctx.sector_pending =  0;
-	str_ctx.frame_ready    =  0;
-
-	CdSync(0, 0);
-
-	// Configure the CD drive to read 2340-byte sectors at 2x speed and to
-	// play any XA-ADPCM sectors that might be interleaved with the video data.
-	uint8_t mode = CdlModeRT | CdlModeSpeed;
-	CdControl(CdlSetmode, (const uint8_t *) &mode, 0);
-
-	// Start reading in real-time mode (i.e. without retrying in case of read
-	// errors) and wait for the first frame to be buffered.
-	CdControl(CdlReadS, &(file->pos), 0);
-
-	get_next_frame();
-}
 
 void STR_StopStream(void)
 {
@@ -250,6 +238,7 @@ void STR_StopStream(void)
 	CdReadyCallback(NULL);
 	DMACallback(DMA_MDEC_OUT, NULL);
 	ExitCriticalSection();
+	stage.str_playing = false;
 }
 
 void STR_Proccess(void)
@@ -258,33 +247,44 @@ void STR_Proccess(void)
 	// bitstream into the format expected by the MDEC. If the video has
 	// ended, restart playback from the beginning.
 	StreamBuffer *frame = get_next_frame();
-	if (!frame) {
-		STR_StartStreamFile(&file);
-		return;
-	}
 
-	if (DecDCTvlc(frame->bs_data, frame->mdec_data)) {
-		decode_errors++;
-		return;
-	}
+	VLC_Context vlc_ctx;
+	DecDCTvlcStart(&vlc_ctx, frame->mdec_data, sizeof(frame->mdec_data) / 4, frame->bs_data);
 
 	// Wait for the MDEC to finish decoding the previous frame, then flip
 	// the framebuffers to display it and prepare the buffer for the next
 	// frame.
-	// NOTE: you should *not* call VSync(0) during playback, as the refresh
-	// rate of the GPU is not synced to the video's frame rate. If you want
-	// to minimize screen tearing, consider triple buffering instead (i.e.
-	// always keep 2 fully decoded frames in VRAM and use VSyncCallback()
-	// to register a function that displays the next decoded frame whenever
-	// vblank occurs).
+	// NOTE: as the refresh rate of the GPU is not synced to the video's
+	// frame rate, this VSync(0) call may potentially end up waiting too
+	// long and desynchronizing playback. A better solution would be to
+	// implement triple buffering (i.e. always keep 2 fully decoded frames
+	// in VRAM and use VSyncCallback() to register a function that displays
+	// the next decoded frame if available whenever vblank occurs).
+	VSync(0);
 	DecDCTinSync(0);
 	DecDCToutSync(0);
 
 #ifndef NDEBUG
-	FntPrint(-1, "FRAME:%5d READ ERRORS: %5d DECODE ERRORS:%5d\n", str_ctx.frame_id, str_ctx.dropped_frames, decode_errors);
+		HeapUsage heap;
+		GetHeapUsage(&heap);
+
+		int cpu = Timer_EndProfile();
+		int ram = 100 * heap.alloc / heap.total;
+
+		FntPrint(
+			0, "CPU:%3d%%  HEAP:%06x\nRAM:%3d%%  MAX: %06x\n",
+			cpu, heap.alloc, ram, heap.alloc_max
+		);
 #endif
-	
-	Gfx_Flip();
+
+	db ^= 1;
+
+	DrawSync(0);
+	//VSync(0);
+
+	PutDrawEnv(&(stage.draw[db]));
+	PutDispEnv(&(stage.disp[db]));
+	SetDispMask(1);
 
 	// Feed the newly decompressed frame to the MDEC. The MDEC will not
 	// actually start decoding it until an output buffer is also configured
@@ -294,19 +294,18 @@ void STR_Proccess(void)
 #else
 	DecDCTin(frame->mdec_data, DECDCT_MODE_16BPP);
 #endif
+
 	// Place the frame at the center of the currently active framebuffer
 	// and start decoding the first slice. Decoded slices will be uploaded
 	// to VRAM in the background by mdec_dma_handler().
-	RECT *fb_clip = &(stage.draw[Gfx_GetDB()].clip);
+	RECT *fb_clip = &(stage.draw[db].clip);
 	int  x_offset = (fb_clip->w - frame->width)  / 2;
 	int  y_offset = (fb_clip->h - frame->height) / 2;
-
-	str_ctx.slice_pos.x = VRAM_X_COORD(fb_clip->x + x_offset);
+	str_ctx.slice_pos.x = fb_clip->x + VRAM_X_COORD(x_offset);
 	str_ctx.slice_pos.y = fb_clip->y + y_offset;
 	str_ctx.slice_pos.w = BLOCK_SIZE;
 	str_ctx.slice_pos.h = frame->height;
 	str_ctx.frame_width = VRAM_X_COORD(frame->width);
-
 	DecDCTout(
 		str_ctx.slices[str_ctx.cur_slice],
 		BLOCK_SIZE * str_ctx.slice_pos.h / 2

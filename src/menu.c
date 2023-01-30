@@ -326,7 +326,6 @@ void Menu_HandleSTR()
 	switch (menu.page_param.stage.id)
 	{
 		case StageId_7_1:
-			STR_InitStream();
 			STR_StartStream("\\STR\\UGH.STR;1");
 			break;
 	}
