@@ -264,19 +264,7 @@ void STR_Proccess(void)
 	DecDCTinSync(0);
 	DecDCToutSync(0);
 
-#ifndef NDEBUG
-		HeapUsage heap;
-		GetHeapUsage(&heap);
-
-		int cpu = Timer_EndProfile();
-		int ram = 100 * heap.alloc / heap.total;
-
-		FntPrint(
-			0, "CPU:%3d%%  HEAP:%06x\nRAM:%3d%%  MAX: %06x\n",
-			cpu, heap.alloc, ram, heap.alloc_max
-		);
-#endif
-
+	FntFlush(-1);
 	db ^= 1;
 
 	DrawSync(0);
