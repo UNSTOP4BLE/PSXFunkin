@@ -589,7 +589,7 @@ void Stage_DrawTexRotate(Gfx_Tex *tex, const RECT *src, const RECT_FIXED *dst, f
 	s16 sin = MUtil_Sin(angle);
 	s16 cos = MUtil_Cos(angle);
 	int pw = dst->w / 2000;
-    int ph = dst->h / 2000;
+	int ph = dst->h / 2000;
 
 	//Get rotated points
 	POINT p0 = {-pw, -ph};
@@ -613,15 +613,15 @@ void Stage_DrawTexRotate(Gfx_Tex *tex, const RECT *src, const RECT_FIXED *dst, f
 		dst->y + ((fixed_t)p1.y << FIXED_SHIFT)
 	};
 	POINT_FIXED d2 = {
-        dst->x + ((fixed_t)p2.x << FIXED_SHIFT),
+		dst->x + ((fixed_t)p2.x << FIXED_SHIFT),
 		dst->y + ((fixed_t)p2.y << FIXED_SHIFT)
 	};
 	POINT_FIXED d3 = {
-        dst->x + ((fixed_t)p3.x << FIXED_SHIFT),
+		dst->x + ((fixed_t)p3.x << FIXED_SHIFT),
 		dst->y + ((fixed_t)p3.y << FIXED_SHIFT)
 	};
 	
-    Stage_DrawTexArb(tex, src, &d0, &d1, &d2, &d3, zoom);
+	Stage_DrawTexArb(tex, src, &d0, &d1, &d2, &d3, zoom);
 }
 
 void Stage_BlendTexRotate(Gfx_Tex *tex, const RECT *src, const RECT_FIXED *dst, fixed_t zoom, u8 angle, u8 mode)
@@ -629,7 +629,7 @@ void Stage_BlendTexRotate(Gfx_Tex *tex, const RECT *src, const RECT_FIXED *dst, 
 	s16 sin = MUtil_Sin(angle);
 	s16 cos = MUtil_Cos(angle);
 	int pw = dst->w / 2000;
-    int ph = dst->h / 2000;
+	int ph = dst->h / 2000;
 
 	//Get rotated points
 	POINT p0 = {-pw, -ph};
@@ -653,15 +653,15 @@ void Stage_BlendTexRotate(Gfx_Tex *tex, const RECT *src, const RECT_FIXED *dst, 
 		dst->y + ((fixed_t)p1.y << FIXED_SHIFT)
 	};
 	POINT_FIXED d2 = {
-        dst->x + ((fixed_t)p2.x << FIXED_SHIFT),
+		dst->x + ((fixed_t)p2.x << FIXED_SHIFT),
 		dst->y + ((fixed_t)p2.y << FIXED_SHIFT)
 	};
 	POINT_FIXED d3 = {
-        dst->x + ((fixed_t)p3.x << FIXED_SHIFT),
+		dst->x + ((fixed_t)p3.x << FIXED_SHIFT),
 		dst->y + ((fixed_t)p3.y << FIXED_SHIFT)
 	};
 	
-    Stage_BlendTexArb(tex, src, &d0, &d1, &d2, &d3, zoom, mode);
+	Stage_BlendTexArb(tex, src, &d0, &d1, &d2, &d3, zoom, mode);
 }
 
 void Stage_BlendTex(Gfx_Tex *tex, const RECT *src, const RECT_FIXED *dst, fixed_t zoom, u8 mode)
@@ -778,7 +778,7 @@ static void Stage_DrawHealth(s16 health, u8 i, s8 ox)
 		dying = (health >= 18000) * 46;
 		winning = (health <= 2000) * 46*2;
 	}
-    else
+	else
 	{
 	dying = (health <= 2000) * 46;
 	winning = (health >= 18000) * 46*2;
@@ -805,18 +805,18 @@ static void Stage_DrawHealth(s16 health, u8 i, s8 ox)
 	dst.x += stage.noteshakex;
 
 	//Draw health icon
-    if (stage.mode == StageMode_Swap)
-    {
-        dst.w = -dst.w;
+	if (stage.mode == StageMode_Swap)
+	{
+		dst.w = -dst.w;
 		dst.x += FIXED_DEC(46,1);
-    }
+	}
 	else
-    {
-        dst.w = dst.w;
+	{
+		dst.w = dst.w;
 		dst.x = dst.x;
-    }
+	}
 
-    Stage_DrawTex(&stage.tex_hud1, &src, &dst, FIXED_MUL(stage.bump, stage.sbump));
+	Stage_DrawTex(&stage.tex_hud1, &src, &dst, FIXED_MUL(stage.bump, stage.sbump));
 }
 
 static void Stage_DrawHealthBar(s16 x, s32 color)
@@ -828,7 +828,7 @@ static void Stage_DrawHealthBar(s16 x, s32 color)
 	//Get src and dst
 	RECT src = {
 		0,
-	    0,
+		0,
 		x,
 		8
 	};
@@ -861,17 +861,17 @@ static void Stage_Player2(void)
 		else
 		{
 			stage.player_state[0].character->pad_held = 0;
-		 	stage.player_state[0].character = stage.player2;
+			stage.player_state[0].character = stage.player2;
 		}
 	}
 
 	//change mode to none (opponent2 don't sing)
-    else if (strcmp(stage.player2sing, "none") == 0 && checkoption != stage.player2sing)
+	else if (strcmp(stage.player2sing, "none") == 0 && checkoption != stage.player2sing)
 	{
 		if (stage.mode == StageMode_Swap)
 		{
 			stage.player_state[1].character->pad_held = 0;
-		 	stage.player_state[1].character = stage.player;
+			stage.player_state[1].character = stage.player;
 		}
 		else
 		{
@@ -905,17 +905,17 @@ static void Stage_Opponent2(void)
 	}
 
 	//change mode to none (opponent2 don't sing)
-    else if (strcmp(stage.oppo2sing, "none") == 0 && checkoption != stage.oppo2sing)
+	else if (strcmp(stage.oppo2sing, "none") == 0 && checkoption != stage.oppo2sing)
 	{
 		if (stage.mode == StageMode_Swap)
 		{
 			stage.player_state[0].character->pad_held = 0;
-		 	stage.player_state[0].character = stage.opponent;
+			stage.player_state[0].character = stage.opponent;
 		}
 		else
 		{
 			stage.player_state[1].character->pad_held = 0;
-		 	stage.player_state[1].character = stage.opponent;
+			stage.player_state[1].character = stage.opponent;
 		}
 	}
 
@@ -1369,7 +1369,7 @@ static void Stage_LoadSFX(void)
 	{
 		char text[0x80];
 		sprintf(text, "\\SOUNDS\\INTRO%d%s.VAG;1", i, (stage.stage_id >= StageId_6_1 && stage.stage_id <= StageId_6_3) ? "P" : "");
-	    Sounds[i] = Audio_LoadSound(text);
+		Sounds[i] = Audio_LoadSound(text);
 	}
 
 	//miss sound
@@ -1379,9 +1379,9 @@ static void Stage_LoadSFX(void)
 		{
 			char text[0x80];
 			sprintf(text, "\\SOUNDS\\MISS%d.VAG;1", i + 1);
-		    Sounds[i + 4] = Audio_LoadSound(text);
+			Sounds[i + 4] = Audio_LoadSound(text);
 		}
-    }
+	}
 }
 
 static void Stage_LoadMusic(void)
@@ -1396,12 +1396,15 @@ static void Stage_LoadMusic(void)
 	if (stage.gf != NULL)
 		stage.gf->sing_end -= stage.note_scroll;
 	
-	//Find music file and begin seeking to it
-	Audio_LoadStream(stage.stage_def->vag_path, false);
+//	//Find music file and begin seeking to it
+//	Audio_LoadStream(stage.stage_def->vag_path, false);
 
 	//Initialize music state
 	stage.note_scroll = FIXED_DEC(-5 * 6 * 12,1);
 	stage.song_time = FIXED_DIV(stage.note_scroll, stage.step_crochet);
+	stage.interp_time = 0;
+	stage.interp_ms = 0;
+	stage.interp_speed = 0;
 
 	//Offset sing ends again
 	stage.player->sing_end += stage.note_scroll;
@@ -1483,7 +1486,7 @@ static void Stage_LoadState(void)
 		note_x[2] = FIXED_DEC(94 - 78,1) + FIXED_DEC(screen.SCREEN_WIDEADD,4);
 		note_x[3] = FIXED_DEC(128 - 78,1) + FIXED_DEC(screen.SCREEN_WIDEADD,4);
 		//opponent
-	    note_x[4] = FIXED_DEC(-50 - 78,1) - FIXED_DEC(screen.SCREEN_WIDEADD,4);
+		note_x[4] = FIXED_DEC(-50 - 78,1) - FIXED_DEC(screen.SCREEN_WIDEADD,4);
 		note_x[5] = FIXED_DEC(-16 - 78,1) - FIXED_DEC(screen.SCREEN_WIDEADD,4); //+34
 		note_x[6] = FIXED_DEC(170 - 78,1) - FIXED_DEC(screen.SCREEN_WIDEADD,4);
 		note_x[7] = FIXED_DEC(204 - 78,1) - FIXED_DEC(screen.SCREEN_WIDEADD,4);
@@ -1571,6 +1574,7 @@ void Stage_Load(StageId id, StageDiff difficulty, boolean story)
 	Stage_LoadMusic();
 	
 	//Test offset
+	stage.offset = 0;
 	printf("[Stage_Load] Done (id=%d)\n", id);
 }
 
@@ -1728,8 +1732,8 @@ void Stage_Tick(void)
 		if (deadtimer == 0)
 		{
 			inctimer = true;		                                                                                                                                                                              
-            Audio_StopStream();
-      		Audio_PlaySound(Sounds[1], 0x3fff);
+			Audio_StopStream();
+			Audio_PlaySound(Sounds[1], 0x3fff);
 		}
 	}
 	else if (pad_state.press & PAD_CIRCLE && stage.state != StageState_Play)
@@ -1841,7 +1845,7 @@ void Stage_Tick(void)
 			
 			if (!stage.paused)
 			{
-				if (stage.song_time <= 0)
+				if (stage.note_scroll < 0)
 				{
 					//Play countdown sequence
 					stage.song_time += Timer_GetDT();
@@ -1856,10 +1860,13 @@ void Stage_Tick(void)
 						Stage_StartVocal();
 						
 						//Update song time
-						fixed_t audio_time = (fixed_t)Audio_GetTimeMS();
-						if (audio_time <= 0 || audio_time >= 5000)
-							audio_time = 0;
-						stage.song_time = audio_time;
+						fixed_t audio_time = (fixed_t)Audio_GetTimeMS() - stage.offset;
+						if (audio_time < 0 || audio_time > 4000)
+							stage.song_time = audio_time;
+						audio_time = 0;
+						stage.interp_ms = (audio_time << FIXED_SHIFT) / 1000;
+						stage.interp_time = 0;
+						stage.song_time = stage.interp_ms;
 					}
 					else
 					{
@@ -1872,8 +1879,13 @@ void Stage_Tick(void)
 				}
 				else if (Audio_IsPlaying())
 				{
-					fixed_t audio_time = (fixed_t)Audio_GetTimeMS();
-					stage.song_time = audio_time;
+					fixed_t audio_time_pof = (fixed_t)Audio_GetTimeMS();	
+					fixed_t audio_time = (audio_time_pof > 0) ? (audio_time_pof - stage.offset) : 0;
+					
+					//Old sync
+					stage.interp_ms = (audio_time << FIXED_SHIFT) / 1000;
+					stage.interp_time = 0;
+					stage.song_time = stage.interp_ms;
 					
 					playing = true;
 					
@@ -2117,17 +2129,17 @@ void Stage_Tick(void)
 					Stage_DrawHealth(stage.player_state[0].health, stage.player_state[0].character->health_i,    1);
 					Stage_DrawHealth(stage.player_state[0].health, stage.player_state[1].character->health_i, -1);
 					
-                    //Draw health bar
-                    if (stage.mode == StageMode_Swap)
-                    {
-					    Stage_DrawHealthBar(255 - (255 * stage.player_state[0].health / 20000), stage.player->health_bar);
-					    Stage_DrawHealthBar(255, stage.opponent->health_bar);
-                    }
-                    else
-                    {
-					    Stage_DrawHealthBar(255 - (255 * stage.player_state[0].health / 20000), stage.opponent->health_bar);
-					    Stage_DrawHealthBar(255, stage.player->health_bar);
-                    }
+					//Draw health bar
+					if (stage.mode == StageMode_Swap)
+					{
+						Stage_DrawHealthBar(255 - (255 * stage.player_state[0].health / 20000), stage.player->health_bar);
+						Stage_DrawHealthBar(255, stage.opponent->health_bar);
+					}
+					else
+					{
+						Stage_DrawHealthBar(255 - (255 * stage.player_state[0].health / 20000), stage.opponent->health_bar);
+						Stage_DrawHealthBar(255, stage.player->health_bar);
+					}
 				}
 			
 				//Tick note splashes
@@ -2209,10 +2221,10 @@ void Stage_Tick(void)
 				stage.player->tick(stage.player);
 				stage.opponent->tick(stage.opponent);
 			}
-            if (stage.player2 != NULL)
+			if (stage.player2 != NULL)
 				stage.player2->tick(stage.player2);
 
-            if (stage.opponent2 != NULL)
+			if (stage.opponent2 != NULL)
 				stage.opponent2->tick(stage.opponent2);
 			
 			//Draw stage middle
@@ -2261,7 +2273,7 @@ void Stage_Tick(void)
 			//Free opponent and girlfriend
 			Character_Free(stage.opponent);
 			stage.opponent = NULL;
-            Character_Free(stage.opponent2);
+			Character_Free(stage.opponent2);
 			stage.opponent2 = NULL;
 			Character_Free(stage.gf);
 			stage.gf = NULL;

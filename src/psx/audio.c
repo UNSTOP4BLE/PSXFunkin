@@ -260,7 +260,7 @@ void Audio_StartStream() {
 	SPU_CH_VOL_R(0) = 0x0000;
 	SPU_CH_VOL_L(1) = 0x0000;
 	SPU_CH_VOL_R(1) = 0x3fff;
-	SPU_CH_VOL_L(2) = 0x0000;
+	SPU_CH_VOL_L(2) = 0x3fff;
 	SPU_CH_VOL_R(2) = 0x3fff;
 
 	SpuSetKey(1, bits);
@@ -313,12 +313,12 @@ void Audio_SetVolume(u8 i, u16 vol_left, u16 vol_right)
 /* .VAG file loader */
 
 static int getFreeChannel(void) {
-    int channel = lastChannelUsed + 1;
-    if (channel > 23)
-        channel = str_ctx.channels;
+	int channel = lastChannelUsed + 1;
+	if (channel > 23)
+		channel = str_ctx.channels;
 
-    lastChannelUsed = channel;
-    return channel;
+	lastChannelUsed = channel;
+	return channel;
 }
 
 void Audio_ClearAlloc(void) {
@@ -366,7 +366,7 @@ void Audio_PlaySoundOnChannel(u32 addr, u32 channel, int volume) {
 }
 
 void Audio_PlaySound(u32 addr, int volume) {
-    Audio_PlaySoundOnChannel(addr, getFreeChannel(), volume);
+	Audio_PlaySoundOnChannel(addr, getFreeChannel(), volume);
    // printf("Could not find free channel to play sound (addr=%08x)\n", addr);
 }
 
@@ -375,7 +375,7 @@ u32 Audio_LoadSound(const char *path)
 	CdlFILE file;
 	u32 Sound;
 
-  	IO_FindFile(&file, path);
+	IO_FindFile(&file, path);
 	u32 *data = IO_ReadFile(&file);
 	Sound = Audio_LoadVAGData(data, file.size);
 	free(data);

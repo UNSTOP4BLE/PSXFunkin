@@ -239,13 +239,13 @@ typedef struct
 	Character *player;
 	Character *player2;
 	Character *opponent;
-    Character *opponent2;
+	Character *opponent2;
 	Character *gf;
 	
 	Section *cur_section; //Current section
 	Note *cur_note; //First visible and hittable note, used for drawing and hit detection
 	
-	fixed_t note_scroll, song_time;
+	fixed_t note_scroll, song_time, interp_time, interp_ms, interp_speed;
 	
 	u16 last_bpm;
 	
