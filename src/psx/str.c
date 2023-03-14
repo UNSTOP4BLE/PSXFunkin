@@ -72,6 +72,7 @@ typedef struct {
     volatile int8_t sector_pending, frame_ready;
     volatile int8_t cur_frame, cur_slice;
 } StreamContext;
+
 static GameLoop lastloop;
 static StreamContext str_ctx;
 
@@ -172,7 +173,7 @@ StreamBuffer *get_next_frame(void) {
         __asm__ volatile("");
 
     if (str_ctx.frame_ready < 0)
-        STR_StopStream();
+        return 0;
 
     str_ctx.frame_ready = 0;
     return &str_ctx.frames[str_ctx.cur_frame ^ 1];
@@ -236,6 +237,7 @@ void STR_StartStream(const char* path) {
 
 void STR_StopStream(void)
 {
+    CdControlB(CdlPause, 0, 0);
     EnterCriticalSection();
     CdReadyCallback(NULL);
     DMACallback(DMA_MDEC_OUT, NULL);
@@ -250,6 +252,12 @@ void STR_Proccess(void)
     // bitstream into the format expected by the MDEC. If the video has
     // ended, restart playback from the beginning.
     StreamBuffer *frame = get_next_frame();
+
+    if (!frame) 
+    {
+        STR_StopStream();
+        return;
+    }
 
     VLC_Context vlc_ctx;
     DecDCTvlcStart(&vlc_ctx, frame->mdec_data, sizeof(frame->mdec_data) / 4, frame->bs_data);
