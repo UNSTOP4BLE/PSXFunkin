@@ -30,85 +30,88 @@ char error_msg[0x200];
 
 void ErrorLock(void)
 {
-	while (1)
-	{
-		FntPrint(-1, "A fatal error has occured:\n\n%s\n", error_msg);
-		Gfx_Flip();
-	}
+    while (1)
+    {
+        FntPrint(-1, "A fatal error has occured:\n\n%s\n", error_msg);
+        Gfx_Flip();
+    }
 }
 
 //Entry point                                                                             
 int main(int argc, char **argv)                                                                                                                                                        
 {
-	//Remember arguments
-	my_argc = argc;
-	my_argv = argv;
+    //Remember arguments
+    my_argc = argc;
+    my_argv = argv;
 
-	//Initialize system
-	ResetGraph(0);
-	PSX_Init();
+    //Initialize system
+    ResetGraph(0);
+    PSX_Init();
 
-	Gfx_Init();
-	STR_Init();
-	Pad_Init();
-	InitCARD(1);
-	StartPAD();
-	StartCARD();
-	_bu_init();	
-	ChangeClearPAD(0);
-	IO_Init();
-	Audio_Init();
-	Timer_Init();
+    Gfx_Init();
+    STR_Init();
+    Pad_Init();
+    InitCARD(1);
+    StartPAD();
+    StartCARD();
+    _bu_init(); 
+    ChangeClearPAD(0);
+    IO_Init();
+    Audio_Init();
+    Timer_Init();
 
-	if (readSaveFile() == false)
-		defaultSettings();
+    if (readSaveFile() == false)
+        defaultSettings();
 
-	//Start game
-	gameloop = GameLoop_Menu;
-	Gfx_ScreenSetup();
-	Menu_Load(MenuPage_Opening);
+    //Start game
+    gameloop = GameLoop_Menu;
+    Gfx_ScreenSetup();
+    Menu_Load(MenuPage_Opening);
 
-	//Game loop
-	while (PSX_Running()) {
+    //Game loop
+    while (PSX_Running()) {
 #ifndef NDEBUG
-		Timer_StartProfile();
+        Timer_StartProfile();
 #endif
 
-		//Prepare frame
-		Timer_CalcDT();
-		Audio_FeedStream();
-		Pad_Update();
+        //Prepare frame
+        Timer_CalcDT();
+        Audio_FeedStream();
+        Pad_Update();
 
-		//Tick and draw game
-		switch (gameloop)
-		{
-			case GameLoop_Menu:
-				Menu_Tick();
-				break;
-			case GameLoop_Stage:
-				Stage_Tick();
-				break;
-		}
+        //Tick and draw game
+        switch (gameloop)
+        {
+            case GameLoop_Menu:
+                Menu_Tick();
+                break;
+            case GameLoop_Stage:
+                Stage_Tick();
+                break;
+            case GameLoop_Movie:
+
+                break;
+        }
 
 #ifndef NDEBUG
-		HeapUsage heap;
-		GetHeapUsage(&heap);
+        HeapUsage heap;
+        GetHeapUsage(&heap);
 
-		int cpu = Timer_EndProfile();
-		int ram = 100 * heap.alloc / heap.total;
+        int cpu = Timer_EndProfile();
+        int ram = 100 * heap.alloc / heap.total;
 
-		FntPrint(
-			0, "CPU:%3d%%  HEAP:%06x\nRAM:%3d%%  MAX: %06x\n",
-			cpu, heap.alloc, ram, heap.alloc_max
-		);
+        FntPrint(
+            0, "CPU:%3d%%  HEAP:%06x\nRAM:%3d%%  MAX: %06x\n",
+            cpu, heap.alloc, ram, heap.alloc_max
+        );
 #endif
 
-		//Flip gfx buffers
-		if (stage.str_playing)
-			STR_Proccess();
-		else
-			Gfx_Flip();
-	}
-	
-	return 0;
+        //Flip gfx buffers
+        if (stage.str_playing)
+            STR_Proccess();
+        else
+            Gfx_Flip();
+    }
+    
+    return 0;
 }
