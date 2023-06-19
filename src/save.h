@@ -10,14 +10,14 @@
 #include "psx.h"
 
 typedef struct {
-  	u16 id; // must be 0x4353
-  	u8 iconDisplayFlag;
-  	u8 iconBlockNum; // always 1
-  	u8 title[64]; // 16 bit shift-jis format
-  	u8 reserved[28];
-  	u8 iconPalette[32];
-  	u8 iconImage[128];
-  	u8 saveData[7936];
+    uint16_t id; // must be 0x4353
+    uint8_t iconDisplayFlag;
+    uint8_t iconBlockNum; // always 1
+    uint8_t title[64]; // 16 bit shift-jis format
+    uint8_t reserved[28];
+    uint8_t iconPalette[32];
+    uint8_t iconImage[128];
+    uint8_t saveData[7936];
 } SaveFile;
 
 void defaultSettings();

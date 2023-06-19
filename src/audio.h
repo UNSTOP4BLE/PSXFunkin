@@ -18,14 +18,14 @@ void Audio_LoadStream(const char *path, boolean loop);
 void Audio_StartStream(void);
 void Audio_StopStream(void);
 uint64_t Audio_GetTimeMS(void);
-u32 Audio_GetInitialTime(void);
+uint32_t Audio_GetInitialTime(void);
 boolean Audio_IsPlaying(void);
-void Audio_SetVolume(u8 i, u16 vol_left, u16 vol_right);
+void Audio_SetVolume(uint8_t i, uint16_t vol_left, uint16_t vol_right);
 
 void Audio_ClearAlloc(void);
-u32 Audio_LoadVAGData(u32 *sound, u32 sound_size);
-void Audio_PlaySoundOnChannel(u32 addr, u32 channel, int volume);
-void Audio_PlaySound(u32 addr, int volume);
-u32 Audio_LoadSound(const char *path);
+uint32_t Audio_LoadVAGData(uint32_t *sound, uint32_t sound_size);
+void Audio_PlaySoundOnChannel(uint32_t addr, uint32_t channel, int volume);
+void Audio_PlaySound(uint32_t addr, int volume);
+uint32_t Audio_LoadSound(const char *path);
 
 #endif

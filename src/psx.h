@@ -24,31 +24,24 @@ extern char **my_argv;
 #include <string.h>
 
 //Fixed size types
-typedef u_char             u8;
-typedef signed char        s8;
-typedef u_short            u16;
-typedef signed short       s16;
-typedef u_long             u32;
-typedef signed int         s32;
-typedef unsigned long long u64;
-typedef signed long long   s64;
-	
+#include <stdint.h>
+
 //Misc. functions
 #define MsgPrint FntPrint
 
 //Boolean type
-typedef s8 boolean;
+typedef int8_t boolean;
 #ifndef true
-	#define true 1
+    #define true 1
 #endif
 #ifndef false
-	#define false 0
+    #define false 0
 #endif
 
 //Point type
 typedef struct
 {
-	short x, y;
+    int8_t x, y;
 } POINT;
 
 //Common macros

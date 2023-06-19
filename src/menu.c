@@ -27,7 +27,7 @@
 
 #include "stdlib.h"
 
-static u32 Sounds[3];
+static uint32_t Sounds[3];
 static char scoredisp[30];
 //Menu messages
 static const char *funny_messages[][2] = {
@@ -74,9 +74,9 @@ static const char *funny_messages[][2] = {
 static struct
 {
     //Menu state
-    u8 page, next_page;
+    uint8_t page, next_page;
     boolean page_swap;
-    u8 select, next_select;
+    uint8_t select, next_select;
     
     fixed_t scroll;
     fixed_t trans_time;
@@ -86,7 +86,7 @@ static struct
     {
         struct
         {
-            u8 funny_message;
+            uint8_t funny_message;
         } opening;
         struct
         {
@@ -107,7 +107,7 @@ static struct
     {
         struct
         {
-            u8 id, diff;
+            uint8_t id, diff;
             boolean story;
         } stage;
     } page_param;
@@ -152,7 +152,7 @@ static const char *Menu_LowerIf(const char *text, boolean lower)
     return menu_text_buffer;
 }
 
-static void Menu_DrawBack(boolean flash, s32 scroll, u8 r0, u8 g0, u8 b0, u8 r1, u8 g1, u8 b1)
+static void Menu_DrawBack(boolean flash, int32_t scroll, uint8_t r0, uint8_t g0, uint8_t b0, uint8_t r1, uint8_t g1, uint8_t b1)
 {
     RECT back_src = {0, 0, 255, 255};
     RECT back_dst = {0, -scroll - screen.SCREEN_WIDEADD2, screen.SCREEN_WIDTH, screen.SCREEN_WIDTH * 4 / 5};
@@ -181,7 +181,7 @@ static int increase_Story(int length, int thesong)
     return result * 10;
 }
 
-static void Menu_DifficultySelector(s32 x, s32 y)
+static void Menu_DifficultySelector(int32_t x, int32_t y)
 {
     //Change difficulty
     if (menu.next_page == menu.page && Trans_Idle())
@@ -222,7 +222,7 @@ static void Menu_DifficultySelector(s32 x, s32 y)
     Gfx_BlitTex(&menu.tex_story, diff_src, x - (diff_src->w >> 1), y - 9 + ((pad_state.press & (PAD_LEFT | PAD_RIGHT)) != 0));
 }
 
-static void Menu_DrawWeek(const char *week, s32 x, s32 y)
+static void Menu_DrawWeek(const char *week, int32_t x, int32_t y)
 {
     //Draw label
     if (week == NULL)
@@ -242,7 +242,7 @@ static void Menu_DrawWeek(const char *week, s32 x, s32 y)
         for (; *week != '\0'; week++)
         {
             //Draw number
-            u8 i = *week - '0';
+            uint8_t i = *week - '0';
             
             RECT num_src = {128 + ((i & 3) << 5), ((i >> 2) << 5), 32, 32};
             Gfx_BlitTex(&menu.tex_story, &num_src, x, y);
@@ -279,7 +279,7 @@ void Menu_Load(MenuPage page)
         case MenuPage_Opening:
             //Get funny message to use
             //Do this here so timing is less reliant on VSync
-            menu.page_state.opening.funny_message = ((*((volatile u32*)0xBF801120)) >> 3) % COUNT_OF(funny_messages); //sysclk seeding
+            menu.page_state.opening.funny_message = ((*((volatile uint32_t*)0xBF801120)) >> 3) % COUNT_OF(funny_messages); //sysclk seeding
             break;
         default:
             break;
@@ -445,7 +445,7 @@ void Menu_Tick(void)
             if (menu.page_state.title.fade > 0)
             {
                 RECT flash = {0, 0, screen.SCREEN_WIDTH, screen.SCREEN_HEIGHT};
-                u8 flash_col = menu.page_state.title.fade >> FIXED_SHIFT;
+                uint8_t flash_col = menu.page_state.title.fade >> FIXED_SHIFT;
                 Gfx_BlendRect(&flash, flash_col, flash_col, flash_col, 1);
                 menu.page_state.title.fade -= FIXED_MUL(menu.page_state.title.fadespd, Timer_GetDT());
             }
@@ -479,8 +479,8 @@ void Menu_Tick(void)
                 FIXED_DEC(97,100),
             };
             fixed_t logo_scale = logo_scales[(menu.page_state.title.logo_bump * 24) >> FIXED_SHIFT];
-            u32 x_rad = (logo_scale * (176 >> 1)) >> FIXED_SHIFT;
-            u32 y_rad = (logo_scale * (112 >> 1)) >> FIXED_SHIFT;
+            uint32_t x_rad = (logo_scale * (176 >> 1)) >> FIXED_SHIFT;
+            uint32_t y_rad = (logo_scale * (112 >> 1)) >> FIXED_SHIFT;
             
             RECT logo_src = {0, 0, 176, 112};
             RECT logo_dst = {
@@ -499,10 +499,10 @@ void Menu_Tick(void)
             if (menu.next_page == menu.page)
             {
                 //Blinking blue
-                s16 press_lerp = (MUtil_Cos(Timer_GetAnimfCount() << 3) + 0x100) >> 1;
-                u8 press_r = 51 >> 1;
-                u8 press_g = (58  + ((press_lerp * (255 - 58))  >> 8)) >> 1;
-                u8 press_b = (206 + ((press_lerp * (255 - 206)) >> 8)) >> 1;
+                int16_t press_lerp = (MUtil_Cos(Timer_GetAnimfCount() << 3) + 0x100) >> 1;
+                uint8_t press_r = 51 >> 1;
+                uint8_t press_g = (58  + ((press_lerp * (255 - 58))  >> 8)) >> 1;
+                uint8_t press_b = (206 + ((press_lerp * (255 - 206)) >> 8)) >> 1;
                 
                 RECT press_src = {0, 112, 256, 32};
                 Gfx_BlitTexCol(&menu.tex_title, &press_src, (screen.SCREEN_WIDTH - 256) / 2, screen.SCREEN_HEIGHT - 48, press_r, press_g, press_b);
@@ -601,14 +601,14 @@ void Menu_Tick(void)
             }
             
             //Draw options
-            s32 next_scroll = menu.select * FIXED_DEC(12,1);
+            int32_t next_scroll = menu.select * FIXED_DEC(12,1);
 
             menu.scroll += (next_scroll - menu.scroll) >> 2;
             
             if (menu.next_page == menu.page || menu.next_page == MenuPage_Title)
             {
                 //Draw all options
-                for (u8 i = 0; i < COUNT_OF(menu_options); i++)
+                for (uint8_t i = 0; i < COUNT_OF(menu_options); i++)
                 {
                     menu.font_bold.draw(&menu.font_bold,
                         Menu_LowerIf(menu_options[i], menu.select != i),
@@ -681,7 +681,7 @@ void Menu_Tick(void)
             if (menu.page_state.title.fade > 0)
             {
                 RECT flash2 = {0, 0, screen.SCREEN_WIDTH, screen.SCREEN_HEIGHT};
-                u8 flash_col = menu.page_state.title.fade >> FIXED_SHIFT;
+                uint8_t flash_col = menu.page_state.title.fade >> FIXED_SHIFT;
                 Gfx_BlendRect(&flash2, flash_col, flash_col, flash_col, 1);
                 menu.page_state.title.fade -= FIXED_MUL(menu.page_state.title.fadespd, Timer_GetDT());
             }
@@ -764,15 +764,15 @@ void Menu_Tick(void)
             Gfx_DrawRect(&name_bar, 249, 207, 81);
             
             //Draw options
-            s32 next_scroll = menu.select * FIXED_DEC(48,1);
+            int32_t next_scroll = menu.select * FIXED_DEC(48,1);
             menu.scroll += (next_scroll - menu.scroll) >> 3;
             
             if (menu.next_page == menu.page || menu.next_page == MenuPage_Main)
             {
                 //Draw all options
-                for (u8 i = 0; i < COUNT_OF(menu_options); i++)
+                for (uint8_t i = 0; i < COUNT_OF(menu_options); i++)
                 {
-                    s32 y = 64 + (i * 48) - (menu.scroll >> FIXED_SHIFT);
+                    int32_t y = 64 + (i * 48) - (menu.scroll >> FIXED_SHIFT);
                     if (y <= 16)
                         continue;
                     if (y >= screen.SCREEN_HEIGHT)
@@ -793,7 +793,7 @@ void Menu_Tick(void)
             static const struct
             {
                 StageId stage;
-                u32 col;
+                uint32_t col;
                 const char *text;
             } menu_options[] = {
                 //{StageId_4_4, 0xFFFC96D7, "TEST"},
@@ -894,13 +894,13 @@ void Menu_Tick(void)
             }
     
             //Draw options
-            s32 next_scroll = menu.select * FIXED_DEC(24,1);
+            int32_t next_scroll = menu.select * FIXED_DEC(24,1);
             menu.scroll += (next_scroll - menu.scroll) >> 4;
             
-            for (u8 i = 0; i < COUNT_OF(menu_options); i++)
+            for (uint8_t i = 0; i < COUNT_OF(menu_options); i++)
             {
                 //Get position on screen
-                s32 y = (i * 24) - 8 - (menu.scroll >> FIXED_SHIFT);
+                int32_t y = (i * 24) - 8 - (menu.scroll >> FIXED_SHIFT);
                 if (y <= -screen.SCREEN_HEIGHT2 - 8)
                     continue;
                 if (y >= screen.SCREEN_HEIGHT2 + 8)
@@ -1023,13 +1023,13 @@ void Menu_Tick(void)
             }
             
             //Draw options
-            s32 next_scroll = menu.select * FIXED_DEC(24,1);
+            int32_t next_scroll = menu.select * FIXED_DEC(24,1);
             menu.scroll += (next_scroll - menu.scroll) >> 4;
             
-            for (u8 i = 0; i < COUNT_OF(menu_options); i++)
+            for (uint8_t i = 0; i < COUNT_OF(menu_options); i++)
             {
                 //Get position on screen
-                s32 y = (i * 24) - 8 - (menu.scroll >> FIXED_SHIFT);
+                int32_t y = (i * 24) - 8 - (menu.scroll >> FIXED_SHIFT);
                 if (y <= -screen.SCREEN_HEIGHT2 - 8)
                     continue;
                 if (y >= screen.SCREEN_HEIGHT2 + 8)
@@ -1074,7 +1074,7 @@ void Menu_Tick(void)
                     } spec_boolean;
                     struct
                     {
-                        s32 max;
+                        int32_t max;
                         const char **strs;
                     } spec_enum;
                 } spec;
@@ -1152,11 +1152,11 @@ void Menu_Tick(void)
                         break;
                     case OptType_Enum:
                         if (pad_state.press & PAD_LEFT)
-                            if (--*((s32*)menu_options[menu.select].value) < 0)
-                                *((s32*)menu_options[menu.select].value) = menu_options[menu.select].spec.spec_enum.max - 1;
+                            if (--*((int32_t*)menu_options[menu.select].value) < 0)
+                                *((int32_t*)menu_options[menu.select].value) = menu_options[menu.select].spec.spec_enum.max - 1;
                         if (pad_state.press & PAD_RIGHT)
-                            if (++*((s32*)menu_options[menu.select].value) >= menu_options[menu.select].spec.spec_enum.max)
-                                *((s32*)menu_options[menu.select].value) = 0;
+                            if (++*((int32_t*)menu_options[menu.select].value) >= menu_options[menu.select].spec.spec_enum.max)
+                                *((int32_t*)menu_options[menu.select].value) = 0;
                         break;
                 }
 
@@ -1175,13 +1175,13 @@ void Menu_Tick(void)
             }
             
             //Draw options
-            s32 next_scroll = menu.select * FIXED_DEC(24,1);
+            int32_t next_scroll = menu.select * FIXED_DEC(24,1);
             menu.scroll += (next_scroll - menu.scroll) >> 4;
             
-            for (u8 i = 0; i < COUNT_OF(menu_options); i++)
+            for (uint8_t i = 0; i < COUNT_OF(menu_options); i++)
             {
                 //Get position on screen
-                s32 y = (i * 24) - 8 - (menu.scroll >> FIXED_SHIFT);
+                int32_t y = (i * 24) - 8 - (menu.scroll >> FIXED_SHIFT);
                 if (y <= -screen.SCREEN_HEIGHT2 - 8)
                     continue;
                 if (y >= screen.SCREEN_HEIGHT2 + 8)
@@ -1195,7 +1195,7 @@ void Menu_Tick(void)
                         sprintf(text, "%s %s", menu_options[i].text, *((boolean*)menu_options[i].value) ? "ON" : "OFF");
                         break;
                     case OptType_Enum:
-                        sprintf(text, "%s %s", menu_options[i].text, menu_options[i].spec.spec_enum.strs[*((s32*)menu_options[i].value)]);
+                        sprintf(text, "%s %s", menu_options[i].text, menu_options[i].spec.spec_enum.strs[*((int32_t*)menu_options[i].value)]);
                         break;
                     case OptType_SubMenu:
                         sprintf(text, "%s", menu_options[i].text);

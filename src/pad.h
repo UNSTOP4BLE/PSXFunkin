@@ -30,17 +30,17 @@
 //Pad structure
 typedef struct
 {
-	u16 held, press;
-	u8 left_x, left_y;
-	u8 right_x, right_y;
+    uint16_t held, press;
+    uint8_t left_x, left_y;
+    uint8_t right_x, right_y;
 } Pad;
 
 extern Pad pad_state, pad_state_2;
 
 #ifdef PSXF_NETWORK
-	#define PAD_TYPE_CHARS 0x20
-	extern char pad_type[PAD_TYPE_CHARS + 1];
-	extern boolean pad_backspace;
+    #define PAD_TYPE_CHARS 0x20
+    extern char pad_type[PAD_TYPE_CHARS + 1];
+    extern boolean pad_backspace;
 #endif
 
 //Pad functions

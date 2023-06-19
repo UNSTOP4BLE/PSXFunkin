@@ -7,35 +7,35 @@
 #include "random.h"
 
 //Random functions
-static u32 rand_seed;
+static uint32_t rand_seed;
 
-void RandomSeed(u32 seed)
+void RandomSeed(uint32_t seed)
 {
-	rand_seed = seed;
+    rand_seed = seed;
 }
 
-u32 RandomGetSeed(void)
+uint32_t RandomGetSeed(void)
 {
-	return rand_seed;
+    return rand_seed;
 }
 
-u8 Random8(void)
+uint8_t Random8(void)
 {
-	return Random16() >> 4;
+    return Random16() >> 4;
 }
 
-u16 Random16(void)
+uint16_t Random16(void)
 {
-	rand_seed = rand_seed * 214013L + 2531011L;
-	return rand_seed >> 16;
+    rand_seed = rand_seed * 214013L + 2531011L;
+    return rand_seed >> 16;
 }
 
-u32 Random32(void)
+uint32_t Random32(void)
 {
-	return ((u32)Random16() << 16) | Random16();
+    return ((uint32_t)Random16() << 16) | Random16();
 }
 
-s32 RandomRange(s32 x, s32 y)
+int32_t RandomRange(int32_t x, int32_t y)
 {
-	return x + Random16() % ((s32)y - (s32)x + 1);
+    return x + Random16() % ((int32_t)y - (int32_t)x + 1);
 }

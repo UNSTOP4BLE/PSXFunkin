@@ -13,16 +13,16 @@
 //Splash object structure
 typedef struct
 {
-	//Object base structure
-	Object obj;
-	
-	//Splash state
-	u8 colour;
-	
-	fixed_t x, y, xsp, ysp, size, sin, cos;
+    //Object base structure
+    Object obj;
+    
+    //Splash state
+    uint8_t colour;
+    
+    fixed_t x, y, xsp, ysp, size, sin, cos;
 } Obj_Splash;
 
 //Splash object functions
-Obj_Splash *Obj_Splash_New(fixed_t x, fixed_t y, u8 colour);
+Obj_Splash *Obj_Splash_New(fixed_t x, fixed_t y, uint8_t colour);
 
 #endif

@@ -14,9 +14,9 @@
 //Math utility functions
 #define lerp(position, target, speed) position + FIXED_MUL((target - position),speed)
 
-s16 MUtil_Sin(u8 x);
-s16 MUtil_Cos(u8 x);
-void MUtil_RotatePoint(POINT *p, s16 s, s16 c);
+int16_t MUtil_Sin(uint8_t x);
+int16_t MUtil_Cos(uint8_t x);
+void MUtil_RotatePoint(POINT *p, int16_t s, int16_t c);
 fixed_t MUtil_Pull(fixed_t a, fixed_t b, fixed_t t);
 
 #endif

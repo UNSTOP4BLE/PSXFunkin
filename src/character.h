@@ -14,49 +14,49 @@
 #include "animation.h"
 
 //Character specs
-typedef u8 CharSpec;
+typedef uint8_t CharSpec;
 #define CHAR_SPEC_MISSANIM (1 << 0) //Has miss animations
 
 //Character enums
 typedef enum
 {
-	CharAnim_Idle,
-	CharAnim_Left,  CharAnim_LeftAlt,
-	CharAnim_Down,  CharAnim_DownAlt,
-	CharAnim_Up,    CharAnim_UpAlt,
-	CharAnim_Right, CharAnim_RightAlt,
-	
-	CharAnim_Max //Max standard/shared animation
+    CharAnim_Idle,
+    CharAnim_Left,  CharAnim_LeftAlt,
+    CharAnim_Down,  CharAnim_DownAlt,
+    CharAnim_Up,    CharAnim_UpAlt,
+    CharAnim_Right, CharAnim_RightAlt,
+    
+    CharAnim_Max //Max standard/shared animation
 } CharAnim;
 
 //Character structures
 typedef struct
 {
-	u8 tex;
-	u16 src[4];
-	s16 off[2];
+    uint8_t tex;
+    uint16_t src[4];
+    int16_t off[2];
 } CharFrame;
 
 typedef struct Character
 {
-	//Character functions
-	void (*tick)(struct Character*);
-	void (*set_anim)(struct Character*, u8);
-	void (*free)(struct Character*);
-	
-	//Position
-	fixed_t x, y;
-	
-	//Character information
-	CharSpec spec;
-	u8 health_i; //hud1.tim
-	u32 health_bar; //hud1.tim
-	fixed_t focus_x, focus_y, focus_zoom;
-	
-	//Animation state
-	Animatable animatable;
-	fixed_t sing_end;
-	u16 pad_held;
+    //Character functions
+    void (*tick)(struct Character*);
+    void (*set_anim)(struct Character*, uint8_t);
+    void (*free)(struct Character*);
+    
+    //Position
+    fixed_t x, y;
+    
+    //Character information
+    CharSpec spec;
+    uint8_t health_i; //hud1.tim
+    uint32_t health_bar; //hud1.tim
+    fixed_t focus_x, focus_y, focus_zoom;
+    
+    //Animation state
+    Animatable animatable;
+    fixed_t sing_end;
+    uint16_t pad_held;
 } Character;
 
 //Character functions

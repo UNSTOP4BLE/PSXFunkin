@@ -10,17 +10,17 @@
 #include "psx.h"
 
 //Fixed types and constants
-typedef s32 fixed_t;
-typedef u32 fixedu_t;
+typedef int32_t fixed_t;
+typedef uint32_t fixedu_t;
 
 typedef struct
 {
-	fixed_t x, y, w, h;
+    fixed_t x, y, w, h;
 } RECT_FIXED;
 
 typedef struct
 {
-	fixed_t x, y;
+    fixed_t x, y;
 } POINT_FIXED;
 
 #define FIXED_SHIFT (10)
@@ -28,14 +28,14 @@ typedef struct
 #define FIXED_LAND  (FIXED_UNIT - 1)
 #define FIXED_UAND  (~FIXED_LAND)
 
-#define FIXED_DEC(d, f) ((fixed_t)(((s64)(d) * FIXED_UNIT) / (f)))
+#define FIXED_DEC(d, f) ((fixed_t)(((int64_t)(d) * FIXED_UNIT) / (f)))
 
-#define FIXED_MUL(x, y) ((fixed_t)(((s64)(x) * (y)) >> FIXED_SHIFT))
-#define FIXED_DIV(x, y) ((fixed_t)(((s32)(x) * FIXED_UNIT) / (y)))
+#define FIXED_MUL(x, y) ((fixed_t)(((int64_t)(x) * (y)) >> FIXED_SHIFT))
+#define FIXED_DIV(x, y) ((fixed_t)(((int32_t)(x) * FIXED_UNIT) / (y)))
 
 #define FIXEDU_DEC(d, f) (((fixedu_t)(d) * FIXED_UNIT) / (f))
 
-#define FIXEDU_MUL(x, y) ((fixedu_t)(((u64)(x) * (y)) >> FIXED_SHIFT))
-#define FIXEDU_DIV(x, y) ((fixedu_t)(((u32)(x) * FIXED_UNIT) / (y)))
+#define FIXEDU_MUL(x, y) ((fixedu_t)(((uint64_t)(x) * (y)) >> FIXED_SHIFT))
+#define FIXEDU_DIV(x, y) ((fixedu_t)(((uint32_t)(x) * FIXED_UNIT) / (y)))
 
 #endif

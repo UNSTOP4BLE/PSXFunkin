@@ -18,25 +18,25 @@
 
 typedef struct
 {
-	//Animation data and script
-	u8 spd;
-	const u8 *script;
+    //Animation data and script
+    uint8_t spd;
+    const uint8_t *script;
 } Animation;
 
 typedef struct
 {
-	//Animation state
-	const Animation *anims;
-	const u8 *anim_p;
-	u8 anim;
-	fixed_t anim_time, anim_spd;
-	boolean ended;
+    //Animation state
+    const Animation *anims;
+    const uint8_t *anim_p;
+    uint8_t anim;
+    fixed_t anim_time, anim_spd;
+    boolean ended;
 } Animatable;
 
 //Animation functions
 void Animatable_Init(Animatable *this, const Animation *anims);
-void Animatable_SetAnim(Animatable *this, u8 anim);
-void Animatable_Animate(Animatable *this, void *user, void (*set_frame)(void*, u8));
+void Animatable_SetAnim(Animatable *this, uint8_t anim);
+void Animatable_Animate(Animatable *this, void *user, void (*set_frame)(void*, uint8_t));
 boolean Animatable_Ended(Animatable *this);
 
 #endif
