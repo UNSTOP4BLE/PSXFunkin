@@ -98,7 +98,7 @@ void Char_Spirit_SetFrame(void *user, uint8_t frame)
     this->ghost_y += (FIXED_UNIT - this->ghost_y) >> 2;
 }
 
-static void Char_Spirit_Draw(Char_Spirit *this, fixed_t x, fixed_t y, fixed_t phase, boolean mode)
+static void Char_Spirit_Draw(Char_Spirit *this, fixed_t x, fixed_t y, fixed_t phase, bool mode)
 {
     //Get character state stuff
     const CharFrame *cframe = &char_spirit_frame[this->frame];

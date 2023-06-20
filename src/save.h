@@ -21,7 +21,7 @@ typedef struct {
 } SaveFile;
 
 void defaultSettings();
-boolean readSaveFile();
+bool readSaveFile();
 void writeSaveFile();
 
 #endif

@@ -12,7 +12,7 @@
 #include "../mutil.h"
 
 //Splash object functions
-boolean Obj_Splash_Tick(Object *obj)
+bool Obj_Splash_Tick(Object *obj)
 {
     Obj_Splash *this = (Obj_Splash*)obj;
     

@@ -1,24 +1,106 @@
 /*
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at http://mozilla.org/MPL/2.0/.
-*/
+ * PSn00bSDK SPU CD-ROM streaming example
+ * (C) 2022-2023 spicyjpeg - MPL licensed
+ *
+ * This is an extended version of the sound/spustream example demonstrating
+ * playback of a large multi-channel audio file from the CD-ROM using the SPU,
+ * without having to rely on the CD drive's own ability to play CD-DA or XA
+ * tracks.
+ *
+ * A ring buffer takes the place of the stream_data array from the spustream
+ * example. This buffer is filled from the CD-ROM by the main thread and drained
+ * by the SPU IRQ handler, which pulls a single chunk at a time out of it and
+ * transfers it to SPU RAM for playback. The feed_stream() function handles
+ * fetching chunks, which are read once again from an interleaved .VAG file laid
+ * out on the disc as follows:
+ *
+ *  +--Sector--+--Sector--+--Sector--+--Sector--+--Sector--+--Sector--+----
+ *  |          | +--------------------+---------------------+         |
+ *  |   .VAG   | | Left channel data  | Right channel data  | Padding | ...
+ *  |  header  | +--------------------+---------------------+         |
+ *  +----------+----------+----------+----------+----------+----------+----
+ *               \__________________Chunk___________________/
+ *
+ * Note that the ring buffer must be large enough to give the drive enough time
+ * to seek from one chunk to another. A larger buffer will take up more main RAM
+ * but will not influence SPU RAM usage, which depends only on the chunk size
+ * (interleave) and channel count of the .VAG file. Generally, interleave values
+ * in the 2048-4096 byte range work well (the interleaving script in the
+ * spustream directory uses 4096 bytes by default).
+ *
+ * Implementing SPU streaming might seem pointless, but it actually has a number
+ * of advantages over CD-DA or XA:
+ *
+ * - Any sample rate up to 44.1 kHz can be used. The sample rate can also be
+ *   changed on-the-fly to play the stream at different speeds and pitches (as
+ *   long as the CD drive can keep up), or even interpolated for effects like
+ *   tape stops.
+ * - Manual streaming is not limited to mono or stereo but can be expanded to as
+ *   many channels as needed, only limited by the amount of SPU RAM required for
+ *   chunks and CD bandwidth. Having more than 2 channels can be useful for e.g.
+ *   smoothly crossfading between tracks (not possible with XA) or controlling
+ *   volume and panning of each instrument separately.
+ * - XA playback tends to skip on consoles with a worn out drive, as XA sectors
+ *   cannot have any error correction data. SPU streaming is not subject to this
+ *   limitation since sectors are read and processed in software.
+ * - Depending on how streaming/interleaving is implemented it is possible to
+ *   have 500-1000ms idle periods during which the CD drive isn't buffering the
+ *   stream, that can be used to read small amounts of other data without ever
+ *   interrupting playback. This is different from XA-style interleaving as the
+ *   drive is free to seek to *any* region of the disc during these periods (it
+ *   must seek back to the stream's next chunk afterwards though).
+ * - It is also possible to seek back to the beginning of the stream and load
+ *   the first chunk before the end is reached, allowing for seamless looping
+ *   without having to resort to tricks like separate filler samples.
+ * - Finally, SPU streaming can be used on some PS1-based arcade boards that use
+ *   IDE/SCSI drives or flash memory for storage and thus lack support for XA or
+ *   CD-DA playback.
+ */
 
-//Most of this code is written by spicyjpeg
-
-#include "../audio.h"
-#include "../io.h"             
-#include "../main.h"  
-#include "../timer.h"
+#include <stdint.h>
+#include <stddef.h>
 #include <stdlib.h>
+#include <psxetc.h>
+#include <psxapi.h>
+#include <psxgpu.h>
+#include <stdio.h> 
+#include <psxpad.h>
+#include <psxspu.h>
+#include <psxcd.h>
 #include <hwregs_c.h>
 
-#define SWAP_ENDIAN(x) ( \
-    (((uint32_t) (x) & 0x000000ff) << 24) | \
-    (((uint32_t) (x) & 0x0000ff00) <<  8) | \
-    (((uint32_t) (x) & 0x00ff0000) >>  8) | \
-    (((uint32_t) (x) & 0xff000000) >> 24) \
-)
+#include "stream.h"
+
+#include "../main.h"
+
+// Size of the ring buffer in main RAM in bytes.
+#define RAM_BUFFER_SIZE 0x18000
+
+// Minimum number of sectors that will be read from the CD-ROM at once. Higher
+// values will improve efficiency at the cost of requiring a larger buffer in
+// order to prevent underruns and glitches in the audio output.
+#define REFILL_THRESHOLD 24
+
+/* Display/GPU context utilities */
+
+#define SCREEN_XRES 320
+#define SCREEN_YRES 240
+
+#define BGCOLOR_R 48
+#define BGCOLOR_G 24
+#define BGCOLOR_B  0
+
+typedef struct {
+    DISPENV disp;
+    DRAWENV draw;
+} Framebuffer;
+
+typedef struct {
+    Framebuffer db[2];
+    int         db_active;
+} RenderContext;
+
+/* .VAG header structure */
 
 typedef struct {
     uint32_t magic;         // 0x69474156 ("VAGi") for interleaved files
@@ -27,124 +109,44 @@ typedef struct {
     uint32_t size;          // Big-endian, in bytes
     uint32_t sample_rate;   // Big-endian, in Hertz
     uint16_t _reserved[5];
-    uint16_t channels;      // Little-endian, if 0 the file is mono
+    uint16_t channels;      // Little-endian, channel count (stereo if 0)
     char     name[16];
 } VAG_Header;
 
+#define SWAP_ENDIAN(x) ( \
+    (((uint32_t) (x) & 0x000000ff) << 24) | \
+    (((uint32_t) (x) & 0x0000ff00) <<  8) | \
+    (((uint32_t) (x) & 0x00ff0000) >>  8) | \
+    (((uint32_t) (x) & 0xff000000) >> 24) \
+)
+
+/* Interrupt callbacks */
+
+#define DUMMY_BLOCK_ADDR   0x1000
+#define STREAM_BUFFER_ADDR 0x1010
+
 typedef struct {
-    uint32_t *read_buffer;
-    int lba, chunk_secs, time;
-    int buffer_size, num_chunks, sample_rate, samples, channels;
-    boolean loop;
+    int start_lba, stream_length;
 
-    volatile int    next_chunk, spu_addr;
-    volatile int8_t db_active, state;
+    volatile int    next_sector;
+    volatile size_t refill_length;
+} StreamReadContext;
 
-    // used for timing
-    volatile uint32_t last_irq;
-    uint32_t last_paused, chunk_ticks;
-} StreamContext;
+static Stream_Context    stream_ctx;
+static StreamReadContext read_ctx;
 
-static StreamContext str_ctx;
-static int lastChannelUsed = 0;
-boolean playing;
-
-//SPU registers
-typedef struct
-{
-    uint16_t vol_left;
-    uint16_t vol_right;
-    uint16_t freq;
-    uint16_t addr;
-    uint32_t adsr_param;
-    uint16_t _reserved;
-    uint16_t loop_addr;
-} Audio_SPUChannel;
-
-#define BUFFER_SIZE (13 << 11) //13 sectors
-#define CHUNK_SIZE (BUFFER_SIZE)
-#define CHUNK_SIZE_MAX (BUFFER_SIZE * 4) // there are never more than 4 channels
-#define BUFFER_START_ADDR 0x1010
-#define DUMMY_ADDR (BUFFER_START_ADDR + (CHUNK_SIZE_MAX * 2))
-#define SPU_CHANNELS    ((volatile Audio_SPUChannel*)0x1f801c00)
-#define SPU_RAM_ADDR(x) ((uint16_t)(((uint32_t)(x)) >> 3))
-#define VAG_HEADER_SIZE 48
-#define DUMMY_BLOCK_ADDR  0x1000
-#define BUFFER_START_ADDR 0x1010
-#define ALLOC_START_ADDR (BUFFER_START_ADDR + (CHUNK_SIZE_MAX * 2) + 64)
-
-static volatile uint32_t audio_alloc_ptr = 0;
-
-typedef enum {
-    STATE_IDLE,
-    STATE_BUFFERING,
-    STATE_DATA_NEEDED,
-    STATE_READING
-} StreamState;
-
-static void spu_irq_handler() {
-    // Acknowledge the interrupt to ensure it can be triggered again. The only
-    // way to do this is actually to disable the interrupt entirely; we'll
-    // enable it again once the chunk is ready.
-    SPU_CTRL &= ~(1 << 6);
-
-    int chunk_size = str_ctx.buffer_size * str_ctx.channels;
-    int chunk      = (str_ctx.next_chunk + 1) % (uint32_t) str_ctx.num_chunks;
-
-    str_ctx.db_active ^= 1;
-    str_ctx.state      = STATE_BUFFERING;
-    str_ctx.next_chunk = chunk;
-    str_ctx.last_irq   = Timer_GetTime();
-
-    // Configure to SPU to trigger an IRQ once the chunk that is going to be
-    // filled now starts playing (so the next buffer can be loaded) and
-    // override both channels' loop addresses to make them "jump" to the new
-    // buffers, rather than actually looping when they encounter the loop flag
-    // at the end of the currently playing buffers.
-    int addr = BUFFER_START_ADDR + (str_ctx.db_active ? chunk_size : 0);
-    str_ctx.spu_addr = addr;
-
-    if (chunk == 0)
-        playing = false;
-
-    if (chunk == 0 && str_ctx.loop == false)
-    {
-        Audio_StopStream();
-        return;
-    }
-    SPU_IRQ_ADDR = getSPUAddr(addr);
-    for (int i = 0; i < str_ctx.channels; i++)
-        SPU_CH_LOOP_ADDR(i) = getSPUAddr(addr + str_ctx.buffer_size * i);
-
-    // Start uploading the next chunk to the SPU.
-    SpuSetTransferStartAddr(addr);
-    SpuWrite(str_ctx.read_buffer, chunk_size);
+void cd_read_handler(CdlIntrResult event, uint8_t *payload) {
+    // Mark the data as valid.
+    if (event != CdlDiskError)
+        Stream_Feed(&stream_ctx, read_ctx.refill_length * 2048);
 }
 
-static void spu_dma_handler(void) {
-    // Note that we can't call CdRead() here as it requires interrupts to be
-    // enabled. Instead, feed_stream() (called from the main loop) will check
-    // if str_ctx.state is set to STATE_DATA_NEEDED and fetch the next chunk.
-    str_ctx.state = STATE_DATA_NEEDED;
-}
+/* Helper functions */
 
-static void cd_read_handler(int event, uint8_t *payload) {
-    // Attempt to read the chunk again if an error has occurred.
-    if (event != CdlDataReady) {
-        printf("Chunk read error, retrying...\n");
-
-        str_ctx.state = STATE_DATA_NEEDED;
-        return;
-    }
-
-    // Re-enable the SPU IRQ once the new chunk has been fully uploaded.
-    SPU_CTRL |= 1 << 6;
-
-    str_ctx.state = STATE_IDLE;
-}
-
-
-//Audio functions
+// This isn't actually required for this example, however it is necessary if the
+// stream buffers are going to be allocated into a region of SPU RAM that was
+// previously used (to make sure the IRQ is not going to be triggered by any
+// inactive channels).
 void Audio_ResetChannels(void) {
     SpuSetKey(0, 0x00ffffff);
 
@@ -156,48 +158,61 @@ void Audio_ResetChannels(void) {
     SpuSetKey(1, 0x00ffffff);
 }
 
-void Audio_Init() {
+void Audio_Init(void) {
     SpuInit();
     Audio_ResetChannels();
 }
 
-void Audio_FeedStream(void) {
-    if (str_ctx.state != STATE_DATA_NEEDED)
-        return;
+bool Audio_FeedStream(void) {
+    // Do nothing if the drive is already busy reading a chunk.
+    if (CdReadSync(1, 0) > 0)
+        return true;
 
-    // Start reading the next chunk from the CD.
-    int lba = str_ctx.lba + str_ctx.next_chunk * str_ctx.chunk_secs;
+    // To improve efficiency, do not start refilling immediately but wait until
+    // there is enough space in the buffer (see REFILL_THRESHOLD).
+    if (Stream_GetRefillLength(&stream_ctx) < (REFILL_THRESHOLD * 2048))
+        return false;
 
+    uint8_t *ptr;
+    size_t  refill_length = Stream_GetFeedPtr(&stream_ctx, &ptr) / 2048;
+
+    // Figure out how much data can be read in one shot. If the end of the file
+    // would be reached before the buffer is full, split the read into two
+    // separate reads.
+    int next_sector = read_ctx.next_sector;
+    int max_length  = read_ctx.stream_length - next_sector;
+
+    while (max_length <= 0) {
+        next_sector -= read_ctx.stream_length;
+        max_length  += read_ctx.stream_length;
+    }
+
+    if (refill_length > max_length)
+        refill_length = max_length;
+
+    // Start reading the next chunk from the CD-ROM into the buffer.
     CdlLOC pos;
-    CdIntToPos(lba, &pos);
+
+    CdIntToPos(read_ctx.start_lba + next_sector, &pos);
     CdControl(CdlSetloc, &pos, 0);
-
     CdReadCallback(&cd_read_handler);
-    CdRead(str_ctx.chunk_secs, str_ctx.read_buffer, CdlModeSpeed);
+    CdRead(refill_length, (uint32_t *) ptr, CdlModeSpeed);
 
-    str_ctx.state = STATE_READING;
+    read_ctx.next_sector   = next_sector + refill_length;
+    read_ctx.refill_length = refill_length;
+
+    return true;
 }
 
-void Audio_LoadStream(const char *path, boolean loop) {
+void Audio_LoadStream(const char *path, bool loop) {
     CdlFILE file;
-    printf("OPENING STREAM FILE\n");
     if (!CdSearchFile(&file, path))
     {
-        sprintf(error_msg, "[Audio_LoadStream] failed to find stream file %s", path);
+        sprintf(error_msg, "[Audio_LoadStream] cant find %s", path);
         ErrorLock();
     }
 
-    printf("BUFFERING STREAM\n");
-    
-    str_ctx.loop = loop;
-
-    EnterCriticalSection();
-    InterruptCallback(IRQ_SPU, &spu_irq_handler);
-    DMACallback(DMA_SPU, &spu_dma_handler);
-    ExitCriticalSection();
-
-    // Read the header. Note that in interleaved .VAG files the first sector.
-    // does not hold any audio data (i.e. the header is padded to 2048 bytes).
+    // Read the .VAG header from the first sector of the file.
     uint32_t header[512];
     CdControl(CdlSetloc, &file.pos, 0);
 
@@ -205,180 +220,64 @@ void Audio_LoadStream(const char *path, boolean loop) {
     CdRead(1, header, CdlModeSpeed);
     CdReadSync(0, 0);
 
-    VAG_Header *vag = (VAG_Header *) header;
-    int buf_size    = vag->interleave;
-    int channels    = vag->channels ? vag->channels : 1;
-    int chunk_secs  = ((buf_size * channels) + 2047) / 2048;
+    VAG_Header    *vag = (VAG_Header *) header;
+    Stream_Config config;
 
-    str_ctx.read_buffer = malloc(chunk_secs * 2048);
-    str_ctx.lba         = CdPosToInt(&file.pos) + 1;
-    str_ctx.chunk_secs  = chunk_secs;
-    str_ctx.buffer_size = buf_size;
-    str_ctx.num_chunks  = (SWAP_ENDIAN(vag->size) + buf_size - 1) / buf_size;
-    str_ctx.sample_rate = SWAP_ENDIAN(vag->sample_rate);
-    str_ctx.channels    = channels;
-    str_ctx.chunk_ticks = (buf_size / 16) * (TICKS_PER_SEC * 28);
-    str_ctx.db_active  = 1;
-    str_ctx.next_chunk = 0;
-    str_ctx.time = (SWAP_ENDIAN(vag->size) / 16) * (TICKS_PER_SEC * 28);
-    str_ctx.samples = (SWAP_ENDIAN(vag->size) / 16) * 28;
+    int num_channels = vag->channels ? vag->channels : 2;
+    int num_chunks   =
+        (SWAP_ENDIAN(vag->size) + vag->interleave - 1) / vag->interleave;
 
-    // Preload the first chunk into main RAM, then copy it into SPU RAM by
-    // invoking the IRQ handler manually and blocking until the second chunk is
-    // also loaded. The first delay is required in order to let the drive
-    // finish processing the previous read command.
-    str_ctx.state = STATE_DATA_NEEDED;
-    for (int i = 0; i < 1000; i++)
-        __asm__ volatile("");
+    config.spu_address       = STREAM_BUFFER_ADDR;
+    config.channel_mask      = 0;
+    config.interleave        = vag->interleave;
+    config.buffer_size       = RAM_BUFFER_SIZE;
+    config.refill_threshold  = 0;
+    config.sample_rate       = SWAP_ENDIAN(vag->sample_rate);
+    stream_ctx.sample_rate   = SWAP_ENDIAN(vag->sample_rate);
+    stream_ctx.samples       = (SWAP_ENDIAN(vag->size) / 16) * 28;
+    config.refill_callback   = (void *) 0;
+    config.underrun_callback = (void *) 0;
 
-    while (str_ctx.state != STATE_IDLE)
-        Audio_FeedStream();
+    // Use the first N channels of the SPU and pan them left/right in pairs
+    // (this assumes the stream contains one or more stereo tracks).
+    for (int ch = 0; ch < num_channels; ch++) {
+        config.channel_mask = (config.channel_mask << 1) | 1;
 
-    spu_irq_handler();
-    while (str_ctx.state != STATE_IDLE)
-        Audio_FeedStream();
-}
-
-void Audio_StartStream() {
-    int bits = 0x00ffffff >> (24 - str_ctx.channels);
-
-    // Disable the IRQ as we're going to call spu_irq_handler() manually (due
-    // to finicky SPU timings).
-    SPU_CTRL &= ~(1 << 6);
-
-    for (int i = 0; i < str_ctx.channels; i++) {
-        SPU_CH_ADDR(i)  = getSPUAddr(str_ctx.spu_addr + str_ctx.buffer_size * i);
-        SPU_CH_FREQ(i)  = getSPUSampleRate(str_ctx.sample_rate);
-        SPU_CH_ADSR1(i) = 0x80ff;
-        SPU_CH_ADSR2(i) = 0x1fee;
+        SPU_CH_VOL_L(ch) = (ch % 2) ? 0x0000 : 0x3fff;
+        SPU_CH_VOL_R(ch) = (ch % 2) ? 0x3fff : 0x0000;
     }
 
-    // Unmute the channels and route them for stereo output. You'll want to
-    // edit this if you are using more than 2 channels, and/or if you want to
-    // provide an option to output mono audio instead of stereo.
-    SPU_CH_VOL_L(0) = 0x3fff;
-    SPU_CH_VOL_R(0) = 0x0000;
-    SPU_CH_VOL_L(1) = 0x0000;
-    SPU_CH_VOL_R(1) = 0x3fff;
-    SPU_CH_VOL_L(2) = 0x3fff;
-    SPU_CH_VOL_R(2) = 0x3fff;
+    Stream_Init(&stream_ctx, &config);
 
-    SpuSetKey(1, bits);
-    spu_irq_handler();
-    str_ctx.last_paused = 0;
-    lastChannelUsed = str_ctx.channels;
-    playing = true;
+    read_ctx.start_lba     = CdPosToInt(&file.pos) + 1;
+    read_ctx.stream_length =
+        (num_channels * num_chunks * vag->interleave + 2047) / 2048;
+    read_ctx.next_sector   = 0;
+    read_ctx.refill_length = 0;
+
+    // Ensure the buffer is full before starting playback.
+    while (Audio_FeedStream())
+        __asm__ volatile("");
+}
+
+void Audio_StartStream(bool resume) {
+    Stream_Start(&stream_ctx, resume);
 }
 
 void Audio_StopStream(void) {
-    int bits = 0x00ffffff >> (24 - str_ctx.channels);
-
-    SpuSetKey(0, bits);
-    str_ctx.last_paused = Timer_GetTime();
-
-    for (int i = 0; i < str_ctx.channels; i++)
-        SPU_CH_ADDR(i) = getSPUAddr(DUMMY_BLOCK_ADDR);
-
-    SpuSetKey(1, bits);
-    playing = false;
+    Stream_Stop();
 }
 
-uint64_t Audio_GetTimeMS(void) {
-    uint64_t chunk_start_time = (str_ctx.next_chunk - 1) *
-    str_ctx.chunk_ticks / str_ctx.sample_rate;
-
-    uint64_t current_time = str_ctx.last_paused;
-    if (!current_time)
-        current_time = Timer_GetTime();
-
-    uint64_t time = chunk_start_time + (current_time - str_ctx.last_irq);
-    return (time * 1000) / TICKS_PER_SEC;
-}
-
+uint64_t Audio_GetTimeMS(void) {return 1;}
 uint32_t Audio_GetInitialTime(void) {
-    return str_ctx.samples / str_ctx.sample_rate;
+    return stream_ctx.samples / stream_ctx.sample_rate;
 }
+bool Audio_IsPlaying(void) {return true;}
+void Audio_SetVolume(uint8_t i, uint16_t vol_left, uint16_t vol_right) {};
 
-boolean Audio_IsPlaying(void)
-{
-    return playing;
-}
 
-void Audio_SetVolume(uint8_t i, uint16_t vol_left, uint16_t vol_right)
-{
-    SPU_CHANNELS[i].vol_left = vol_left;
-    SPU_CHANNELS[i].vol_right = vol_right;
-}
-
-/* .VAG file loader */
-
-static int getFreeChannel(void) {
-    int channel = lastChannelUsed + 1;
-    if (channel > 23)
-        channel = str_ctx.channels;
-
-    lastChannelUsed = channel;
-    return channel;
-}
-
-void Audio_ClearAlloc(void) {
-    audio_alloc_ptr = ALLOC_START_ADDR;
-}
-
-uint32_t Audio_LoadVAGData(uint32_t *sound, uint32_t sound_size) {
-    // subtract size of .vag header (48 bytes), round to 64 bytes
-    uint32_t xfer_size = ((sound_size - VAG_HEADER_SIZE) + 63) & 0xffffffc0;
-    uint8_t  *data = (uint8_t *) sound;
-
-    // modify sound data to ensure sound "loops" to dummy sample
-    // https://psx-spx.consoledev.net/soundprocessingunitspu/#flag-bits-in-2nd-byte-of-adpcm-header
-    data[sound_size - 15] = 1; // end + mute
-
-    // allocate SPU memory for sound
-    uint32_t addr = audio_alloc_ptr;
-    audio_alloc_ptr += xfer_size;
-
-    if (audio_alloc_ptr > 0x80000) {
-        sprintf(error_msg, "[Audio_LoadVAGData] FATAL: SPU RAM overflow! (%d bytes overflowing)\n", audio_alloc_ptr - 0x80000);
-        ErrorLock();
-    }
-
-    SpuSetTransferStartAddr(addr); // set transfer starting address to malloced area
-    SpuSetTransferMode(SPU_TRANSFER_BY_DMA); // set transfer mode to DMA
-    SpuWrite((uint32_t *)data + VAG_HEADER_SIZE, xfer_size); // perform actual transfer
-    SpuIsTransferCompleted(SPU_TRANSFER_WAIT); // wait for DMA to complete
-
-    printf("Allocated new sound (addr=%08x, size=%d)\n", addr, xfer_size);
-    return addr;
-}
-
-void Audio_PlaySoundOnChannel(uint32_t addr, uint32_t channel, int volume) {
-    SpuSetKey(0, 1 << channel);
-
-    SPU_CHANNELS[channel].vol_left   = volume;
-    SPU_CHANNELS[channel].vol_right  = volume;
-    SPU_CHANNELS[channel].addr       = SPU_RAM_ADDR(addr);
-    SPU_CHANNELS[channel].loop_addr  = SPU_RAM_ADDR(DUMMY_ADDR);
-    SPU_CHANNELS[channel].freq       = 0x1000; // 44100 Hz
-    SPU_CHANNELS[channel].adsr_param = 0x1fc080ff;
-
-    SpuSetKey(1, 1 << channel);
-}
-
-void Audio_PlaySound(uint32_t addr, int volume) {
-    Audio_PlaySoundOnChannel(addr, getFreeChannel(), volume);
-   // printf("Could not find free channel to play sound (addr=%08x)\n", addr);
-}
-
-uint32_t Audio_LoadSound(const char *path)
-{
-    CdlFILE file;
-    uint32_t Sound;
-
-    IO_FindFile(&file, path);
-    uint32_t *data = IO_ReadFile(&file);
-    Sound = Audio_LoadVAGData(data, file.size);
-    free(data);
-
-    return Sound;
-}
+void Audio_ClearAlloc(void) {}
+uint32_t Audio_LoadVAGData(uint32_t *sound, uint32_t sound_size) {return 1;}
+void Audio_PlaySoundOnChannel(uint32_t addr, uint32_t channel, int volume) {}
+void Audio_PlaySound(uint32_t addr, int volume) {}
+uint32_t Audio_LoadSound(const char *path) {return 1;}

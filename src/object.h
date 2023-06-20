@@ -12,12 +12,12 @@
 //Object types
 typedef struct Object
 {
-	//Object linked list
-	struct Object *prev, *next;
-	
-	//Object functions
-	boolean (*tick)(struct Object*);
-	void (*free)(struct Object*);
+    //Object linked list
+    struct Object *prev, *next;
+    
+    //Object functions
+    bool (*tick)(struct Object*);
+    void (*free)(struct Object*);
 } Object;
 
 typedef Object* ObjectList;

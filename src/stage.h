@@ -161,15 +161,15 @@ typedef struct
     int16_t health;
     uint16_t combo;
     
-    boolean refresh_score;
+    bool refresh_score;
     int32_t score, max_score;
     char score_text[13];
 
-    boolean refresh_miss;
+    bool refresh_miss;
     int32_t miss;
     char miss_text[13];
     
-    boolean refresh_accuracy;
+    bool refresh_accuracy;
     int32_t min_accuracy;
     int32_t accuracy;
     int32_t max_accuracy;
@@ -188,15 +188,15 @@ typedef struct
     //Stage settings
     int pause_state;
     fixed_t pause_scroll;
-    boolean str_playing;
+    bool str_playing;
     
     struct
     {
-        boolean ghost, downscroll, middlescroll, practice, debug, palmode, widescreen, stereo, sfxmiss, songtimer, botplay;
+        bool ghost, downscroll, middlescroll, practice, debug, palmode, widescreen, stereo, sfxmiss, songtimer, botplay;
         int16_t scr_x, scr_y;
         int savescore[StageId_Max][3];
     } prefs;
-    boolean paused;
+    bool paused;
     int32_t mode;
     
     uint32_t offset;
@@ -222,7 +222,7 @@ typedef struct
     fixed_t early_safe, late_safe, early_sus_safe, late_sus_safe;
     
     //Stage state
-    boolean story;
+    bool story;
     uint8_t flag;
     StageTrans trans;
     
@@ -262,7 +262,7 @@ typedef struct
     char* player2sing;
     char* oppo2sing;
 
-    boolean freecam;
+    bool freecam;
     
     uint8_t gf_speed; //Typically 4 steps, changes in Fresh
     
@@ -298,7 +298,7 @@ void Stage_BlendTexArb(Gfx_Tex *tex, const RECT *src, const POINT_FIXED *p0, con
 
 
 //Stage functions
-void Stage_Load(StageId id, StageDiff difficulty, boolean story);
+void Stage_Load(StageId id, StageDiff difficulty, bool story);
 void Stage_Unload();
 void Stage_Tick();
 

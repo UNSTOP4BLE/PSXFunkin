@@ -12,23 +12,23 @@
 //Menu enums
 typedef enum
 {
-	MenuPage_Opening,
-	MenuPage_Title,
-	MenuPage_Main,
-	MenuPage_Story,
-	MenuPage_Freeplay,
-	MenuPage_Credits,
-	MenuPage_Options,
-	
-	MenuPage_Stage, //Changes game loop
-	MenuPage_MoveSCR,
-	MenuPage_STR,
+    MenuPage_Opening,
+    MenuPage_Title,
+    MenuPage_Main,
+    MenuPage_Story,
+    MenuPage_Freeplay,
+    MenuPage_Credits,
+    MenuPage_Options,
+    
+    MenuPage_Stage, //Changes game loop
+    MenuPage_MoveSCR,
+    MenuPage_STR,
 } MenuPage;
 
 //Menu functions
 void Menu_Load(MenuPage page);
 void Menu_Unload();
-void Menu_ToStage(StageId id, StageDiff diff, boolean story);
+void Menu_ToStage(StageId id, StageDiff diff, bool story);
 void Menu_Tick();
 
 #endif

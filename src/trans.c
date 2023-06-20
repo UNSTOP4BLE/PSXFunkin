@@ -48,7 +48,7 @@ void Trans_Start(void)
     transition.state = TransState_Out;
 }
 
-boolean Trans_Tick(void)
+bool Trans_Tick(void)
 {
     //Handle transition by state
     switch (transition.state)
@@ -91,7 +91,7 @@ boolean Trans_Tick(void)
         case TransState_Out:
         {
             //Increment transition coverage
-            boolean result;
+            bool result;
             if (transition.cover >= FIXED_DEC(screen.SCREEN_HEIGHT,1))
             {
                 transition.state = TransState_In;
@@ -130,7 +130,7 @@ boolean Trans_Tick(void)
     }
 }
 
-boolean Trans_Idle(void)
+bool Trans_Idle(void)
 {
     return transition.state == TransState_Idle;
 }

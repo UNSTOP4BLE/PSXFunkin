@@ -103,7 +103,7 @@ void Char_Mom_Tick(Character *character)
     //Draw hair
     static const struct Char_Mom_HairDef
     {
-        boolean sy;
+        bool sy;
         uint8_t ox, oy;
     } hair_defs[] = {
         {0,  43, 196}, //idle 1

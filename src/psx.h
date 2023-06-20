@@ -25,18 +25,10 @@ extern char **my_argv;
 
 //Fixed size types
 #include <stdint.h>
+#include <stdbool.h>
 
 //Misc. functions
 #define MsgPrint FntPrint
-
-//Boolean type
-typedef int8_t boolean;
-#ifndef true
-    #define true 1
-#endif
-#ifndef false
-    #define false 0
-#endif
 
 //Point type
 typedef struct
@@ -55,6 +47,6 @@ typedef struct
 //PSX functions
 void PSX_Init(void);
 void PSX_Quit(void);
-boolean PSX_Running(void);
+bool PSX_Running(void);
 
 #endif

@@ -53,7 +53,7 @@ void Week6_Freaks_SetFrame(void *user, uint8_t frame)
     this->freaks_frame = frame;
 }
 
-void Week6_Freaks_Draw(Back_Week6 *this, fixed_t x, fixed_t y, boolean flip)
+void Week6_Freaks_Draw(Back_Week6 *this, fixed_t x, fixed_t y, bool flip)
 {
     //Draw character
     static const uint8_t frame_map[4][2][2] = {

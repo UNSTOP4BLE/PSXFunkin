@@ -22,7 +22,7 @@ IO_Data IO_ReadFile(CdlFILE *file);
 IO_Data IO_AsyncReadFile(CdlFILE *file);
 IO_Data IO_Read(const char *path);
 IO_Data IO_AsyncRead(const char *path);
-boolean IO_IsSeeking(void);
-boolean IO_IsReading(void);
+bool IO_IsSeeking(void);
+bool IO_IsReading(void);
 
 #endif

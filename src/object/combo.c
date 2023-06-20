@@ -11,7 +11,7 @@
 #include "../random.h"
 
 //Combo object functions
-boolean Obj_Combo_Tick(Object *obj)
+bool Obj_Combo_Tick(Object *obj)
 {
     Obj_Combo *this = (Obj_Combo*)obj;
     
@@ -127,7 +127,7 @@ boolean Obj_Combo_Tick(Object *obj)
     return (this->numt >= FIXED_DEC(16,60)) && (this->ht >= FIXED_DEC(16,60)) && (this->ct >= FIXED_DEC(16,60));
 }
 
-boolean Obj_Combo_Tick_Weeb(Object *obj)
+bool Obj_Combo_Tick_Weeb(Object *obj)
 {
     Obj_Combo *this = (Obj_Combo*)obj;
     
@@ -296,7 +296,7 @@ Obj_Combo *Obj_Combo_New(fixed_t x, fixed_t y, uint8_t hit_type, uint16_t combo)
         
         //Write numbers
         static const uint16_t dig[5] = {10000, 1000, 100, 10, 1};
-        boolean hit = false;
+        bool hit = false;
         
         const uint16_t *digp = dig;
         for (uint8_t i = 0; i < 5; i++, digp++)

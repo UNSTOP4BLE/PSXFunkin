@@ -59,7 +59,7 @@ void Animatable_Animate(Animatable *this, void *user, void (*set_frame)(void*, u
     }
 }
 
-boolean Animatable_Ended(Animatable *this)
+bool Animatable_Ended(Animatable *this)
 {
     return this->ended;
 }

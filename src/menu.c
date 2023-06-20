@@ -75,7 +75,7 @@ static struct
 {
     //Menu state
     uint8_t page, next_page;
-    boolean page_swap;
+    bool page_swap;
     uint8_t select, next_select;
     
     fixed_t scroll;
@@ -108,7 +108,7 @@ static struct
         struct
         {
             uint8_t id, diff;
-            boolean story;
+            bool story;
         } stage;
     } page_param;
     
@@ -122,7 +122,7 @@ static struct
 //Internal menu functions
 char menu_text_buffer[0x100];
 
-static const char *Menu_LowerIf(const char *text, boolean lower)
+static const char *Menu_LowerIf(const char *text, bool lower)
 {
     //Copy text
     char *dstp = menu_text_buffer;
@@ -152,7 +152,7 @@ static const char *Menu_LowerIf(const char *text, boolean lower)
     return menu_text_buffer;
 }
 
-static void Menu_DrawBack(boolean flash, int32_t scroll, uint8_t r0, uint8_t g0, uint8_t b0, uint8_t r1, uint8_t g1, uint8_t b1)
+static void Menu_DrawBack(bool flash, int32_t scroll, uint8_t r0, uint8_t g0, uint8_t b0, uint8_t r1, uint8_t g1, uint8_t b1)
 {
     RECT back_src = {0, 0, 255, 255};
     RECT back_dst = {0, -scroll - screen.SCREEN_WIDEADD2, screen.SCREEN_WIDTH, screen.SCREEN_WIDTH * 4 / 5};
@@ -298,7 +298,7 @@ void Menu_Load(MenuPage page)
 
     //Play menu music
     Audio_LoadStream("\\MUSIC\\FREAKY.VAG;1", true);
-    Audio_StartStream();
+    Audio_StartStream(false);
     
     //Set background colour
     Gfx_SetClear(0, 0, 0);
@@ -310,7 +310,7 @@ void Menu_Unload(void)
     Character_Free(menu.gf);
 }
 
-void Menu_ToStage(StageId id, StageDiff diff, boolean story)
+void Menu_ToStage(StageId id, StageDiff diff, bool story)
 {
     menu.next_page = MenuPage_Stage;
     menu.page_param.stage.id = id;
@@ -319,7 +319,7 @@ void Menu_ToStage(StageId id, StageDiff diff, boolean story)
     Trans_Start();
 }
 
-boolean adjustscreen, strdone;
+bool adjustscreen, strdone;
 
 void Menu_HandleSTR()
 {
@@ -940,7 +940,7 @@ void Menu_Tick(void)
             {
                 StageId stage;
                 const char *text;
-                boolean difficulty;
+                bool difficulty;
             } menu_options[] = {
                 {StageId_1_1, "FORK DEVS", false},
                 {StageId_1_1, "    UNSTOPABLE", false},
@@ -1060,7 +1060,7 @@ void Menu_Tick(void)
             {
                 enum
                 {
-                    OptType_Boolean,
+                    OptType_bool,
                     OptType_Enum,
                     OptType_SubMenu,
                 } type;
@@ -1071,7 +1071,7 @@ void Menu_Tick(void)
                     struct
                     {
                         int a;
-                    } spec_boolean;
+                    } spec_bool;
                     struct
                     {
                         int32_t max;
@@ -1080,17 +1080,17 @@ void Menu_Tick(void)
                 } spec;
             } menu_options[] = {
                 {OptType_Enum,    "GAMEMODE", &stage.mode, {.spec_enum = {COUNT_OF(gamemode_strs), gamemode_strs}}},
-                {OptType_Boolean, "PAL REFRESH RATE", &stage.prefs.palmode, {.spec_boolean = {0}}},
-                {OptType_Boolean, "GHOST TAP", &stage.prefs.ghost, {.spec_boolean = {0}}},
-                {OptType_Boolean, "MISS SOUNDS", &stage.prefs.sfxmiss, {.spec_boolean = {0}}},
-                {OptType_Boolean, "DOWNSCROLL", &stage.prefs.downscroll, {.spec_boolean = {0}}},
-                {OptType_Boolean, "MIDDLESCROLL", &stage.prefs.middlescroll, {.spec_boolean = {0}}},
-                {OptType_Boolean, "BOTPLAY", &stage.prefs.botplay, {.spec_boolean = {0}}},
-                {OptType_Boolean, "SHOW SONG TIME", &stage.prefs.songtimer, {.spec_boolean = {0}}},
-                {OptType_Boolean, "PRACTICE MODE", &stage.prefs.practice, {.spec_boolean = {0}}},
-                {OptType_Boolean, "WIDESCREEN", &stage.prefs.widescreen, {.spec_boolean = {0}}},
-                {OptType_SubMenu, "ADJUST SCREEN BORDERS", &adjustscreen, {.spec_boolean = {0}}},
-                {OptType_Boolean, "DEBUG MODE", &stage.prefs.debug, {.spec_boolean = {0}}},
+                {OptType_bool, "PAL REFRESH RATE", &stage.prefs.palmode, {.spec_bool = {0}}},
+                {OptType_bool, "GHOST TAP", &stage.prefs.ghost, {.spec_bool = {0}}},
+                {OptType_bool, "MISS SOUNDS", &stage.prefs.sfxmiss, {.spec_bool = {0}}},
+                {OptType_bool, "DOWNSCROLL", &stage.prefs.downscroll, {.spec_bool = {0}}},
+                {OptType_bool, "MIDDLESCROLL", &stage.prefs.middlescroll, {.spec_bool = {0}}},
+                {OptType_bool, "BOTPLAY", &stage.prefs.botplay, {.spec_bool = {0}}},
+                {OptType_bool, "SHOW SONG TIME", &stage.prefs.songtimer, {.spec_bool = {0}}},
+                {OptType_bool, "PRACTICE MODE", &stage.prefs.practice, {.spec_bool = {0}}},
+                {OptType_bool, "WIDESCREEN", &stage.prefs.widescreen, {.spec_bool = {0}}},
+                {OptType_SubMenu, "ADJUST SCREEN BORDERS", &adjustscreen, {.spec_bool = {0}}},
+                {OptType_bool, "DEBUG MODE", &stage.prefs.debug, {.spec_bool = {0}}},
             };
 
             //Initialize page
@@ -1135,9 +1135,9 @@ void Menu_Tick(void)
                 //Handle option changing
                 switch (menu_options[menu.select].type)
                 {
-                    case OptType_Boolean:
+                    case OptType_bool:
                         if (pad_state.press & (PAD_CROSS | PAD_LEFT | PAD_RIGHT)) {
-                            *((boolean*)menu_options[menu.select].value) ^= 1;
+                            *((bool*)menu_options[menu.select].value) ^= 1;
 
                             // this shit needs to go
                             if ((menu.select == 1) || (menu.select == 9))
@@ -1146,7 +1146,7 @@ void Menu_Tick(void)
                         break;  
                     case OptType_SubMenu:
                         if (pad_state.press & (PAD_CROSS | PAD_START)) {
-                            *((boolean*)menu_options[menu.select].value) ^= 1;
+                            *((bool*)menu_options[menu.select].value) ^= 1;
                             Trans_Start();
                         }
                         break;
@@ -1191,8 +1191,8 @@ void Menu_Tick(void)
                 char text[0x80];
                 switch (menu_options[i].type)
                 {
-                    case OptType_Boolean:
-                        sprintf(text, "%s %s", menu_options[i].text, *((boolean*)menu_options[i].value) ? "ON" : "OFF");
+                    case OptType_bool:
+                        sprintf(text, "%s %s", menu_options[i].text, *((bool*)menu_options[i].value) ? "ON" : "OFF");
                         break;
                     case OptType_Enum:
                         sprintf(text, "%s %s", menu_options[i].text, menu_options[i].spec.spec_enum.strs[*((int32_t*)menu_options[i].value)]);

@@ -8,18 +8,18 @@
 #define PSXF_GUARD_AUDIO_H
 
 #include "psx.h"
+#include "psx/stream.h"
 
 //Audio functions
-void Audio_ResetChannel(int channel);
 void Audio_ResetChannels(void);
-void Audio_Init();
-void Audio_FeedStream(void);
-void Audio_LoadStream(const char *path, boolean loop);
-void Audio_StartStream(void);
+void Audio_Init(void);
+bool Audio_FeedStream(void);
+void Audio_LoadStream(const char *path, bool loop);
+void Audio_StartStream(bool resume);
 void Audio_StopStream(void);
 uint64_t Audio_GetTimeMS(void);
 uint32_t Audio_GetInitialTime(void);
-boolean Audio_IsPlaying(void);
+bool Audio_IsPlaying(void);
 void Audio_SetVolume(uint8_t i, uint16_t vol_left, uint16_t vol_right);
 
 void Audio_ClearAlloc(void);

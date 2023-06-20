@@ -30,13 +30,13 @@ typedef struct
     const uint8_t *anim_p;
     uint8_t anim;
     fixed_t anim_time, anim_spd;
-    boolean ended;
+    bool ended;
 } Animatable;
 
 //Animation functions
 void Animatable_Init(Animatable *this, const Animation *anims);
 void Animatable_SetAnim(Animatable *this, uint8_t anim);
 void Animatable_Animate(Animatable *this, void *user, void (*set_frame)(void*, uint8_t));
-boolean Animatable_Ended(Animatable *this);
+bool Animatable_Ended(Animatable *this);
 
 #endif

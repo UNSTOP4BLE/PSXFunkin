@@ -76,7 +76,7 @@ void defaultSettings()
     }
 }
 
-boolean readSaveFile()
+bool readSaveFile()
 {
     int fd = open(savetitle, 0x0001);
     if (fd < 0) // file doesnt exist 

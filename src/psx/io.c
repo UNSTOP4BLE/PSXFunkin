@@ -96,13 +96,13 @@ IO_Data IO_AsyncRead(const char *path)
     return IO_AsyncReadFile(&file);
 }
 
-boolean IO_IsSeeking(void)
+bool IO_IsSeeking(void)
 {
     CdControl(CdlNop, NULL, NULL);
     return (CdStatus() & (CdlStatSeek)) != 0;
 }
 
-boolean IO_IsReading(void)
+bool IO_IsReading(void)
 {
     CdControl(CdlNop, NULL, NULL);
     return (CdStatus() & (CdlStatSeek | CdlStatRead)) != 0;

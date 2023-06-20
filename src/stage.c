@@ -40,7 +40,7 @@ static const uint8_t note_anims[4][3] = {
 
 
 //Stage definitions
-boolean noteshake;
+bool noteshake;
 static uint32_t Sounds[7];
 
 #include "character/bf.h"
@@ -409,7 +409,7 @@ static void CheckNewScore()
     }
 }
 
-static void Stage_ProcessPlayer(PlayerState *this, Pad *pad, boolean playing)
+static void Stage_ProcessPlayer(PlayerState *this, Pad *pad, bool playing)
 {
     //Handle player note presses
     if (stage.prefs.botplay == 0) {
@@ -1396,8 +1396,8 @@ static void Stage_LoadMusic(void)
     if (stage.gf != NULL)
         stage.gf->sing_end -= stage.note_scroll;
     
-//  //Find music file and begin seeking to it
-//  Audio_LoadStream(stage.stage_def->vag_path, false);
+  //Find music file and begin seeking to it
+  Audio_LoadStream(stage.stage_def->vag_path, false);
 
     //Initialize music state
     stage.note_scroll = FIXED_DEC(-5 * 6 * 12,1);
@@ -1513,7 +1513,7 @@ static void Stage_LoadState(void)
 //Stage functions
 char iconpath[30];
 
-void Stage_Load(StageId id, StageDiff difficulty, boolean story)
+void Stage_Load(StageId id, StageDiff difficulty, bool story)
 {
     //Get stage definition
     stage.stage_def = &stage_defs[stage.stage_id = id];
@@ -1611,7 +1611,7 @@ void Stage_Unload(void)
     stage.gf = NULL;
 }
 
-static boolean Stage_NextLoad(void)
+static bool Stage_NextLoad(void)
 {
     uint8_t load = stage.stage_def->next_load;
     if (load == 0)
@@ -1694,7 +1694,7 @@ static boolean Stage_NextLoad(void)
 }
 
 static int deadtimer;
-static boolean inctimer;
+static bool inctimer;
 
 void Stage_Tick(void)
 {
@@ -1840,7 +1840,7 @@ void Stage_Tick(void)
             stage.flag &= ~(STAGE_FLAG_JUST_STEP | STAGE_FLAG_SCORE_REFRESH);
             
             //Get song position
-            boolean playing;
+            bool playing;
             fixed_t next_scroll;
             
             if (!stage.paused)
@@ -1856,7 +1856,7 @@ void Stage_Tick(void)
                         //Song has started
                         playing = true;
 
-                        Audio_StartStream();
+                        Audio_StartStream(false);
                         Stage_StartVocal();
                         
                         //Update song time
@@ -1960,7 +1960,7 @@ void Stage_Tick(void)
             if (playing && (stage.flag & STAGE_FLAG_JUST_STEP))
             {
                 //Check if screen should bump
-                boolean is_bump_step = (stage.song_step & 0xF) == 0;
+                bool is_bump_step = (stage.song_step & 0xF) == 0;
                 
                 //M.I.L.F bumps
                 if (stage.stage_id == StageId_4_3 && stage.song_step >= (168 << 2) && stage.song_step < (200 << 2))
@@ -2338,7 +2338,7 @@ void Stage_Tick(void)
             if (stage.player->animatable.anim == PlayerAnim_Dead3)
             {
                 stage.state = StageState_DeadRetry;
-                Audio_StartStream();
+                Audio_StartStream(false);
             }
             break;
         }

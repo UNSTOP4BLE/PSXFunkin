@@ -13,7 +13,7 @@
 void Trans_Set(void);
 void Trans_Clear(void);
 void Trans_Start(void);
-boolean Trans_Tick(void);
-boolean Trans_Idle(void);
+bool Trans_Tick(void);
+bool Trans_Idle(void);
 
 #endif
