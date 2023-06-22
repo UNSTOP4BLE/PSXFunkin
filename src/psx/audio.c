@@ -81,25 +81,6 @@
 // order to prevent underruns and glitches in the audio output.
 #define REFILL_THRESHOLD 24
 
-/* Display/GPU context utilities */
-
-#define SCREEN_XRES 320
-#define SCREEN_YRES 240
-
-#define BGCOLOR_R 48
-#define BGCOLOR_G 24
-#define BGCOLOR_B  0
-
-typedef struct {
-    DISPENV disp;
-    DRAWENV draw;
-} Framebuffer;
-
-typedef struct {
-    Framebuffer db[2];
-    int         db_active;
-} RenderContext;
-
 /* .VAG header structure */
 
 typedef struct {
