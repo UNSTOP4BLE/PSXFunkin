@@ -82,6 +82,7 @@ typedef struct {
     void    *old_irq_handler, *old_dma_handler;
     size_t  chunk_size;
     uint8_t num_channels, sample_rate, samples;
+    bool loop;
 
     volatile uint8_t  db_active, buffering, callback_issued;
     volatile uint32_t chunk_counter;
@@ -210,6 +211,9 @@ size_t Stream_GetFeedPtr(const Stream_Context *ctx, uint8_t **ptr);
  * @see Stream_GetFeedPtr()
  */
 void Stream_Feed(Stream_Context *ctx, size_t length);
+
+
+bool Stream_IsPlaying(void);
 
 #ifdef __cplusplus
 }

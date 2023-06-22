@@ -205,6 +205,7 @@ bool Audio_FeedStream(void) {
 }
 
 void Audio_LoadStream(const char *path, bool loop) {
+    stream_ctx.loop = loop;
     CdlFILE file;
     if (!CdSearchFile(&file, path))
     {
@@ -268,13 +269,30 @@ void Audio_StopStream(void) {
     Stream_Stop();
 }
 
-uint64_t Audio_GetTimeMS(void) {return 1;}
+uint64_t Audio_GetTimeMS(void) {
+ //   uint64_t chunk_start_time = (stream_ctx.next_chunk - 1) *
+//    stream_ctx.chunk_ticks / stream_ctx.sample_rate;
+
+  //  uint64_t current_time = stream_ctx.last_paused;
+ //   if (!current_time)
+//        current_time = Timer_GetTime();
+
+ //   uint64_t time = chunk_start_time + (current_time - stream_ctx.last_irq);
+    return 1000;//return (time * 1000) / TICKS_PER_SEC;
+}
+
 uint32_t Audio_GetInitialTime(void) {
     return stream_ctx.samples / stream_ctx.sample_rate;
 }
-bool Audio_IsPlaying(void) {return true;}
-void Audio_SetVolume(uint8_t i, uint16_t vol_left, uint16_t vol_right) {};
 
+bool Audio_IsPlaying(void) {
+    return Stream_IsActive(&stream_ctx);
+}
+
+void Audio_SetVolume(uint8_t i, uint16_t vol_left, uint16_t vol_right) {
+ //   SPU_CHANNELS[i].vol_left = vol_left;
+   // SPU_CHANNELS[i].vol_right = vol_right;
+}
 
 void Audio_ClearAlloc(void) {}
 uint32_t Audio_LoadVAGData(uint32_t *sound, uint32_t sound_size) {return 1;}
