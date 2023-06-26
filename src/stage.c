@@ -1472,7 +1472,7 @@ static void Stage_LoadState(void)
         stage.song_beat = 0;
         timer.secondtimer = 0;
         timer.timer = 0;
-        timer.timermin = 0; 
+        timer.timermin = 0;     
         timer.timersec = 0;
         stage.paused = false;
         strcpy(stage.player_state[i].accuracy_text, "Accuracy: ?");
@@ -2303,7 +2303,6 @@ void Stage_Tick(void)
             stage.song_time = 0;
             
             stage.state = StageState_DeadLoad;
-
             if (stage.stage_id >= StageId_6_1 && stage.stage_id <= StageId_6_3)         
                 Sounds[0] = Audio_LoadSound("\\SOUNDS\\LOSSP.VAG;1");
             else

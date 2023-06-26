@@ -77,7 +77,9 @@ void Timer_CalcDT()
 
 int Timer_GetDT()
 {
-    return delta;
+    if (delta > 0)
+        return delta;
+    else return 0;
 }
 
 void StageTimer_Tick()
