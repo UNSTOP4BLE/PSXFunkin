@@ -1,5 +1,6 @@
 from PIL import Image, ImageFilter
 import glob
+import shutil
 
 QUEUE_LENGTH     = 16
 DMA_CHUNK_LENGTH = 16
@@ -7,10 +8,11 @@ DMA_CHUNK_LENGTH = 16
 
 path = glob.glob('iso/*/*.png')
 
+#calculate if the image is a multiple of 16
 def recalc(width, height):
     length = width * height
     length = length / 2
-    if (((length >= DMA_CHUNK_LENGTH) and (length % DMA_CHUNK_LENGTH))):
+    if ((length >= DMA_CHUNK_LENGTH) and (length % DMA_CHUNK_LENGTH)):
         return False
     else:
         return True
@@ -27,31 +29,34 @@ for curpath in path:
     realwidth = tex.size[0]
     realheight = tex.size[1]
 
-    if recalc(realwidth, realheight):
+    #check if the image needs fixing
+    if recalc(realwidth, realheight) == True: 
         continue
     print("fixing image " + curpath)
 
     #try mess with the height
     for i in range(256):
-        if realheight > 255
+        if realheight > 255:
             break;
-        if recalc(realwidth, realheight+i):
+        if recalc(realwidth, realheight+i) == True:
             realheight = realheight + i;
             break;
 
-    if recalc(realwidth, realheight):
+    # yay fix worked
+    if recalc(realwidth, realheight) == True:
         writetex(curpath)
         continue
 
-    #try mess with the width
+    #fix didnt work? try mess with the width
     for i in range(256):
-        if realwidth > 255
+        if realwidth > 255:
             break;
-        if recalc(realwidth+i, realheight):
+        if recalc(realwidth+i, realheight) == True:
             realwidth = realwidth + i;
             break;
 
-    if recalc(realwidth, realheight):
+    # yay fix worked
+    if recalc(realwidth, realheight) == True:
         writetex(curpath)
         continue
 
