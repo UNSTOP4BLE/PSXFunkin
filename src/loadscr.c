@@ -16,48 +16,47 @@
 //Loading screen functions
 void LoadScr_Start(void)
 {
-	//Stop VAG playback
-	Audio_StopStream();
-	Audio_ResetChannels();
-	
-	//free all sounds it loaded before and make sure frame has been drawn
-	Audio_ClearAlloc();
-	Gfx_Flip();
-	
-	//Load loading screen texture
-	RECT loading_src = {0, 0, 255, 255};
-	RECT loading_dst = {(screen.SCREEN_WIDTH - 300) >> 1, (screen.SCREEN_HEIGHT - 224) >> 1, 300, 224};
-	Gfx_Tex loading_tex;
-	Gfx_SetClear(202, 255, 77);
-	Gfx_LoadTex(&loading_tex, IO_Read("\\MENU\\LOADING.TIM;1"), GFX_LOADTEX_FREE);
-	Timer_Reset();
-	
-	//Draw loading screen and run transition
-	Trans_Set();
-	
-	while (!Trans_Idle())
-	{
-		//Draw loading screen and end frame
-		Trans_Tick();
-		Gfx_DrawTex(&loading_tex, &loading_src, &loading_dst);
-		Gfx_Flip();
-	}
-	
-	//Draw an extra frame to avoid double buffering issues
-	Gfx_DrawTex(&loading_tex, &loading_src, &loading_dst);
-	Gfx_Flip();
+    //Stop VAG playback
+    Audio_StopXA();
+    
+    //free all sounds it loaded before and make sure frame has been drawn
+    Audio_ClearAlloc();
+    Gfx_Flip();
+    
+    //Load loading screen texture
+    RECT loading_src = {0, 0, 255, 255};
+    RECT loading_dst = {(screen.SCREEN_WIDTH - 300) >> 1, (screen.SCREEN_HEIGHT - 224) >> 1, 300, 224};
+    Gfx_Tex loading_tex;
+    Gfx_SetClear(202, 255, 77);
+    Gfx_LoadTex(&loading_tex, IO_Read("\\MENU\\LOADING.TIM;1"), GFX_LOADTEX_FREE);
+    Timer_Reset();
+    
+    //Draw loading screen and run transition
+    Trans_Set();
+    
+    while (!Trans_Idle())
+    {
+        //Draw loading screen and end frame
+        Trans_Tick();
+        Gfx_DrawTex(&loading_tex, &loading_src, &loading_dst);
+        Gfx_Flip();
+    }
+    
+    //Draw an extra frame to avoid double buffering issues
+    Gfx_DrawTex(&loading_tex, &loading_src, &loading_dst);
+    Gfx_Flip();
 }
 
 void LoadScr_End(void)
 {
-	//Handle transition out
-	Timer_Reset();
-	Trans_Clear();
-	Trans_Start();
-	Gfx_DisableClear();
-	while (!Trans_Tick())
-	{
-		Gfx_Flip();
-	}
-	Gfx_EnableClear();
+    //Handle transition out
+    Timer_Reset();
+    Trans_Clear();
+    Trans_Start();
+    Gfx_DisableClear();
+    while (!Trans_Tick())
+    {
+        Gfx_Flip();
+    }
+    Gfx_EnableClear();
 }

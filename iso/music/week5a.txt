@@ -1,0 +1,4 @@
+1 xa ${PROJECT_BINARY_DIR}/iso/music/cocoa/Vocals.xa 1 0
+1 xa ${PROJECT_BINARY_DIR}/iso/music/cocoa/Inst.xa 1 1
+1 xa ${PROJECT_BINARY_DIR}/iso/music/eggnog/Vocals.xa 1 2
+1 xa ${PROJECT_BINARY_DIR}/iso/music/eggnog/Inst.xa 1 3

@@ -242,32 +242,32 @@
             
             <!-- Music -->
             <dir name = "music">
-                <file name = "freaky.vag" type = "data" source = "iso/music/freakyMenu/freakyMenu.vag"/>
-
-                <file name = "1_1.vag" type = "data" source = "iso/music/bopeebo/bopeebo.vag"/>
-                <file name = "1_2.vag" type = "data" source = "iso/music/fresh/fresh.vag"/>
-                <file name = "1_3.vag" type = "data" source = "iso/music/dadbattle/dadbattle.vag"/>
-                <file name = "1_4.vag" type = "data" source = "iso/music/tutorial/tutorial.vag"/>
-
-                <file name = "2_1.vag" type = "data" source = "iso/music/spookeez/spookeez.vag"/>
-                <file name = "2_2.vag" type = "data" source = "iso/music/south/south.vag"/>
-                <file name = "2_3.vag" type = "data" source = "iso/music/monster/monster.vag"/>
-
-                <file name = "3_1.vag" type = "data" source = "iso/music/pico/pico.vag"/>
-                <file name = "3_2.vag" type = "data" source = "iso/music/philly/philly.vag"/>
-                <file name = "3_3.vag" type = "data" source = "iso/music/blammed/blammed.vag"/>
-
-                <file name = "4_1.vag" type = "data" source = "iso/music/satin-panties/satin-panties.vag"/>
-                <file name = "4_2.vag" type = "data" source = "iso/music/high/high.vag"/>
-                <file name = "4_3.vag" type = "data" source = "iso/music/milf/milf.vag"/>
-
-                <file name = "5_1.vag" type = "data" source = "iso/music/cocoa/cocoa.vag"/>
-                <file name = "5_2.vag" type = "data" source = "iso/music/eggnog/eggnog.vag"/>
-                <file name = "5_3.vag" type = "data" source = "iso/music/winter-horrorland/winter-horrorland.vag"/>
-
-                <file name = "6_1.vag" type = "data" source = "iso/music/senpai/senpai.vag"/>
-                <file name = "6_2.vag" type = "data" source = "iso/music/roses/roses.vag"/>
-                <file name = "6_3.vag" type = "data" source = "iso/music/thorns/thorns.vag"/>
+                <file name = "menu.xa" type = "xa" source = "iso/music/menu.xa"/>
+                <dummy sectors="128"/>
+                <file name = "week1a.xa" type = "xa" source = "iso/music/week1a.xa"/>
+                <dummy sectors="128"/>
+                <file name = "week1b.xa" type = "xa" source = "iso/music/week1b.xa"/>
+                <dummy sectors="128"/>
+                <file name = "week2a.xa" type = "xa" source = "iso/music/week2a.xa"/>
+                <dummy sectors="128"/>
+                <file name = "week2b.xa" type = "xa" source = "iso/music/week2b.xa"/>
+                <dummy sectors="128"/>
+                <file name = "week3a.xa" type = "xa" source = "iso/music/week3a.xa"/>
+                <dummy sectors="128"/>
+                <file name = "week3b.xa" type = "xa" source = "iso/music/week3b.xa"/>
+                <dummy sectors="128"/>
+                <file name = "week4a.xa" type = "xa" source = "iso/music/week4a.xa"/>
+                <dummy sectors="128"/>
+                <file name = "week4b.xa" type = "xa" source = "iso/music/week4b.xa"/>
+                <dummy sectors="128"/>
+                <file name = "week5a.xa" type = "xa" source = "iso/music/week5a.xa"/>
+                <dummy sectors="128"/>
+                <file name = "week5b.xa" type = "xa" source = "iso/music/week5b.xa"/>
+                <dummy sectors="128"/>
+                <file name = "week6a.xa" type = "xa" source = "iso/music/week6a.xa"/>
+                <dummy sectors="128"/>
+                <file name = "week6b.xa" type = "xa" source = "iso/music/week6b.xa"/>
+                <dummy sectors="128"/>
             </dir>
         
             <!-- Videos -->

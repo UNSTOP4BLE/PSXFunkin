@@ -76,7 +76,8 @@ int main(int argc, char **argv)
 
         //Prepare frame
         Timer_CalcDT();
-        Audio_FeedStream();
+        Audio_ProcessXA();
+//        Audio_FeedStream();
         Pad_Update();
 
         //Tick and draw game

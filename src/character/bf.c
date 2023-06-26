@@ -432,6 +432,8 @@ Character *Char_BF_New(fixed_t x, fixed_t y)
     this->character.focus_y = (stage.stage_id == StageId_1_4) ? FIXED_DEC(-85,1) : FIXED_DEC(-65,1);
     this->character.focus_zoom = FIXED_DEC(1,1);
     
+    this->character.health_i = 0;
+    
     //Load art
     if (stage.stage_id >= StageId_5_1 && stage.stage_id <= StageId_5_3)
     {
@@ -458,7 +460,7 @@ Character *Char_BF_New(fixed_t x, fixed_t y)
     {
         this->arc_main = IO_Read("\\CHAR\\BF.ARC;1");
         this->arc_dead = NULL;
-        IO_FindFile(&this->file_dead_arc, "\\CHAR\\BFDEAD.ARC;1");
+        //IO_FindFile(&this->file_dead_arc, "\\CHAR\\BFDEAD.ARC;1");
         
         const char **pathp = (const char *[]){
             "bf0.tim",   //BF_ArcMain_BF0

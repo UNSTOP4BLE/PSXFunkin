@@ -26,8 +26,8 @@ void IO_FindFile(CdlFILE *file, const char *path)
 {
     printf("[IO_FindFile] Searching for %s\n", path);
     
-    //Stop VAG playback
-    Audio_StopStream();
+    //Stop XA playback
+    Audio_StopXA();
     
     //Search for file
     if (!CdSearchFile(file, (char*)path))
@@ -47,8 +47,8 @@ IO_Data IO_ReadFile(CdlFILE *file)
 
 IO_Data IO_AsyncReadFile(CdlFILE *file)
 {
-    //Stop VAG playback
-    Audio_StopStream();
+    //Stop XA playback
+    Audio_StopXA();
     
     //Get number of sectors for the file
     size_t sects = (file->size + IO_SECT_SIZE - 1) / IO_SECT_SIZE;

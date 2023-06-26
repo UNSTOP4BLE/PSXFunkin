@@ -25,7 +25,7 @@ void PausedState()
         switch (pause_select)
         {
             case 0: //Resume
-                Audio_StartStream(true);
+                Audio_ResumeXA();
                 stage.paused = false;
                 pause_select = 0;
                 break;

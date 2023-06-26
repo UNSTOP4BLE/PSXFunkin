@@ -25,7 +25,8 @@
 #define INPUT_RIGHT (PAD_RIGHT | PAD_CIRCLE | PAD_R2)
 
 #define STAGE_FLAG_JUST_STEP     (1 << 0) //Song just stepped this frame
-#define STAGE_FLAG_SCORE_REFRESH (1 << 1) //Score text should be refreshed
+#define STAGE_FLAG_VOCAL_ACTIVE  (1 << 1) //Song's vocal track is currently active
+#define STAGE_FLAG_SCORE_REFRESH (1 << 2) //Score text should be refreshed
 
 #define STAGE_LOAD_PLAYER     (1 << 0) //Reload player character
 #define STAGE_LOAD_PLAYER2    (1 << 1) //Reload player character
@@ -65,15 +66,11 @@ typedef enum
     StageId_6_1, //Senpai
     StageId_6_2, //Roses
     StageId_6_3, //Thorns
-
-    StageId_7_1, //Ugh
-    StageId_7_2, //Guns
-    StageId_7_3, //Stress
     
     StageId_Max
 } StageId;
 
-#define StageId_LastVanilla StageId_7_3
+#define StageId_LastVanilla StageId_6_3
 
 typedef enum
 {
@@ -123,8 +120,8 @@ typedef struct
     
     //Song info
     uint8_t week, week_song;
-    const char *vag_path;
-
+    uint8_t music_track, music_channel;
+    
     StageId next_stage;
     uint8_t next_load;
 } StageDef;
@@ -187,9 +184,8 @@ typedef struct
 
     //Stage settings
     int pause_state;
-    fixed_t pause_scroll;
     bool str_playing;
-    
+    fixed_t pause_scroll;
     struct
     {
         bool ghost, downscroll, middlescroll, practice, debug, palmode, widescreen, stereo, sfxmiss, songtimer, botplay;

@@ -297,8 +297,8 @@ void Menu_Load(MenuPage page)
     Sounds[2] = Audio_LoadSound("\\SOUNDS\\CANCEL.VAG;1");
 
     //Play menu music
-    Audio_LoadStream("\\MUSIC\\FREAKY.VAG;1", true);
-    Audio_StartStream(false);
+    Audio_PlayXA_Track(XA_GettinFreaky, 0x40, 0, 1);
+    Audio_ResumeXA();
     
     //Set background colour
     Gfx_SetClear(0, 0, 0);
@@ -325,9 +325,9 @@ void Menu_HandleSTR()
 {
     switch (menu.page_param.stage.id)
     {
-        case StageId_7_1:
-            STR_StartStream("\\STR\\UGH.STR;1");
-            break;
+      //  case StageId_7_1:
+        //    STR_StartStream("\\STR\\UGH.STR;1");
+          //  break;
     }
     strdone = false;
 }
@@ -337,7 +337,7 @@ void Menu_Tick(void)
     stage.flag &= ~STAGE_FLAG_JUST_STEP;
     
     //Get song position
-    int next_step = (int)Audio_GetTimeMS() / 147;
+    int next_step = (int)Audio_TellXA_Milli() / 147;
     if (next_step != stage.song_step)
     {
         if (next_step >= stage.song_step)
@@ -655,7 +655,7 @@ void Menu_Tick(void)
                 {"4", StageId_4_1, "MOMMY MUST MURDER", {"SATIN PANTIES", "HIGH", "MILF"}, 3},
                 {"5", StageId_5_1, "RED SNOW", {"COCOA", "EGGNOG", "WINTER HORRORLAND"}, 3},
                 {"6", StageId_6_1, "HATING SIMULATOR", {"SENPAI", "ROSES", "THORNS"}, 3},
-                {"6", StageId_7_1, "HATING SIMULATOR", {"SENPAI", "ROSES", "THORNS"}, 3},
+ //               {"6", StageId_7_1, "HATING SIMULATOR", {"SENPAI", "ROSES", "THORNS"}, 3},
             };
     
             //Draw week name and tracks
@@ -1220,14 +1220,14 @@ void Menu_Tick(void)
         }
         case MenuPage_Stage:
         {
-            if (strdone == false && menu.page_param.stage.id ==
-               StageId_7_1)
-            {
-                Audio_StopStream();
-                Menu_HandleSTR();
-                menu.page = MenuPage_STR;
-                break;
-            }
+    //        if (strdone == false && menu.page_param.stage.id ==
+      //         StageId_7_1)
+       //     {
+         //       Audio_StopStream();
+           //     Menu_HandleSTR();
+          //      menu.page = MenuPage_STR;
+           //     break;
+            //}
             //Unload menu state
             Menu_Unload();
             //Load new stage
