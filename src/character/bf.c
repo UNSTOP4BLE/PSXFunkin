@@ -12,7 +12,7 @@
 #include "../random.h"
 #include "../main.h"
 
-int secret;
+//int secret;
 
 //Boyfriend skull fragments
 static SkullFragment char_bf_skull[15] = {
@@ -176,11 +176,12 @@ void Char_BF_SetFrame(void *user, uint8_t frame)
     //Check if this is a new frame
     if (frame != this->frame)
     {
-        //Check if new art shall be loaded
-        const CharFrame *cframe = &char_bf_frame[this->frame = frame];
-        if (cframe->tex != this->tex_id)
-            Gfx_LoadTex(&this->tex, this->arc_ptr[this->tex_id = cframe->tex], 0);
+    //    //Check if new art shall be loaded
+      //  const CharFrame *cframe = &char_bf_frame[this->frame = frame];
+        //if (cframe->tex != this->tex_id)
+          //  Gfx_LoadTex(&this->tex, this->arc_ptr[this->tex_id = cframe->tex], 0);
     }
+
 }
 
 void Char_BF_Tick(Character *character)
@@ -188,16 +189,16 @@ void Char_BF_Tick(Character *character)
     Char_BF *this = (Char_BF*)character;
     
     //Secret icon
-    if (secret)
-        this->character.health_i = 3;
-    else
-        this->character.health_i = 0;
+    //if (secret)
+     //   this->character.health_i = 3;
+    //else
+   //     this->character.health_i = 0;
 
-    if (pad_state.press & PAD_SELECT && stage.prefs.debug == 0)
-        secret ++;
+    //if (pad_state.press & PAD_SELECT && stage.prefs.debug == 0)
+    //    secret ++;
     
-    if (secret == 2)
-        secret = 0;
+   // if (secret == 2)
+    //    secret = 0;
     //Handle animation updates
     if ((character->pad_held & (INPUT_LEFT | INPUT_DOWN | INPUT_UP | INPUT_RIGHT)) == 0 ||
         (character->animatable.anim != CharAnim_Left &&
