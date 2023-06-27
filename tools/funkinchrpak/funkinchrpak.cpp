@@ -71,7 +71,14 @@ int main(int argc, char *argv[])
     json j;
     i >> j;
 
+    Character new_char;
 
+    new_char.x = 0;
+    new_char.y = 0;
+
+    new_char.spec = j["spec"];
+    new_char.health_i = j["health_i"];
+    new_char.health_bar = atoi(j["health_bar"]);
 
     return 0;
 }

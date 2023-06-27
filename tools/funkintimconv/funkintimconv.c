@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
     length /= 2;
     if ((length >= DMA_CHUNK_LENGTH) && (length % DMA_CHUNK_LENGTH))
     {
-        printf("image isnt rounded to 64 bytes\n", inpath);
+        printf("image isnt rounded to 64 bytes, please run TimFixup.py\n", inpath);
         return 1;
     }
 
