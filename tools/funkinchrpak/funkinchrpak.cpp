@@ -39,8 +39,21 @@ struct CharFrame
     int16_t off[2];
 };
 
+std::vector<std::string> charAnim{
+    "CharAnim_Idle",
+    "CharAnim_Left",  "CharAnim_LeftAlt",
+    "CharAnim_Down",  "CharAnim_DownAlt",
+    "CharAnim_Up",    "CharAnim_UpAlt",
+    "CharAnim_Right", "CharAnim_RightAlt",
+};
+
 struct Character
 {
+    int32_t size_struct;
+    int32_t size_frames;
+    int32_t size_animation;
+    int32_t sizes_scripts[9]; // size of charAnim vector
+
     //Character functions
     void (*tick)(struct Character*);
     void (*set_anim)(struct Character*, uint8_t);
@@ -56,20 +69,13 @@ struct Character
     fixed_t focus_x, focus_y, focus_zoom;
     
     //Animation state
+    CharFrame *frames;
     Animatable animatable;
     fixed_t sing_end;
     uint16_t pad_held;
 };
-
+//TODO IMPLEMENT SCRIPTS INTO THE CHARACTER FILE
 std::vector<std::string> charStruct;
-
-std::vector<std::string> charAnim{
-    "CharAnim_Idle",
-    "CharAnim_Left",  "CharAnim_LeftAlt",
-    "CharAnim_Down",  "CharAnim_DownAlt",
-    "CharAnim_Up",    "CharAnim_UpAlt",
-    "CharAnim_Right", "CharAnim_RightAlt",
-};
 
 int getEnumFromString(std::vector<std::string> &compare, std::string str) {
     for (int i = 0; i < compare.size(); i++)
@@ -83,7 +89,7 @@ int main(int argc, char *argv[])
 {
     if (argc < 3)
     {
-        std::cout << "usage: funkinchrpak out_bin in_json" << std::endl;
+        std::cout << "usage: funkinchrpak out_chr in_json" << std::endl;
         return 0;
     }
     
@@ -111,20 +117,25 @@ int main(int argc, char *argv[])
     std::string health_bar_str = j["health_bar"];
     new_char.health_bar = atoi(health_bar_str.c_str());
     new_char.focus_x = new_char.focus_y = new_char.focus_zoom = 0;
+
     //parse animation
     for (int i = 0; i < j["struct"].size(); i++) 
         charStruct.push_back(j["struct"][i]);
 
+    new_char.size_struct = j["struct"].size();
     CharFrame frames[j["frames"].size()];
+    new_char.size_frames = j["frames"].size();
     //parse frames
     for (int i = 0; i < j["frames"].size(); i++) {
         std::string texstr = j["frames"][i][0];
         frames[i].tex = getEnumFromString(charStruct, j["frames"][i][0]);
-        for (int itwo = 0; itwo < 4; itwo++)
-            frames[i].src[itwo] = j["frames"][i][1][itwo];
+        for (int i2 = 0; i2 < 4; i2++)
+            frames[i].src[i2] = j["frames"][i][1][i2];
         frames[i].off[0] = j["frames"][i][2][0];
         frames[i].off[1] = j["frames"][i][2][1];
     }
+
+    new_char.frames = frames;
 
     new_char.sing_end = 0;
     new_char.pad_held = 0;
@@ -139,9 +150,13 @@ int main(int argc, char *argv[])
 
     Animation anims[j["animation"].size()];     
     std::vector<std::vector<uint16_t>> scripts;
+    new_char.size_animation = j["animation"].size();
+
     for (int i = 0; i < j["animation"].size(); i++) {
         scripts.resize(j["animation"].size());
         scripts[i].resize(j["animation"][i][1].size());
+        new_char.sizes_scripts[i] = j["animation"][i][1].size();
+
         anims[i].spd = j["animation"][i][0];
 
         for (int i2 = 0; i2 < j["animation"][i][1].size(); i2++) {
@@ -177,6 +192,12 @@ int main(int argc, char *argv[])
         }
     }
 
+    new_char.animatable.anims = anims;
+
+    std::ofstream binFile(argv[1], std::ostream::binary);
+    binFile.write(reinterpret_cast<const char*>(&new_char), sizeof(new_char));
+    binFile.close();   
+/*
     //print header
     std::cout << "spec " << static_cast<unsigned int>(new_char.spec) << std::endl;
     std::cout << "icon " << static_cast<unsigned int>(new_char.health_i) << std::endl;
@@ -198,6 +219,6 @@ int main(int argc, char *argv[])
             std::cout << " " << scripts[i][i2];
         std::cout << std::endl;
     }
-
+*/
     return 0;
 }
