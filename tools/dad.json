@@ -1,0 +1,46 @@
+{
+    "spec": 0,
+    "health_i": 1,
+    "health_bar": "0xFFAD63D6",
+    "camfocus": [0, 0, 1],
+
+    "struct": [
+        "Dad_ArcMain_Idle0",
+        "Dad_ArcMain_Idle1",
+        "Dad_ArcMain_Left",
+        "Dad_ArcMain_Down",
+        "Dad_ArcMain_Up",
+        "Dad_ArcMain_Right"
+    ],
+
+    "frames": [
+        ["Dad_ArcMain_Idle0", [  0,   0, 106, 192], [ 42, 187]], 
+        ["Dad_ArcMain_Idle0", [107,   0, 108, 190], [ 43, 185]], 
+        ["Dad_ArcMain_Idle1", [  0,   0, 107, 190], [ 42, 185]],
+        ["Dad_ArcMain_Idle1", [108,   0, 105, 192], [ 41, 187]],
+       
+        ["Dad_ArcMain_Left", [  0,   0,  93, 195], [ 40, 189]], 
+        ["Dad_ArcMain_Left", [ 94,   0,  95, 195], [ 40, 189]], 
+        
+        ["Dad_ArcMain_Down", [  0,   0, 118, 183], [ 43, 178]], 
+        ["Dad_ArcMain_Down", [119,   0, 117, 183], [ 43, 179]], 
+        
+        ["Dad_ArcMain_Up", [  0,   0, 102, 205], [ 40, 200]],
+        ["Dad_ArcMain_Up", [103,   0, 103, 203], [ 40, 198]], 
+        
+        ["Dad_ArcMain_Right", [  0,   0, 117, 199], [ 43, 193]], 
+        ["Dad_ArcMain_Right", [118,   0, 114, 199], [ 42, 193]] 
+    ],
+
+    "animation": [
+        [2, [ 1,  2,  3,  0, "ASCR_BACK", 1]], 
+        [2, [ 4,  5, "ASCR_BACK", 1]],         
+        [0, ["ASCR_CHGANI", "CharAnim_Idle"]],   
+        [2, [ 6,  7, "ASCR_BACK", 1]],        
+        [0, ["ASCR_CHGANI", "CharAnim_Idle"]],  
+        [2, [ 8,  9, "ASCR_BACK", 1]],      
+        [0, ["ASCR_CHGANI", "CharAnim_Idle"]],  
+        [2, [10, 11, "ASCR_BACK", 1]],         
+        [0, ["ASCR_CHGANI", "CharAnim_Idle"]]   
+    ]
+}

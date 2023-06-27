@@ -21,6 +21,10 @@ add_executable(funkinmultitool funkinmultitool/funkinmultitool.cpp)
 # funkintimconv
 add_executable(funkintimconv funkintimconv/funkintimconv.c)
 
+# funkinchrpak
+add_executable(funkinchrpak funkinchrpak/funkinchrpak.cpp)
+
+
 # funkinvagpak
 #add_executable(funkinvagpak 
 #   funkinvagpak/funkinvagpak.cpp
