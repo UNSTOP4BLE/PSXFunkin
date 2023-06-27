@@ -176,7 +176,13 @@ int main(int argc, char *argv[])
     }
     stbi_image_free(tex_data);
     
-    size_t length = tex_width * tex_height;
+    int dawidth = 0;
+    if (bpp == 8)
+        dawidth = tex_width / 2;
+    else if (bpp == 4)
+        dawidth = tex_width / 4;
+
+    size_t length = dawidth * tex_height;
     length /= 2;
     if ((length >= DMA_CHUNK_LENGTH) && (length % DMA_CHUNK_LENGTH))
     {
