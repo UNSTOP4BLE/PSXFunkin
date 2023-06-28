@@ -35,3 +35,4 @@ tools/build/
 
 # Big Chungus
 .DS_Store
+*.chr

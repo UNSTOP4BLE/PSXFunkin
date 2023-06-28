@@ -19,17 +19,7 @@ struct Animation
 {
     //Animation data and script
     uint8_t spd;
-    const uint8_t *script;
-};
-
-struct Animatable
-{
-    //Animation state
-    const Animation *anims;
-    const uint8_t *anim_p;
-    uint8_t anim;
-    fixed_t anim_time, anim_spd;
-    bool ended;
+    uint8_t script[255];
 };
 
 struct CharFrame
@@ -47,34 +37,20 @@ std::vector<std::string> charAnim{
     "CharAnim_Right", "CharAnim_RightAlt",
 };
 
-struct Character
+struct CharacterFileHeader
 {
     int32_t size_struct;
     int32_t size_frames;
     int32_t size_animation;
     int32_t sizes_scripts[9]; // size of charAnim vector
 
-    //Character functions
-    void (*tick)(struct Character*);
-    void (*set_anim)(struct Character*, uint8_t);
-    void (*free)(struct Character*);
-    
-    //Position
-    fixed_t x, y;
-    
     //Character information
     uint8_t spec;
     uint8_t health_i; //hud1.tim
     uint32_t health_bar; //hud1.tim
     fixed_t focus_x, focus_y, focus_zoom;
-    
-    //Animation state
-    CharFrame *frames;
-    Animatable animatable;
-    fixed_t sing_end;
-    uint16_t pad_held;
 };
-//TODO IMPLEMENT SCRIPTS INTO THE CHARACTER FILE
+
 std::vector<std::string> charStruct;
 
 int getEnumFromString(std::vector<std::string> &compare, std::string str) {
@@ -103,20 +79,15 @@ int main(int argc, char *argv[])
     json j;
     file >> j;
 
-    Character new_char;
-
-    new_char.tick = nullptr;
-    new_char.set_anim = nullptr;
-    new_char.free = nullptr;
-
-    new_char.x = 0;
-    new_char.y = 0;
+    CharacterFileHeader new_char;
 
     new_char.spec = j["spec"];
     new_char.health_i = j["health_i"];
     std::string health_bar_str = j["health_bar"];
-    new_char.health_bar = atoi(health_bar_str.c_str());
-    new_char.focus_x = new_char.focus_y = new_char.focus_zoom = 0;
+    new_char.health_bar = std::stoul(health_bar_str, nullptr, 16);
+    new_char.focus_x = j["focus"][0];
+    new_char.focus_y = j["focus"][1];
+    new_char.focus_zoom = j["focus"][2];
 
     //parse animation
     for (int i = 0; i < j["struct"].size(); i++) 
@@ -134,19 +105,6 @@ int main(int argc, char *argv[])
         frames[i].off[0] = j["frames"][i][2][0];
         frames[i].off[1] = j["frames"][i][2][1];
     }
-
-    new_char.frames = frames;
-
-    new_char.sing_end = 0;
-    new_char.pad_held = 0;
-
-    //parse animatable
-    new_char.animatable.anims = nullptr;
-    new_char.animatable.anim_p = nullptr;
-    new_char.animatable.anim = 0;
-    new_char.animatable.anim_time = 0;
-    new_char.animatable.anim_spd = 0;
-    new_char.animatable.ended = false;
 
     Animation anims[j["animation"].size()];     
     std::vector<std::vector<uint16_t>> scripts;
@@ -192,31 +150,51 @@ int main(int argc, char *argv[])
         }
     }
 
-    new_char.animatable.anims = anims;
+    //copy over the shit into the arrays 
+    Animation animations[charAnim.size()];
+    for (int i = 0; i < charAnim.size(); i++)
+    {
+        animations[i].spd = anims[i].spd;
+        for (int i2 = 0; i2 < 256; i2++)
+            animations[i].script[i2] = scripts[i][i2];
+    }
+
 
     std::ofstream binFile(argv[1], std::ostream::binary);
     binFile.write(reinterpret_cast<const char*>(&new_char), sizeof(new_char));
+    binFile.write(reinterpret_cast<const char*>(&animations), sizeof(animations));
+    binFile.write(reinterpret_cast<const char*>(&frames), sizeof(frames));
     binFile.close();   
 /*
+    //test reading
+    CharacterFileHeader testchar;
+    std::ifstream inFile(argv[1], std::istream::binary);
+    inFile.read(reinterpret_cast<char *>(&testchar), sizeof(testchar));
+    Animation animationstest[testchar.size_animation];
+    CharFrame framestest[testchar.size_frames];
+    inFile.read(reinterpret_cast<char *>(&animationstest), testchar.size_animation * sizeof(Animation));
+    inFile.read(reinterpret_cast<char *>(&framestest), testchar.size_frames * sizeof(CharFrame));
+    inFile.close();   
+
     //print header
-    std::cout << "spec " << static_cast<unsigned int>(new_char.spec) << std::endl;
-    std::cout << "icon " << static_cast<unsigned int>(new_char.health_i) << std::endl;
-    std::cout << "healthbar " << static_cast<unsigned int>(new_char.health_bar) << std::endl;
-    std::cout << "cx " << new_char.focus_x << std::endl;
-    std::cout << "cy " << new_char.focus_y << std::endl;
-    std::cout << "cz " << new_char.focus_zoom << std::endl;
+    std::cout << "spec " << static_cast<unsigned int>(testchar.spec) << std::endl;
+    std::cout << "icon " << static_cast<unsigned int>(testchar.health_i) << std::endl;
+    std::cout << "healthbar " << static_cast<unsigned int>(testchar.health_bar) << std::endl;
+    std::cout << "cx " << testchar.focus_x << std::endl;
+    std::cout << "cy " << testchar.focus_y << std::endl;
+    std::cout << "cz " << testchar.focus_zoom << std::endl;
 
     //print frames array
-    for (int i = 0; i < j["frames"].size(); ++i)
+    for (int i = 0; i < testchar.size_frames; ++i)
     {
-        std::cout << "tex " << static_cast<unsigned int>(frames[i].tex) << " frames " << frames[i].src[0] << " " << frames[i].src[1]  << " " << frames[i].src[2]  <<" " << frames[i].src[3] <<" offset " << frames[i].off[0]  << " " << frames[i].off[1]  <<" " <<  std::endl;
+        std::cout << "tex " << static_cast<unsigned int>(framestest[i].tex) << " frames " << framestest[i].src[0] << " " << framestest[i].src[1]  << " " << framestest[i].src[2]  <<" " << framestest[i].src[3] <<" offset " << framestest[i].off[0]  << " " << framestest[i].off[1]  <<" " <<  std::endl;
     }   
 
     //print script arrays
-    for (int i = 0; i < scripts.size(); i++) {
-        std::cout << "speed " << static_cast<unsigned int>(anims[i].spd) << " frames";
-        for (int i2 = 0; i2 < scripts[i].size(); i2 ++)
-            std::cout << " " << scripts[i][i2];
+    for (int i = 0; i < testchar.size_animation; i++) {
+        std::cout << "speed " << static_cast<unsigned int>(animationstest[i].spd) << " frames";
+        for (int i2 = 0; i2 < testchar.sizes_scripts[i]; i2 ++)
+            std::cout << " " << static_cast<unsigned int>(animationstest[i].script[i2]);
         std::cout << std::endl;
     }
 */
