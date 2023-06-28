@@ -13,7 +13,7 @@
 void Animatable_Init(Animatable *this, const Animation *anims)
 {
     //Use given anims array
-    this->anims = anims;
+    this->anims = (Animation *)anims;
 }
 
 void Animatable_SetAnim(Animatable *this, uint8_t anim)

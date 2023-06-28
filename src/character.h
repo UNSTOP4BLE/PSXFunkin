@@ -17,18 +17,6 @@
 typedef uint8_t CharSpec;
 #define CHAR_SPEC_MISSANIM (1 << 0) //Has miss animations
 
-//Character enums
-typedef enum
-{
-    CharAnim_Idle,
-    CharAnim_Left,  CharAnim_LeftAlt,
-    CharAnim_Down,  CharAnim_DownAlt,
-    CharAnim_Up,    CharAnim_UpAlt,
-    CharAnim_Right, CharAnim_RightAlt,
-    
-    CharAnim_Max //Max standard/shared animation
-} CharAnim;
-
 //Character structures
 typedef struct
 {

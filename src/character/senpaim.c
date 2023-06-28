@@ -55,15 +55,15 @@ static const CharFrame char_senpaim_frame[] = {
 };
 
 static const Animation char_senpaim_anim[CharAnim_Max] = {
-    {2, (const uint8_t[]){ 0,  1,  2,  3,  4, ASCR_BACK, 1}}, //CharAnim_Idle
-    {2, (const uint8_t[]){ 5,  6, ASCR_BACK, 1}},             //CharAnim_Left
-    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_Idle}},       //CharAnim_LeftAlt
-    {2, (const uint8_t[]){ 7,  8, ASCR_BACK, 1}},             //CharAnim_Down
-    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_Idle}},       //CharAnim_DownAlt
-    {2, (const uint8_t[]){ 9, 10, ASCR_BACK, 1}},             //CharAnim_Up
-    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_Idle}},       //CharAnim_UpAlt
-    {2, (const uint8_t[]){11, 12, ASCR_BACK, 1}},             //CharAnim_Right
-    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_Idle}},       //CharAnim_RightAlt
+    {2, { 0,  1,  2,  3,  4, ASCR_BACK, 1}}, //CharAnim_Idle
+    {2, { 5,  6, ASCR_BACK, 1}},             //CharAnim_Left
+    {0, {ASCR_CHGANI, CharAnim_Idle}},       //CharAnim_LeftAlt
+    {2, { 7,  8, ASCR_BACK, 1}},             //CharAnim_Down
+    {0, {ASCR_CHGANI, CharAnim_Idle}},       //CharAnim_DownAlt
+    {2, { 9, 10, ASCR_BACK, 1}},             //CharAnim_Up
+    {0, {ASCR_CHGANI, CharAnim_Idle}},       //CharAnim_UpAlt
+    {2, {11, 12, ASCR_BACK, 1}},             //CharAnim_Right
+    {0, {ASCR_CHGANI, CharAnim_Idle}},       //CharAnim_RightAlt
 };
 
 //Dad character functions

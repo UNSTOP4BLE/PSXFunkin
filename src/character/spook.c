@@ -61,15 +61,15 @@ static const CharFrame char_spook_frame[] = {
 };
 
 static const Animation char_spook_anim[CharAnim_Max] = {
-    {2, (const uint8_t[]){ASCR_CHGANI, CharAnim_LeftAlt}}, //CharAnim_Idle
-    {2, (const uint8_t[]){ 6,  7, ASCR_BACK, 1}},          //CharAnim_Left
-    {2, (const uint8_t[]){ 0,  1,  2,  3, ASCR_BACK, 1}},  //CharAnim_LeftAlt
-    {2, (const uint8_t[]){ 8,  9, ASCR_BACK, 1}},          //CharAnim_Down
-    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_LeftAlt}}, //CharAnim_DownAlt
-    {2, (const uint8_t[]){10, 11, ASCR_BACK, 1}},          //CharAnim_Up
-    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_LeftAlt}}, //CharAnim_UpAlt
-    {2, (const uint8_t[]){12, 13, ASCR_BACK, 1}},          //CharAnim_Right
-    {2, (const uint8_t[]){ 4,  5,  2,  3, ASCR_BACK, 1}},  //CharAnim_RightAlt
+    {2, {ASCR_CHGANI, CharAnim_LeftAlt}}, //CharAnim_Idle
+    {2, { 6,  7, ASCR_BACK, 1}},          //CharAnim_Left
+    {2, { 0,  1,  2,  3, ASCR_BACK, 1}},  //CharAnim_LeftAlt
+    {2, { 8,  9, ASCR_BACK, 1}},          //CharAnim_Down
+    {0, {ASCR_CHGANI, CharAnim_LeftAlt}}, //CharAnim_DownAlt
+    {2, {10, 11, ASCR_BACK, 1}},          //CharAnim_Up
+    {0, {ASCR_CHGANI, CharAnim_LeftAlt}}, //CharAnim_UpAlt
+    {2, {12, 13, ASCR_BACK, 1}},          //CharAnim_Right
+    {2, { 4,  5,  2,  3, ASCR_BACK, 1}},  //CharAnim_RightAlt
 };
 
 //Spook character functions

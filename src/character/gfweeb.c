@@ -49,15 +49,15 @@ static const CharFrame char_gfweeb_frame[] = {
 };
 
 static const Animation char_gfweeb_anim[CharAnim_Max] = {
-    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_Left}},                           //CharAnim_Idle
-    {1, (const uint8_t[]){ 0,  0,  1,  1,  1,  2,  2,  2,  2,  3, ASCR_BACK, 1}}, //CharAnim_Left
-    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_Left}},                           //CharAnim_LeftAlt
-    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_Left}},                           //CharAnim_Down
-    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_Left}},                           //CharAnim_DownAlt
-    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_Left}},                           //CharAnim_Up
-    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_Left}},                           //CharAnim_UpAlt
-    {1, (const uint8_t[]){ 4,  4,  5,  5,  5,  6,  6,  6,  6,  7, ASCR_BACK, 1}}, //CharAnim_Right
-    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_Left}},                           //CharAnim_RightAlt
+    {0, {ASCR_CHGANI, CharAnim_Left}},                           //CharAnim_Idle
+    {1, { 0,  0,  1,  1,  1,  2,  2,  2,  2,  3, ASCR_BACK, 1}}, //CharAnim_Left
+    {0, {ASCR_CHGANI, CharAnim_Left}},                           //CharAnim_LeftAlt
+    {0, {ASCR_CHGANI, CharAnim_Left}},                           //CharAnim_Down
+    {0, {ASCR_CHGANI, CharAnim_Left}},                           //CharAnim_DownAlt
+    {0, {ASCR_CHGANI, CharAnim_Left}},                           //CharAnim_Up
+    {0, {ASCR_CHGANI, CharAnim_Left}},                           //CharAnim_UpAlt
+    {1, { 4,  4,  5,  5,  5,  6,  6,  6,  6,  7, ASCR_BACK, 1}}, //CharAnim_Right
+    {0, {ASCR_CHGANI, CharAnim_Left}},                           //CharAnim_RightAlt
 };
 
 //GF Weeb character functions

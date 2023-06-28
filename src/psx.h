@@ -33,7 +33,7 @@ extern char **my_argv;
 //Point type
 typedef struct
 {
-    int8_t x, y;
+    int16_t x, y;
 } POINT;
 
 //Common macros
