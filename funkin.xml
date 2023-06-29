@@ -173,44 +173,44 @@
             <!-- Character assets -->
             <dir name = "char">
                 <!-- Boyfriend assets -->
-                <file name = "bf.arc" type = "data" source = "iso/bf/main.arc"/>
-                <file name = "bfdead.arc" type = "data" source = "iso/bf/dead.arc"/>
-                <file name = "bfweeb.arc" type = "data" source = "iso/bf/weeb.arc"/>
+                <file name = "bf.arc" type = "data" source = "iso/characters/bf/main.arc"/>
+                <file name = "bfdead.arc" type = "data" source = "iso/characters/bf/dead.arc"/>
+                <file name = "bfweeb.arc" type = "data" source = "iso/characters/bf/weeb.arc"/>
                 
                 <!-- Dad assets -->
-                <file name = "dad.arc" type = "data" source = "iso/dad/main.arc"/>
-                <file name = "dad.chr" type = "data" source = "iso/dad/dad.chr"/>
+                <file name = "dad.arc" type = "data" source = "iso/characters/dad/main.arc"/>
+                <file name = "dad.chr" type = "data" source = "iso/characters/dad/dad.chr"/>
                 
                 <!-- Spook assets -->
-                <file name = "spook.arc" type = "data" source = "iso/spook/main.arc"/>
+                <file name = "spook.arc" type = "data" source = "iso/characters/spook/main.arc"/>
 
                 <!-- Monster assets -->
-                <file name = "monster.arc" type = "data" source = "iso/monster/main.arc"/>
+                <file name = "monster.arc" type = "data" source = "iso/characters/monster/main.arc"/>
                 
                 <!-- Pico assets -->
-                <file name = "pico.arc" type = "data" source = "iso/pico/main.arc"/>
+                <file name = "pico.arc" type = "data" source = "iso/characters/pico/main.arc"/>
                 
                 <!-- Mom assets -->
-                <file name = "mom.arc" type = "data" source = "iso/mom/main.arc"/>
-                <file name = "momhair.tim" type = "data" source = "iso/mom/hair.tim"/>
+                <file name = "mom.arc" type = "data" source = "iso/characters/mom/main.arc"/>
+                <file name = "momhair.tim" type = "data" source = "iso/characters/mom/hair.tim"/>
                 
                 <!-- Christmas assets -->
-                <file name = "xmasbf.arc" type = "data" source = "iso/bf/xmas.arc"/>
-                <file name = "xmasp.arc" type = "data" source = "iso/xmasp/main.arc"/>
-                <file name = "monsterx.arc" type = "data" source = "iso/monster/xmas.arc"/>
+                <file name = "xmasbf.arc" type = "data" source = "iso/characters/bf/xmas.arc"/>
+                <file name = "xmasp.arc" type = "data" source = "iso/characters/xmasp/main.arc"/>
+                <file name = "monsterx.arc" type = "data" source = "iso/characters/monster/xmas.arc"/>
                 
                 <!-- Senpai assets -->
-                <file name = "senpai.arc" type = "data" source = "iso/senpai/main.arc"/>
-                <file name = "senpaim.arc" type = "data" source = "iso/senpaim/main.arc"/>
-                <file name = "spirit.arc" type = "data" source = "iso/spirit/main.arc"/>
+                <file name = "senpai.arc" type = "data" source = "iso/characters/senpai/main.arc"/>
+                <file name = "senpaim.arc" type = "data" source = "iso/characters/senpaim/main.arc"/>
+                <file name = "spirit.arc" type = "data" source = "iso/characters/spirit/main.arc"/>
                 
                 <!-- Girlfriend assets -->
-                <file name = "gf.arc" type = "data" source = "iso/gf/main.arc"/>
-                <file name = "gftut.arc" type = "data" source = "iso/gf/tut.arc"/>
-                <file name = "gfweeb.arc" type = "data" source = "iso/gf/weeb.arc"/>
-                <file name = "gfx.arc" type = "data" source = "iso/gf/xmas.arc"/>
-                <file name = "speaker.tim" type = "data" source = "iso/gf/speaker.tim"/>
-                <file name = "speakerx.tim" type = "data" source = "iso/gf/speakerx.tim"/>
+                <file name = "gf.arc" type = "data" source = "iso/characters/gf/main.arc"/>
+                <file name = "gftut.arc" type = "data" source = "iso/characters/gf/tut.arc"/>
+                <file name = "gfweeb.arc" type = "data" source = "iso/characters/gf/weeb.arc"/>
+                <file name = "gfx.arc" type = "data" source = "iso/characters/gf/xmas.arc"/>
+                <file name = "speaker.tim" type = "data" source = "iso/characters/gf/speaker.tim"/>
+                <file name = "speakerx.tim" type = "data" source = "iso/characters/gf/speakerx.tim"/>
             </dir>
             
             <!-- Sound effects -->
