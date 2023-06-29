@@ -31,13 +31,13 @@ typedef struct
 {
     //Animation data and script
     uint8_t spd;
-    uint8_t script[256];
+    const uint8_t *script;
 } Animation;
 
 typedef struct
 {
     //Animation state
-    Animation *anims;
+    const Animation *anims;
     const uint8_t *anim_p;
     uint8_t anim;
     fixed_t anim_time, anim_spd;

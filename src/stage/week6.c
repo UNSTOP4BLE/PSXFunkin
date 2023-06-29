@@ -42,8 +42,8 @@ static const CharFrame freaks_frame[] = {
 };
 
 static const Animation freaks_anim[] = {
-    {2, {1, 0, 0, 3, ASCR_BACK, 1}},
-    {2, {2, 3, 3, 0, ASCR_BACK, 1}},
+    {2, (const uint8_t[]){1, 0, 0, 3, ASCR_BACK, 1}},
+    {2, (const uint8_t[]){2, 3, 3, 0, ASCR_BACK, 1}},
 };
 
 //Freaks functions

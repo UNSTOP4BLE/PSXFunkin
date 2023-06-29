@@ -82,15 +82,15 @@ static const CharFrame char_gf_frame[] = {
 };
 
 static const Animation char_gf_anim[CharAnim_Max] = {
-    {0, {ASCR_CHGANI, CharAnim_LeftAlt}},                        //CharAnim_Idle
-    {2, {17, 18, ASCR_BACK, 1}},                                 //CharAnim_Left
-    {1, { 0,  0,  1,  1,  2,  2,  3,  4,  4,  5, ASCR_BACK, 1}}, //CharAnim_LeftAlt
-    {2, {19, 20, ASCR_BACK, 1}},                                 //CharAnim_Down
-    {1, {12, 13, 14, 15, 16, ASCR_REPEAT}},                      //CharAnim_DownAlt
-    {2, {21, 22, ASCR_BACK, 1}},                                 //CharAnim_Up
-    {2, {25, 26, ASCR_BACK, 1}},                                 //CharAnim_UpAlt
-    {2, {23, 24, ASCR_BACK, 1}},                                 //CharAnim_Right
-    {1, { 6,  6,  7,  7,  8,  8,  9, 10, 10, 11, ASCR_BACK, 1}}, //CharAnim_RightAlt
+    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_LeftAlt}},                        //CharAnim_Idle
+    {2, (const uint8_t[]){17, 18, ASCR_BACK, 1}},                                 //CharAnim_Left
+    {1, (const uint8_t[]){ 0,  0,  1,  1,  2,  2,  3,  4,  4,  5, ASCR_BACK, 1}}, //CharAnim_LeftAlt
+    {2, (const uint8_t[]){19, 20, ASCR_BACK, 1}},                                 //CharAnim_Down
+    {1, (const uint8_t[]){12, 13, 14, 15, 16, ASCR_REPEAT}},                      //CharAnim_DownAlt
+    {2, (const uint8_t[]){21, 22, ASCR_BACK, 1}},                                 //CharAnim_Up
+    {2, (const uint8_t[]){25, 26, ASCR_BACK, 1}},                                 //CharAnim_UpAlt
+    {2, (const uint8_t[]){23, 24, ASCR_BACK, 1}},                                 //CharAnim_Right
+    {1, (const uint8_t[]){ 6,  6,  7,  7,  8,  8,  9, 10, 10, 11, ASCR_BACK, 1}}, //CharAnim_RightAlt
 };
 
 //GF character functions

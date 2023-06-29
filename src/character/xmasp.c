@@ -80,15 +80,15 @@ static const CharFrame char_xmasp_frame[] = {
 };
 
 static const Animation char_xmasp_anim[CharAnim_Max] = {
-    {2, { 0,  1,  2,  3, ASCR_BACK, 1}}, //CharAnim_Idle
-    {2, { 4,  5, ASCR_BACK, 1}},         //CharAnim_Left
-    {2, { 6,  7, ASCR_BACK, 1}},         //CharAnim_LeftAlt
-    {2, { 8,  9, ASCR_BACK, 1}},         //CharAnim_Down
-    {2, {10, 11, ASCR_BACK, 1}},         //CharAnim_DownAlt
-    {2, {12, 13, ASCR_BACK, 1}},         //CharAnim_Up
-    {2, {14, 15, ASCR_BACK, 1}},         //CharAnim_UpAlt
-    {2, {16, 17, ASCR_BACK, 1}},         //CharAnim_Right
-    {2, {18, 19, ASCR_BACK, 1}},         //CharAnim_RightAlt
+    {2, (const uint8_t[]){ 0,  1,  2,  3, ASCR_BACK, 1}}, //CharAnim_Idle
+    {2, (const uint8_t[]){ 4,  5, ASCR_BACK, 1}},         //CharAnim_Left
+    {2, (const uint8_t[]){ 6,  7, ASCR_BACK, 1}},         //CharAnim_LeftAlt
+    {2, (const uint8_t[]){ 8,  9, ASCR_BACK, 1}},         //CharAnim_Down
+    {2, (const uint8_t[]){10, 11, ASCR_BACK, 1}},         //CharAnim_DownAlt
+    {2, (const uint8_t[]){12, 13, ASCR_BACK, 1}},         //CharAnim_Up
+    {2, (const uint8_t[]){14, 15, ASCR_BACK, 1}},         //CharAnim_UpAlt
+    {2, (const uint8_t[]){16, 17, ASCR_BACK, 1}},         //CharAnim_Right
+    {2, (const uint8_t[]){18, 19, ASCR_BACK, 1}},         //CharAnim_RightAlt
 };
 
 //Christmas Parents functions

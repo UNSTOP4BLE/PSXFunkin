@@ -139,33 +139,33 @@ static const CharFrame char_bf_frame[] = {
 };
 
 static const Animation char_bf_anim[PlayerAnim_Max] = {
-    {2, { 0,  1,  2,  3,  4, ASCR_BACK, 1}}, //CharAnim_Idle
-    {2, { 5,  6, ASCR_BACK, 1}},             //CharAnim_Left
-    {0, {ASCR_CHGANI, CharAnim_Idle}},       //CharAnim_LeftAlt
-    {2, { 7,  8, ASCR_BACK, 1}},             //CharAnim_Down
-    {0, {ASCR_CHGANI, CharAnim_Idle}},       //CharAnim_DownAlt
-    {2, { 9, 10, ASCR_BACK, 1}},             //CharAnim_Up
-    {0, {ASCR_CHGANI, CharAnim_Idle}},       //CharAnim_UpAlt
-    {2, {11, 12, ASCR_BACK, 1}},             //CharAnim_Right
-    {0, {ASCR_CHGANI, CharAnim_Idle}},       //CharAnim_RightAlt
+    {2, (const uint8_t[]){ 0,  1,  2,  3,  4, ASCR_BACK, 1}}, //CharAnim_Idle
+    {2, (const uint8_t[]){ 5,  6, ASCR_BACK, 1}},             //CharAnim_Left
+    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_Idle}},       //CharAnim_LeftAlt
+    {2, (const uint8_t[]){ 7,  8, ASCR_BACK, 1}},             //CharAnim_Down
+    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_Idle}},       //CharAnim_DownAlt
+    {2, (const uint8_t[]){ 9, 10, ASCR_BACK, 1}},             //CharAnim_Up
+    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_Idle}},       //CharAnim_UpAlt
+    {2, (const uint8_t[]){11, 12, ASCR_BACK, 1}},             //CharAnim_Right
+    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_Idle}},       //CharAnim_RightAlt
     
-    {1, { 5, 20, 20, 21, ASCR_BACK, 1}},     //PlayerAnim_LeftMiss
-    {1, { 7, 22, 22, 23, ASCR_BACK, 1}},     //PlayerAnim_DownMiss
-    {1, { 9, 24, 24, 25, ASCR_BACK, 1}},     //PlayerAnim_UpMiss
-    {1, {11, 26, 26, 27, ASCR_BACK, 1}},     //PlayerAnim_RightMiss
+    {1, (const uint8_t[]){ 5, 20, 20, 21, ASCR_BACK, 1}},     //PlayerAnim_LeftMiss
+    {1, (const uint8_t[]){ 7, 22, 22, 23, ASCR_BACK, 1}},     //PlayerAnim_DownMiss
+    {1, (const uint8_t[]){ 9, 24, 24, 25, ASCR_BACK, 1}},     //PlayerAnim_UpMiss
+    {1, (const uint8_t[]){11, 26, 26, 27, ASCR_BACK, 1}},     //PlayerAnim_RightMiss
     
-    {2, {13, 14, 15, ASCR_BACK, 1}},         //PlayerAnim_Peace
-    {2, {16, 17, 18, 19, ASCR_REPEAT}},      //PlayerAnim_Sweat
+    {2, (const uint8_t[]){13, 14, 15, ASCR_BACK, 1}},         //PlayerAnim_Peace
+    {2, (const uint8_t[]){16, 17, 18, 19, ASCR_REPEAT}},      //PlayerAnim_Sweat
     
-    {5, {28, 29, 30, 31, 31, 31, 31, 31, 31, 31, ASCR_CHGANI, PlayerAnim_Dead1}}, //PlayerAnim_Dead0
-    {5, {31, ASCR_REPEAT}},                                                       //PlayerAnim_Dead1
-    {3, {32, 33, 34, 35, 35, 35, 35, 35, 35, 35, ASCR_CHGANI, PlayerAnim_Dead3}}, //PlayerAnim_Dead2
-    {3, {35, ASCR_REPEAT}},                                                       //PlayerAnim_Dead3
-    {3, {36, 37, 35, 35, 35, 35, 35, ASCR_CHGANI, PlayerAnim_Dead3}},             //PlayerAnim_Dead4
-    {3, {38, 39, 35, 35, 35, 35, 35, ASCR_CHGANI, PlayerAnim_Dead3}},             //PlayerAnim_Dead5
+    {5, (const uint8_t[]){28, 29, 30, 31, 31, 31, 31, 31, 31, 31, ASCR_CHGANI, PlayerAnim_Dead1}}, //PlayerAnim_Dead0
+    {5, (const uint8_t[]){31, ASCR_REPEAT}},                                                       //PlayerAnim_Dead1
+    {3, (const uint8_t[]){32, 33, 34, 35, 35, 35, 35, 35, 35, 35, ASCR_CHGANI, PlayerAnim_Dead3}}, //PlayerAnim_Dead2
+    {3, (const uint8_t[]){35, ASCR_REPEAT}},                                                       //PlayerAnim_Dead3
+    {3, (const uint8_t[]){36, 37, 35, 35, 35, 35, 35, ASCR_CHGANI, PlayerAnim_Dead3}},             //PlayerAnim_Dead4
+    {3, (const uint8_t[]){38, 39, 35, 35, 35, 35, 35, ASCR_CHGANI, PlayerAnim_Dead3}},             //PlayerAnim_Dead5
     
-    {10, {35, 35, 35, ASCR_BACK, 1}}, //PlayerAnim_Dead4
-    { 3, {38, 39, 35, ASCR_REPEAT}},  //PlayerAnim_Dead5
+    {10, (const uint8_t[]){35, 35, 35, ASCR_BACK, 1}}, //PlayerAnim_Dead4
+    { 3, (const uint8_t[]){38, 39, 35, ASCR_REPEAT}},  //PlayerAnim_Dead5
 };
 
 //Boyfriend player functions

@@ -267,8 +267,10 @@ int32_t Audio_TellXA_Sector(void)
 }
 
 int32_t Audio_TellXA_Milli(void)
-{
-    return ((int32_t)xa_pos - (int32_t)xa_start) * 1000 / 75; //1000 / (75 * speed (1x))
+{  
+    int pos = XA_TellSector();
+    if (pos != -1)  
+        return ((int32_t)pos - (int32_t)xa_start) * 1000 / 75; //1000 / (75 * speed (1x))
 }
 
 bool Audio_PlayingXA(void)

@@ -58,15 +58,15 @@ static const CharFrame char_monster_frame[] = {
 };
 
 static const Animation char_monster_anim[CharAnim_Max] = {
-    {2, { 0, 1, 2, 3, ASCR_BACK, 0}}, //CharAnim_Idle
-    {2, { 4,  5, ASCR_BACK, 0}},         //CharAnim_Left
-    {0, {ASCR_CHGANI, CharAnim_Idle}},   //CharAnim_LeftAlt
-    {2, { 6,  7, ASCR_BACK, 0}},         //CharAnim_Down
-    {0, {ASCR_CHGANI, CharAnim_Idle}},   //CharAnim_DownAlt
-    {2, { 8,  9, ASCR_BACK, 0}},         //CharAnim_Up
-    {0, {ASCR_CHGANI, CharAnim_Idle}},   //CharAnim_UpAlt
-    {2, {10, 11, ASCR_BACK, 0}},         //CharAnim_Right
-    {0, {ASCR_CHGANI, CharAnim_Idle}},   //CharAnim_RightAlt
+    {2, (const uint8_t[]){ 0, 1, 2, 3, ASCR_BACK, 0}}, //CharAnim_Idle
+    {2, (const uint8_t[]){ 4,  5, ASCR_BACK, 0}},         //CharAnim_Left
+    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_Idle}},   //CharAnim_LeftAlt
+    {2, (const uint8_t[]){ 6,  7, ASCR_BACK, 0}},         //CharAnim_Down
+    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_Idle}},   //CharAnim_DownAlt
+    {2, (const uint8_t[]){ 8,  9, ASCR_BACK, 0}},         //CharAnim_Up
+    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_Idle}},   //CharAnim_UpAlt
+    {2, (const uint8_t[]){10, 11, ASCR_BACK, 0}},         //CharAnim_Right
+    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_Idle}},   //CharAnim_RightAlt
 };
 
 //Monster character functions
