@@ -21,6 +21,7 @@ void Character_FromFile(Character *this, const char *path)
     offset += sizeof(CharacterFileHeader);
     this->animatable.anims = (const Animation *)(offset + this->file); 
     offset += sizeof(Animation) * tmphdr->size_animation;
+    printf("%d size\n", sizeof(Animation));
     this->frames = (const CharFrame *)(offset + this->file);
 
 /*

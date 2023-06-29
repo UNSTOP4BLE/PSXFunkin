@@ -29,9 +29,9 @@ typedef enum
 } CharAnim;
 
 //Character structures
-typedef struct
+typedef struct CharFrame
 {
-    uint8_t tex;
+    uint16_t tex;
     uint16_t src[4];
     int16_t off[2];
 } CharFrame;
@@ -68,8 +68,8 @@ typedef struct CharacterFileHeader
     int32_t sizes_scripts[9]; // size of charAnim vector
 
     //Character information
-    uint8_t spec;
-    uint8_t health_i; //hud1.tim
+    uint16_t spec;
+    uint16_t health_i; //hud1.tim
     uint32_t health_bar; //hud1.tim
     fixed_t focus_x, focus_y, focus_zoom;
 } CharacterFileHeader;

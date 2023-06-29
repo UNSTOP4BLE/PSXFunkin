@@ -64,15 +64,15 @@ static const CharFrame char_spirit_frame[] = {
 };
 
 static const Animation char_spirit_anim[CharAnim_Max] = {
-    {1, (const uint8_t[]){ 0,  0,  1,  1,  2,  2,  3,  3, ASCR_REPEAT}}, //CharAnim_Idle
-    {1, (const uint8_t[]){ 4,  4,  5,  5,  6,  6, ASCR_BACK, 4}},        //CharAnim_Left
-    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_Idle}},                  //CharAnim_LeftAlt
-    {1, (const uint8_t[]){ 7,  8,  8,  9,  9, ASCR_BACK, 4}},            //CharAnim_Down
-    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_Idle}},                  //CharAnim_DownAlt
-    {1, (const uint8_t[]){10, 11, 11, 12, 12, ASCR_BACK, 4}},            //CharAnim_Up
-    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_Idle}},                  //CharAnim_UpAlt
-    {1, (const uint8_t[]){13, 14, 14, 15, 15, ASCR_BACK, 4}},            //CharAnim_Right
-    {0, (const uint8_t[]){ASCR_CHGANI, CharAnim_Idle}},                  //CharAnim_RightAlt
+    {1, { 0,  0,  1,  1,  2,  2,  3,  3, ASCR_REPEAT}}, //CharAnim_Idle
+    {1, { 4,  4,  5,  5,  6,  6, ASCR_BACK, 4}},        //CharAnim_Left
+    {0, {ASCR_CHGANI, CharAnim_Idle}},                  //CharAnim_LeftAlt
+    {1, { 7,  8,  8,  9,  9, ASCR_BACK, 4}},            //CharAnim_Down
+    {0, {ASCR_CHGANI, CharAnim_Idle}},                  //CharAnim_DownAlt
+    {1, {10, 11, 11, 12, 12, ASCR_BACK, 4}},            //CharAnim_Up
+    {0, {ASCR_CHGANI, CharAnim_Idle}},                  //CharAnim_UpAlt
+    {1, {13, 14, 14, 15, 15, ASCR_BACK, 4}},            //CharAnim_Right
+    {0, {ASCR_CHGANI, CharAnim_Idle}},                  //CharAnim_RightAlt
 };
 
 //Dad character functions
