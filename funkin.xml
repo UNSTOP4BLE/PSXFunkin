@@ -179,6 +179,7 @@
                 
                 <!-- Dad assets -->
                 <file name = "dad.arc" type = "data" source = "iso/dad/main.arc"/>
+                <file name = "dad.chr" type = "data" source = "iso/dad/dad.chr"/>
                 
                 <!-- Spook assets -->
                 <file name = "spook.arc" type = "data" source = "iso/spook/main.arc"/>

@@ -17,6 +17,17 @@
 typedef uint8_t CharSpec;
 #define CHAR_SPEC_MISSANIM (1 << 0) //Has miss animations
 
+typedef enum
+{
+    CharAnim_Idle,
+    CharAnim_Left,  CharAnim_LeftAlt,
+    CharAnim_Down,  CharAnim_DownAlt,
+    CharAnim_Up,    CharAnim_UpAlt,
+    CharAnim_Right, CharAnim_RightAlt,
+    
+    CharAnim_Max //Max standard/shared animation
+} CharAnim;
+
 //Character structures
 typedef struct
 {
@@ -42,12 +53,29 @@ typedef struct Character
     fixed_t focus_x, focus_y, focus_zoom;
     
     //Animation state
+    const CharFrame *frames;
     Animatable animatable;
     fixed_t sing_end;
     uint16_t pad_held;
+    uint32_t *file;
 } Character;
 
+typedef struct CharacterFileHeader
+{
+    int32_t size_struct;
+    int32_t size_frames;
+    int32_t size_animation;
+    int32_t sizes_scripts[9]; // size of charAnim vector
+
+    //Character information
+    uint8_t spec;
+    uint8_t health_i; //hud1.tim
+    uint32_t health_bar; //hud1.tim
+    fixed_t focus_x, focus_y, focus_zoom;
+} CharacterFileHeader;
+
 //Character functions
+void Character_FromFile(Character *this, const char *path);
 void Character_Free(Character *this);
 void Character_Init(Character *this, fixed_t x, fixed_t y);
 void Character_DrawParallax(Character *this, Gfx_Tex *tex, const CharFrame *cframe, fixed_t parallax);

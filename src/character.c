@@ -12,7 +12,44 @@
 //Character functions
 void Character_FromFile(Character *this, const char *path)
 {
-    uint32_t *file = IO_Read(path);
+    int offset = 0;
+
+    if (this->file != NULL)
+        free(this->file);
+    this->file = IO_Read(path);
+    CharacterFileHeader *tmphdr = (CharacterFileHeader *)this->file;
+    offset += sizeof(CharacterFileHeader);
+    this->animatable.anims = (const Animation *)(offset + this->file); 
+    offset += sizeof(Animation) * tmphdr->size_animation;
+    this->frames = (const CharFrame *)(offset + this->file);
+
+/*
+    printf("struct %d, \n", tmphdr->size_struct);
+    printf("frames %d, \n", tmphdr->size_frames);
+    printf("animation %d, \n", tmphdr->size_animation);
+    
+    printf("scripts %d %d %d %d %d %d %d %d %d, \n", tmphdr->sizes_scripts[0], tmphdr->sizes_scripts[1], tmphdr->sizes_scripts[2], tmphdr->sizes_scripts[3], tmphdr->sizes_scripts[4], tmphdr->sizes_scripts[5], tmphdr->sizes_scripts[6], tmphdr->sizes_scripts[7], tmphdr->sizes_scripts[8]);
+
+    printf("spec %d, \n", tmphdr->spec);
+    printf("health %d, \n", tmphdr->health_i);
+    printf("bar %d, \n", (uint32_t)tmphdr->health_bar);
+    printf("focus %d %d %d, \n", tmphdr->focus_x, tmphdr->focus_y, tmphdr->focus_zoom);
+
+        */
+
+    for (int i = 0; i < tmphdr->size_animation; i++) {
+        printf("sped %d frames", this->animatable.anims[i].spd);
+        for (int i2 = 0; i2 < tmphdr->sizes_scripts[i]; i2 ++)
+            printf(" %d ", this->animatable.anims->script[i2]);
+
+        printf("\n");
+    }
+
+        for (int i = 0; i < tmphdr->size_frames; ++i)
+        {
+            printf("tex %d, frames %d %d %d %d offsets %d %d\n", (unsigned int)this->frames[i].tex, this->frames[i].src[0], this->frames[i].src[1], this->frames[i].src[2], this->frames[i].src[3], this->frames[i].off[0], this->frames[i].off[1] ); 
+        }   
+
 }
 
 void Character_Free(Character *this)

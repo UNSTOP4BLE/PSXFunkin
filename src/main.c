@@ -66,7 +66,10 @@ int main(int argc, char **argv)
     //Start game
     gameloop = GameLoop_Menu;
     Gfx_ScreenSetup();
-    Menu_Load(MenuPage_Opening);
+  //  Menu_Load(MenuPage_Opening);
+
+    Character testchar;
+    Character_FromFile(&testchar, "\\CHAR\\DAD.CHR;1");
 
     //Game loop
     while (PSX_Running()) {
@@ -83,15 +86,15 @@ int main(int argc, char **argv)
         //Tick and draw game
         switch (gameloop)
         {
-            case GameLoop_Menu:
-                Menu_Tick();
-                break;
-            case GameLoop_Stage:
-                Stage_Tick();
-                break;
-            case GameLoop_Movie:
-
-                break;
+         //   case GameLoop_Menu:
+          //      Menu_Tick();
+           //     break;
+            //case GameLoop_Stage:
+             //   Stage_Tick();
+              //  break;
+            //case GameLoop_Movie:
+//
+  //              break;
         }
 
 #ifndef NDEBUG

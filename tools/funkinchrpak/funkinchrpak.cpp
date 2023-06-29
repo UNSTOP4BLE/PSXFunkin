@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
     binFile.write(reinterpret_cast<const char*>(&animations), sizeof(animations));
     binFile.write(reinterpret_cast<const char*>(&frames), sizeof(frames));
     binFile.close();   
-/*
+
     //test reading
     CharacterFileHeader testchar;
     std::ifstream inFile(argv[1], std::istream::binary);
@@ -197,6 +197,6 @@ int main(int argc, char *argv[])
             std::cout << " " << static_cast<unsigned int>(animationstest[i].script[i2]);
         std::cout << std::endl;
     }
-*/
+
     return 0;
 }

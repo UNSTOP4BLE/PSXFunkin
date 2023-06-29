@@ -16,22 +16,11 @@
 #define ASCR_CHGANI 0xFE
 #define ASCR_BACK   0xFD
 
-typedef enum
-{
-    CharAnim_Idle,
-    CharAnim_Left,  CharAnim_LeftAlt,
-    CharAnim_Down,  CharAnim_DownAlt,
-    CharAnim_Up,    CharAnim_UpAlt,
-    CharAnim_Right, CharAnim_RightAlt,
-    
-    CharAnim_Max //Max standard/shared animation
-} CharAnim;
-
 typedef struct
 {
     //Animation data and script
     uint8_t spd;
-    const uint8_t *script;
+    uint8_t script[255];
 } Animation;
 
 typedef struct
