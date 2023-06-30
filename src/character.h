@@ -82,7 +82,7 @@ typedef struct CharacterFileHeader
 } CharacterFileHeader;
 
 //Character functions
-void Character_FromFile(Character *this, const char *path, fixed_t x, fixed_t y);
+Character *Character_FromFile(Character *this, const char *path, fixed_t x, fixed_t y);
 void Character_Free(Character *this);
 void Character_Init(Character *this, fixed_t x, fixed_t y);
 void Character_DrawParallax(Character *this, Gfx_Tex *tex, const CharFrame *cframe, fixed_t parallax);

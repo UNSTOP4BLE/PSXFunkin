@@ -10,6 +10,9 @@
 using json = nlohmann::json;
 
 typedef int32_t fixed_t;
+#define FIXED_SHIFT (10)
+#define FIXED_UNIT  (1 << FIXED_SHIFT)
+#define FIXED_DEC(d, f) ((fixed_t)(((int64_t)(d) * FIXED_UNIT) / (f)))
 
 #define ASCR_REPEAT 0xFF
 #define ASCR_CHGANI 0xFE
@@ -85,9 +88,9 @@ int main(int argc, char *argv[])
     new_char.health_i = j["health_i"];
     std::string health_bar_str = j["health_bar"];
     new_char.health_bar = std::stoul(health_bar_str, nullptr, 16);
-    new_char.focus_x = j["focus"][0];
-    new_char.focus_y = j["focus"][1];
-    new_char.focus_zoom = j["focus"][2];
+    new_char.focus_x = FIXED_DEC(j["focus"][0][0], (int)j["focus"][0][1]);
+    new_char.focus_y = FIXED_DEC(j["focus"][1][0], (int)j["focus"][1][1]);
+    new_char.focus_zoom = FIXED_DEC(j["focus"][2][0], (int)j["focus"][2][1]);
 
     //parse animation
     for (int i = 0; i < j["struct"].size(); i++) 

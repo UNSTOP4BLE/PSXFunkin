@@ -1271,7 +1271,10 @@ static void Stage_LoadPlayer(void)
 {
     //Load player character
     Character_Free(stage.player);
-    stage.player = stage.stage_def->pchar.new(stage.stage_def->pchar.x, stage.stage_def->pchar.y);
+    if (stage.stage_def->pchar.new != NULL)
+        stage.player = stage.stage_def->pchar.new(stage.stage_def->pchar.x, stage.stage_def->pchar.y);
+    else
+        stage.player = NULL;
 }
 
 static void Stage_LoadPlayer2(void)
@@ -1291,7 +1294,7 @@ static void Stage_LoadOpponent(void)
 {
     //Load opponent character
     Character_Free(stage.opponent);
-    Character_FromFile(stage.opponent, "\\CHAR\\DAD.CHR;1", stage.stage_def->ochar.x, stage.stage_def->ochar.y);
+    stage.opponent = Character_FromFile(stage.opponent, "\\CHAR\\DAD.CHR;1", stage.stage_def->ochar.x, stage.stage_def->ochar.y);
 }
 
 static void Stage_LoadOpponent2(void)
@@ -1562,17 +1565,17 @@ void Stage_Load(StageId id, StageDiff difficulty, bool story)
     //load fonts
     FontData_Load(&stage.font_cdr, Font_CDR);
     FontData_Load(&stage.font_bold, Font_Bold);
-
+    
     //Load characters
     Stage_LoadPlayer();
     Stage_LoadPlayer2();
     Stage_LoadOpponent();
     Stage_LoadOpponent2();  
     Stage_LoadGirlfriend();
-    
+
     //Load stage chart
     Stage_LoadChart();
-    
+
     //Initialize stage state
     stage.story = story;
     
@@ -1583,7 +1586,8 @@ void Stage_Load(StageId id, StageDiff difficulty, bool story)
         if (stage.opponent != NULL)
             Stage_FocusCharacter(stage.opponent, FIXED_UNIT);
     else
-        Stage_FocusCharacter(stage.player, FIXED_UNIT);
+        if (stage.player != NULL)
+            Stage_FocusCharacter(stage.player, FIXED_UNIT);
     stage.camera.x = stage.camera.tx;
     stage.camera.y = stage.camera.ty;
     stage.camera.zoom = stage.camera.tz;
@@ -1663,7 +1667,7 @@ static bool Stage_NextLoad(void)
         {
             Stage_LoadPlayer();
         }
-        else
+        else if (stage.player != NULL)
         {
             stage.player->x = stage.stage_def->pchar.x;
             stage.player->y = stage.stage_def->pchar.y;
@@ -2001,7 +2005,7 @@ void Stage_Tick(void)
             if (stage.cur_section->flag & SECTION_FLAG_OPPFOCUS)
                 if (stage.opponent != NULL)
                     Stage_FocusCharacter(stage.opponent, FIXED_UNIT / 24);
-            else
+            else if (stage.player != NULL)
                 Stage_FocusCharacter(stage.player, FIXED_UNIT / 24);
             Stage_ScrollCamera();
             
@@ -2155,7 +2159,8 @@ void Stage_Tick(void)
                     //Draw health bar
                     if (stage.mode == StageMode_Swap)
                     {
-                        Stage_DrawHealthBar(255 - (255 * stage.player_state[0].health / 20000), stage.player->health_bar);
+                        if (stage.player != NULL)
+                            Stage_DrawHealthBar(255 - (255 * stage.player_state[0].health / 20000), stage.player->health_bar);
                         if (stage.opponent != NULL)
                             Stage_DrawHealthBar(255, stage.opponent->health_bar);
                     }
@@ -2163,7 +2168,8 @@ void Stage_Tick(void)
                     {   
                         if (stage.opponent != NULL)
                             Stage_DrawHealthBar(255 - (255 * stage.player_state[0].health / 20000), stage.opponent->health_bar);
-                        Stage_DrawHealthBar(255, stage.player->health_bar);
+                        if (stage.player != NULL)
+                            Stage_DrawHealthBar(255, stage.player->health_bar);
                     }
                 }
             

@@ -14,6 +14,7 @@
 //Character functions
 void Char_Generic_SetFrame(void *user, uint8_t frame)
 {
+    printf("generic setframe \n");
     Character *this = (Character*)user;
 
     //Check if this is a new frame
@@ -28,6 +29,7 @@ void Char_Generic_SetFrame(void *user, uint8_t frame)
 
 void Char_Generic_Tick(Character *character)
 {
+    printf("generic tick \n");
     //Perform idle dance
     if ((character->pad_held & (INPUT_LEFT | INPUT_DOWN | INPUT_UP | INPUT_RIGHT)) == 0)
         Character_PerformIdle(character);
@@ -39,6 +41,7 @@ void Char_Generic_Tick(Character *character)
 
 void Char_Generic_SetAnim(Character *character, uint8_t anim)
 {
+    printf("generic setanim \n");
     //Set animation
     Animatable_SetAnim(&character->animatable, anim);
     Character_CheckStartSing(character);
@@ -47,40 +50,44 @@ void Char_Generic_SetAnim(Character *character, uint8_t anim)
 void Char_Generic_Free(Character *character)
 {
     //Free art
+    if (character->file != NULL)
+        free(character->file);
     free(character->arc_main);
 }
 
-void Character_FromFile(Character *this, const char *path, fixed_t x, fixed_t y)
+Character *Character_FromFile(Character *this, const char *path, fixed_t x, fixed_t y)
 {
-    int offset = 0;
+    uint32_t offset = 0;
 
     if (this->file != NULL)
         free(this->file);
     if (this != NULL)
         free(this);
     this = malloc(sizeof(Character));
+    this->file = malloc(sizeof(CharacterFileHeader));
     
     //load the actual character
     if (this == NULL)
     {
         sprintf(error_msg, "[%s] Failed to allocate object", path);
         ErrorLock();
-        return;
+        return NULL;
     }
 
     //Initialize character
-    this->file = IO_Read(path);
-    CharacterFileHeader *tmphdr = (CharacterFileHeader *)this->file;
-    offset += sizeof(CharacterFileHeader);
-    Animatable_Init(&this->animatable, (const Animation *)(offset-51 + this->file));
-    offset += sizeof(Animation) * tmphdr->size_animation;
-    this->frames = (const CharFrame *)(offset-1779 + this->file);
-
     //use generic functions later
     this->tick = Char_Generic_Tick;
     this->set_anim = Char_Generic_SetAnim;
     this->free = Char_Generic_Free;
     
+    this->file = IO_Read(path);
+    CharacterFileHeader *tmphdr = (CharacterFileHeader *)this->file;
+    printf("size hedr %d, %d\n", sizeof(CharacterFileHeader), sizeof(Animation) * tmphdr->size_animation);
+    offset += sizeof(CharacterFileHeader);
+    Animatable_Init(&this->animatable, (const Animation *)(offset-51 + this->file));
+    offset += sizeof(Animation) * tmphdr->size_animation;
+    this->frames = (const CharFrame *)(offset-1779 + this->file);
+
     Character_Init(this, x, y);
     
     //Set character information
@@ -113,18 +120,18 @@ void Character_FromFile(Character *this, const char *path, fixed_t x, fixed_t y)
     
     //Initialize render state
     this->tex_id = this->frame = 0xFF;
-
 /*
+
     printf("struct %d, \n", tmphdr->size_struct);
     printf("frames %d, \n", tmphdr->size_frames);
     printf("animation %d, \n", tmphdr->size_animation);
     
     printf("scripts %d %d %d %d %d %d %d %d %d, \n", tmphdr->sizes_scripts[0], tmphdr->sizes_scripts[1], tmphdr->sizes_scripts[2], tmphdr->sizes_scripts[3], tmphdr->sizes_scripts[4], tmphdr->sizes_scripts[5], tmphdr->sizes_scripts[6], tmphdr->sizes_scripts[7], tmphdr->sizes_scripts[8]);
 
-    printf("spec %d, \n", tmphdr->spec);
-    printf("health %d, \n", tmphdr->health_i);
-    printf("bar %d, \n", (uint32_t)tmphdr->health_bar);
-    printf("focus %d %d %d, \n", tmphdr->focus_x, tmphdr->focus_y, tmphdr->focus_zoom);
+    printf("spec %d, \n", this->spec);
+    printf("health %d, \n", this->health_i);
+    printf("bar %d, \n", (uint32_t)this->health_bar);
+    printf("focus %d %d %d, \n", this->focus_x, this->focus_y, this->focus_zoom);
 
     for (int i = 0; i < tmphdr->size_animation; i++) {
         printf("sped %d frames", this->animatable.anims[i].spd);
@@ -137,9 +144,8 @@ void Character_FromFile(Character *this, const char *path, fixed_t x, fixed_t y)
     for (int i = 0; i < tmphdr->size_frames; ++i) {
         printf("tex %d, frames %d %d %d %d offsets %d %d\n", (unsigned int)this->frames[i].tex, this->frames[i].src[0], this->frames[i].src[1], this->frames[i].src[2], this->frames[i].src[3], this->frames[i].off[0], this->frames[i].off[1] ); 
     }   
-
-        */
-
+    */
+    return this;
 }
 
 void Character_Free(Character *this)
