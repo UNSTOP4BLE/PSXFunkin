@@ -115,8 +115,8 @@ static struct
     //Menu assets
     Gfx_Tex tex_back, tex_ng, tex_story, tex_title;
     FontData font_bold, font_arial;
-    
-    Character *gf; //Title Girlfriend
+
+  //  Character *gf; //Title Girlfriend
 } menu;
 
 //Internal menu functions
@@ -266,10 +266,10 @@ void Menu_Load(MenuPage page)
     FontData_Load(&menu.font_bold, Font_Bold);
     FontData_Load(&menu.font_arial, Font_Arial);
     
-    menu.gf = Char_GF_New(FIXED_DEC(62,1), FIXED_DEC(-12,1));
+ //   menu.gf = Char_GF_New(FIXED_DEC(62,1), FIXED_DEC(-12,1));
     stage.camera.x = stage.camera.y = FIXED_DEC(0,1);
     stage.camera.bzoom = FIXED_UNIT;
-    stage.gf_speed = 4;
+    //stage.gf_speed = 4;
     
     //Initialize menu state
     menu.select = menu.next_select = 0;
@@ -307,7 +307,7 @@ void Menu_Load(MenuPage page)
 void Menu_Unload(void)
 {
     //Free title Girlfriend
-    Character_Free(menu.gf);
+  //  Character_Free(menu.gf);
 }
 
 void Menu_ToStage(StageId id, StageDiff diff, bool story)
@@ -515,7 +515,7 @@ void Menu_Tick(void)
             }
             
             //Draw Girlfriend
-            menu.gf->tick(menu.gf);
+          //  menu.gf->tick(menu.gf);
             break;
         }
         case MenuPage_Main:

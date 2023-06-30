@@ -24,7 +24,7 @@ struct Animation
 
 struct CharFrame
 {
-    uint16_t tex;
+    uint8_t tex;
     uint16_t src[4];
     int16_t off[2];
 };

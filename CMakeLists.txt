@@ -470,7 +470,7 @@ psn00bsdk_add_cd_image(iso
     ${_built_charts} 
     #${_built_music} 
     ${_built_archives}
-    ${_built_characters}
+ #   ${_built_characters}
     ${_built_audio}
     ${_built_xa}
 )

@@ -1291,7 +1291,7 @@ static void Stage_LoadOpponent(void)
 {
     //Load opponent character
     Character_Free(stage.opponent);
-    stage.opponent = stage.stage_def->ochar.new(stage.stage_def->ochar.x, stage.stage_def->ochar.y);
+    Character_FromFile(stage.opponent, "\\CHAR\\DAD.CHR;1", stage.stage_def->ochar.x, stage.stage_def->ochar.y);
 }
 
 static void Stage_LoadOpponent2(void)
@@ -1401,10 +1401,12 @@ static void Stage_LoadSFX(void)
 static void Stage_LoadMusic(void)
 {
     //Offset sing ends
-    stage.player->sing_end -= stage.note_scroll;
+    if (stage.player != NULL)
+        stage.player->sing_end -= stage.note_scroll;
     if (stage.player2 != NULL)
         stage.player2->sing_end -= stage.note_scroll;
-    stage.opponent->sing_end -= stage.note_scroll;
+    if (stage.opponent != NULL)
+        stage.opponent->sing_end -= stage.note_scroll;
     if (stage.opponent2 != NULL)
         stage.opponent2->sing_end -= stage.note_scroll;
     if (stage.gf != NULL)
@@ -1421,10 +1423,13 @@ static void Stage_LoadMusic(void)
     stage.interp_speed = 0;
     
     //Offset sing ends again
-    stage.player->sing_end += stage.note_scroll;
+
+    if (stage.player != NULL)
+        stage.player->sing_end += stage.note_scroll;
     if (stage.player2 != NULL)
         stage.player2->sing_end += stage.note_scroll;
-    stage.opponent->sing_end += stage.note_scroll;
+    if (stage.opponent != NULL)
+        stage.opponent->sing_end += stage.note_scroll;
     if (stage.opponent2 != NULL)
         stage.opponent2->sing_end += stage.note_scroll;
     if (stage.gf != NULL)
@@ -1442,13 +1447,16 @@ static void Stage_LoadState(void)
     
     if (stage.mode == StageMode_Swap)
     {
-        stage.player_state[0].character = stage.opponent;
+        if (stage.opponent != NULL)
+            stage.player_state[0].character = stage.opponent;
         stage.player_state[1].character = stage.player;
     }
     else
-    {
+    {   
         stage.player_state[0].character = stage.player;
-        stage.player_state[1].character = stage.opponent;
+        
+        if (stage.opponent != NULL)
+            stage.player_state[1].character = stage.opponent;
     }
 
     for (int i = 0; i < 2; i++)
@@ -1572,7 +1580,8 @@ void Stage_Load(StageId id, StageDiff difficulty, bool story)
     
     //Initialize camera
     if (stage.cur_section->flag & SECTION_FLAG_OPPFOCUS)
-        Stage_FocusCharacter(stage.opponent, FIXED_UNIT);
+        if (stage.opponent != NULL)
+            Stage_FocusCharacter(stage.opponent, FIXED_UNIT);
     else
         Stage_FocusCharacter(stage.player, FIXED_UNIT);
     stage.camera.x = stage.camera.tx;
@@ -1673,7 +1682,7 @@ static bool Stage_NextLoad(void)
         {
             Stage_LoadOpponent();
         }
-        else if (stage.opponent2 != NULL)
+        else if (stage.opponent != NULL)
         {
             stage.opponent->x = stage.stage_def->ochar.x;
             stage.opponent->y = stage.stage_def->ochar.y;
@@ -1822,6 +1831,8 @@ void Stage_Tick(void)
             if (stage.prefs.debug)
                 Debug_StageDebug();
 
+            if (stage.opponent == NULL)
+                FntPrint(-1, "oh nooo ur shit is null noo");
             //FntPrint("step %d, beat %d", stage.song_step, stage.song_beat);
 
             Stage_CountDown();
@@ -1988,7 +1999,8 @@ void Stage_Tick(void)
             
             //Scroll camera
             if (stage.cur_section->flag & SECTION_FLAG_OPPFOCUS)
-                Stage_FocusCharacter(stage.opponent, FIXED_UNIT / 24);
+                if (stage.opponent != NULL)
+                    Stage_FocusCharacter(stage.opponent, FIXED_UNIT / 24);
             else
                 Stage_FocusCharacter(stage.player, FIXED_UNIT / 24);
             Stage_ScrollCamera();
@@ -2144,11 +2156,13 @@ void Stage_Tick(void)
                     if (stage.mode == StageMode_Swap)
                     {
                         Stage_DrawHealthBar(255 - (255 * stage.player_state[0].health / 20000), stage.player->health_bar);
-                        Stage_DrawHealthBar(255, stage.opponent->health_bar);
+                        if (stage.opponent != NULL)
+                            Stage_DrawHealthBar(255, stage.opponent->health_bar);
                     }
                     else
-                    {
-                        Stage_DrawHealthBar(255 - (255 * stage.player_state[0].health / 20000), stage.opponent->health_bar);
+                    {   
+                        if (stage.opponent != NULL)
+                            Stage_DrawHealthBar(255 - (255 * stage.player_state[0].health / 20000), stage.opponent->health_bar);
                         Stage_DrawHealthBar(255, stage.player->health_bar);
                     }
                 }
@@ -2224,13 +2238,18 @@ void Stage_Tick(void)
             //Tick characters
             if (stage.mode == StageMode_Swap)
             {
-                stage.opponent->tick(stage.opponent);
-                stage.player->tick(stage.player);
+                if (stage.opponent != NULL)
+                    stage.opponent->tick(stage.opponent);
+                if (stage.player != NULL)
+                    stage.player->tick(stage.player);
             }
             else
             {
-                stage.player->tick(stage.player);
-                stage.opponent->tick(stage.opponent);
+
+                if (stage.player != NULL)
+                    stage.player->tick(stage.player);
+                if (stage.opponent != NULL)
+                    stage.opponent->tick(stage.opponent);
             }
             if (stage.player2 != NULL)
                 stage.player2->tick(stage.player2);
@@ -2297,9 +2316,11 @@ void Stage_Tick(void)
             Gfx_SetClear(0, 0, 0);
             
             //Run death animation, focus on player, and change state
-            stage.player->set_anim(stage.player, PlayerAnim_Dead0);
-            
-            Stage_FocusCharacter(stage.player, 0);
+            if (stage.player != NULL)
+            {
+                stage.player->set_anim(stage.player, PlayerAnim_Dead0);
+                Stage_FocusCharacter(stage.player, 0);
+            }
             stage.song_time = 0;
             
             stage.state = StageState_DeadLoad;
@@ -2318,7 +2339,8 @@ void Stage_Tick(void)
             stage.camera.td = FIXED_DEC(-2, 100) + FIXED_MUL(stage.song_time, FIXED_DEC(45, 1000));
             if (stage.camera.td > 0)
                 Stage_ScrollCamera();
-            stage.player->tick(stage.player);
+            if (stage.player != NULL)
+                stage.player->tick(stage.player);
             
             //Drop mic and change state if CD has finished reading and animation has ended
             if (IO_IsReading() || stage.player->animatable.anim != PlayerAnim_Dead1)
@@ -2334,7 +2356,8 @@ void Stage_Tick(void)
                 Sounds[1] = Audio_LoadSound("\\SOUNDS\\END.VAG;1");
             }
 
-            stage.player->set_anim(stage.player, PlayerAnim_Dead2);
+            if (stage.player != NULL)
+                stage.player->set_anim(stage.player, PlayerAnim_Dead2);
             stage.camera.td = FIXED_DEC(25, 1000);
             stage.state = StageState_DeadDrop;
             break;
@@ -2343,10 +2366,12 @@ void Stage_Tick(void)
         {
             //Scroll camera and tick player
             Stage_ScrollCamera();
-            stage.player->tick(stage.player);
+
+            if (stage.player != NULL)
+                stage.player->tick(stage.player);
             
             //Enter next state once mic has been dropped
-            if (stage.player->animatable.anim == PlayerAnim_Dead3)
+            if (stage.player != NULL &&stage.player->animatable.anim == PlayerAnim_Dead3)
             {
                 stage.state = StageState_DeadRetry;
                 Audio_PlayXA_Track(XA_GameOver, 0x40, 1, true);
@@ -2356,7 +2381,7 @@ void Stage_Tick(void)
         case StageState_DeadRetry:
         {
             //Randomly twitch
-            if (stage.player->animatable.anim == PlayerAnim_Dead3)
+            if (stage.player != NULL && stage.player->animatable.anim == PlayerAnim_Dead3)
             {
                 if (RandomRange(0, 29) == 0)
                     stage.player->set_anim(stage.player, PlayerAnim_Dead4);
@@ -2366,7 +2391,8 @@ void Stage_Tick(void)
             
             //Scroll camera and tick player
             Stage_ScrollCamera();
-            stage.player->tick(stage.player);
+            if (stage.player != NULL)
+                stage.player->tick(stage.player);
             break;
         }
         default:

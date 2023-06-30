@@ -31,7 +31,7 @@ typedef enum
 //Character structures
 typedef struct CharFrame
 {
-    uint16_t tex;
+    uint8_t tex;
     uint16_t src[4];
     int16_t off[2];
 } CharFrame;
@@ -58,6 +58,13 @@ typedef struct Character
     fixed_t sing_end;
     uint16_t pad_held;
     uint32_t *file;
+
+    //Render data and state
+    IO_Data arc_main;
+    IO_Data *arc_ptr;
+    
+    Gfx_Tex tex;
+    uint8_t frame, tex_id;
 } Character;
 
 typedef struct CharacterFileHeader
@@ -75,7 +82,7 @@ typedef struct CharacterFileHeader
 } CharacterFileHeader;
 
 //Character functions
-void Character_FromFile(Character *this, const char *path);
+void Character_FromFile(Character *this, const char *path, fixed_t x, fixed_t y);
 void Character_Free(Character *this);
 void Character_Init(Character *this, fixed_t x, fixed_t y);
 void Character_DrawParallax(Character *this, Gfx_Tex *tex, const CharFrame *cframe, fixed_t parallax);
