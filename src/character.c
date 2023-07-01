@@ -101,8 +101,12 @@ void Char_Generic_SetAnim(Character *character, uint8_t anim)
 void Char_Generic_Free(Character *character)
 {
     //Free art
+    if (character->arc_ptr != NULL)
+        free(character->arc_ptr);
+    if (character->file != NULL) {
+        free(character->file);
+    }
     free(character->arc_main);
-    character->arc_main = NULL;
 }
 
 Character *Character_FromFile(Character *this, const char *path, fixed_t x, fixed_t y)
@@ -110,7 +114,7 @@ Character *Character_FromFile(Character *this, const char *path, fixed_t x, fixe
     uint32_t offset = 0;
 
     if (this != NULL)
-        free(this);
+        Character_Free(this);
     this = malloc(sizeof(Character));
     //load the actual character
     if (this == NULL)
@@ -178,13 +182,14 @@ Character *Character_FromFile(Character *this, const char *path, fixed_t x, fixe
     //Load art 
     this->arc_main = IO_Read(tmphdr->archive_path);
 
+    this->arc_ptr = malloc(sizeof(IO_Data) * tmphdr->size_textures);
     for (int i = 0; i < tmphdr->size_textures; i++) {
         printf("%s\n", tex_paths[i].path);
         this->arc_ptr[i] = Archive_Find(this->arc_main, tex_paths[i].path);
     }
     //Initialize render state
     this->tex_id = this->frame = 0xFF;
-    
+
     return this;
 }
 

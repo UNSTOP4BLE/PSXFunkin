@@ -3,10 +3,9 @@ import glob
 import shutil
 
 QUEUE_LENGTH     = 16
-DMA_CHUNK_LENGTH = 16
 #iso/character/tim files
 
-path = glob.glob('iso/*/*.png')
+path = glob.glob('iso/*/*/*.png')
 
 #calculate if the image is a multiple of 16
 def recalc(width, height, bpp):
@@ -47,7 +46,8 @@ for curpath in path:
     realheight = tex.size[1]
 
     #check if the image needs fixing
-    if recalc(realwidth, realheight, bpp) == True: 
+    if recalc(realwidth, realheight, bpp) == True:
+        print("no need to fix image " + curpath)
         continue
     print("fixing image " + curpath)
 

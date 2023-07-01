@@ -36,7 +36,7 @@
         //Characters
         {NULL,    FIXED_DEC(60,1),  FIXED_DEC(100,1)},
         {NULL},
-        {"\\CHAR\\DAD.CHR;1", FIXED_DEC(-120,1),  FIXED_DEC(100,1)},
+        {NULL, FIXED_DEC(-120,1),  FIXED_DEC(100,1)},
         {NULL},
         {NULL,     FIXED_DEC(0,1),  FIXED_DEC(-10,1)},
         
