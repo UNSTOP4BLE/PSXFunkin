@@ -11,10 +11,6 @@
 #include <stdlib.h>      
 #include "stage.h"
 
-typedef struct TimPath{
-    char path[32];
-} TimPath;
-
 //Character functions
 void Char_Generic_SetFrame(void *user, uint8_t frame)
 {
@@ -34,8 +30,59 @@ void Char_Generic_SetFrame(void *user, uint8_t frame)
 void Char_Generic_Tick(Character *character)
 {
   //  printf("generic tick \n");
-    //Perform idle dance
-    if ((character->pad_held & (INPUT_LEFT | INPUT_DOWN | INPUT_UP | INPUT_RIGHT)) == 0)
+
+    if (character->spec == CHAR_SPEC_MISSANIM) //player
+    {
+        if ((character->pad_held & (INPUT_LEFT | INPUT_DOWN | INPUT_UP | INPUT_RIGHT)) == 0 ||
+            (character->animatable.anim != CharAnim_Left &&
+             character->animatable.anim != CharAnim_LeftAlt &&
+             character->animatable.anim != CharAnim_Down &&
+             character->animatable.anim != CharAnim_DownAlt &&
+             character->animatable.anim != CharAnim_Up &&
+             character->animatable.anim != CharAnim_UpAlt &&
+             character->animatable.anim != CharAnim_Right &&
+             character->animatable.anim != CharAnim_RightAlt))
+            Character_CheckEndSing(character);
+        
+        if (stage.flag & STAGE_FLAG_JUST_STEP)
+        {
+            //Perform idle dance
+            if (Animatable_Ended(&character->animatable) &&
+                (character->animatable.anim != CharAnim_Left &&
+                 character->animatable.anim != CharAnim_LeftAlt &&
+                 character->animatable.anim != PlayerAnim_LeftMiss &&
+                 character->animatable.anim != CharAnim_Down &&
+                 character->animatable.anim != CharAnim_DownAlt &&
+                 character->animatable.anim != PlayerAnim_DownMiss &&
+                 character->animatable.anim != CharAnim_Up &&
+                 character->animatable.anim != CharAnim_UpAlt &&
+                 character->animatable.anim != PlayerAnim_UpMiss &&
+                 character->animatable.anim != CharAnim_Right &&
+                 character->animatable.anim != CharAnim_RightAlt &&
+                 character->animatable.anim != PlayerAnim_RightMiss) &&
+                (stage.song_step & 0x7) == 0)
+                character->set_anim(character, CharAnim_Idle);
+            
+            //Stage specific animations
+            if (stage.note_scroll >= 0)
+            {
+                switch (stage.stage_id)
+                {
+                    case StageId_1_4: //Tutorial peace
+                        if (stage.song_step > 64 && stage.song_step < 192 && (stage.song_step & 0x3F) == 60)
+                            character->set_anim(character, PlayerAnim_Peace);
+                        break;
+                    case StageId_1_1: //Bopeebo peace
+                        if ((stage.song_step & 0x1F) == 28)
+                            character->set_anim(character, PlayerAnim_Peace);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+    else if ((character->pad_held & (INPUT_LEFT | INPUT_DOWN | INPUT_UP | INPUT_RIGHT)) == 0) //not player
         Character_PerformIdle(character);
     
     //Animate and draw
@@ -55,6 +102,7 @@ void Char_Generic_Free(Character *character)
 {
     //Free art
     free(character->arc_main);
+    character->arc_main = NULL;
 }
 
 Character *Character_FromFile(Character *this, const char *path, fixed_t x, fixed_t y)
@@ -64,7 +112,6 @@ Character *Character_FromFile(Character *this, const char *path, fixed_t x, fixe
     if (this != NULL)
         free(this);
     this = malloc(sizeof(Character));
-
     //load the actual character
     if (this == NULL)
     {
@@ -85,7 +132,12 @@ Character *Character_FromFile(Character *this, const char *path, fixed_t x, fixe
     offset += (sizeof(Animation) * tmphdr->size_animation) / 4;
     this->frames = (const CharFrame *)(offset + this->file);
     offset += (tmphdr->size_frames * sizeof(CharFrame)) / 4;
-    TimPath *tex_paths = (TimPath *)(offset + this->file);
+
+    typedef struct TimPath{
+        char path[32];
+    } TimPath;
+    TimPath *tex_paths;
+    tex_paths = (TimPath *)(offset + this->file);
 
     Character_Init(this, x, y);
     
@@ -100,19 +152,8 @@ Character *Character_FromFile(Character *this, const char *path, fixed_t x, fixe
     this->focus_x = tmphdr->focus_x;
     this->focus_y = tmphdr->focus_y;
     this->focus_zoom = tmphdr->focus_zoom;
-    
-    //Load art //todo
-    this->arc_main = IO_Read(tmphdr->archive_path);
-
-    IO_Data *arc_ptr = this->arc_ptr;
-    for (int i = 0; i < tmphdr->size_textures; i++) {
-        printf("%s\n", tex_paths[i].path);
-        *arc_ptr++ = Archive_Find(this->arc_main, tex_paths[i].path);
-    }
-    //Initialize render state
-    this->tex_id = this->frame = 0xFF;
     /*
-    printf("struct %d, \n", tmphdr->size_struct);
+        printf("struct %d, \n", tmphdr->size_struct);
     printf("frames %d, \n", tmphdr->size_frames);
     printf("animation %d, \n", tmphdr->size_animation);
     
@@ -133,8 +174,17 @@ Character *Character_FromFile(Character *this, const char *path, fixed_t x, fixe
 
     for (int i = 0; i < tmphdr->size_frames; ++i) {
         printf("tex %d, frames %d %d %d %d offsets %d %d\n", (unsigned int)this->frames[i].tex, this->frames[i].src[0], this->frames[i].src[1], this->frames[i].src[2], this->frames[i].src[3], this->frames[i].off[0], this->frames[i].off[1] ); 
-    }   
-    */
+    }   */
+    //Load art 
+    this->arc_main = IO_Read(tmphdr->archive_path);
+
+    for (int i = 0; i < tmphdr->size_textures; i++) {
+        printf("%s\n", tex_paths[i].path);
+        this->arc_ptr[i] = Archive_Find(this->arc_main, tex_paths[i].path);
+    }
+    //Initialize render state
+    this->tex_id = this->frame = 0xFF;
+    
     return this;
 }
 

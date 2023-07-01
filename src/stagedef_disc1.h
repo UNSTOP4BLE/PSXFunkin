@@ -4,7 +4,7 @@
         {NULL},
         {"\\CHAR\\DAD.CHR;1",  FIXED_DEC(-120,1),  FIXED_DEC(100,1)},
         {NULL},
-        {"\\CHAR\\GF.CHR;1",   FIXED_DEC(0,1),     FIXED_DEC(-10,1)},
+        {NULL,   FIXED_DEC(0,1),     FIXED_DEC(-10,1)},
         
         //Stage background
         Back_Week1_New,

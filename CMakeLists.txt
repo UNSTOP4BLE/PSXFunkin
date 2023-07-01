@@ -109,9 +109,10 @@ list(
 foreach(_in _out IN ZIP_LISTS _characters _built_characters)
     add_custom_command(
         OUTPUT ${_out}
-        COMMAND ${_chrpak} ${PROJECT_BINARY_DIR}/${_out} ${PROJECT_SOURCE_DIR}/${_in}
+        COMMAND ${_chrpak} ${_out} ${PROJECT_SOURCE_DIR}/${_in}
         DEPENDS ${PROJECT_SOURCE_DIR}/${_in}
         COMMENT "Building chr ${_out}"
+        VERBATIM 
     )
 endforeach()
 
@@ -470,7 +471,7 @@ psn00bsdk_add_cd_image(iso
     ${_built_charts} 
     #${_built_music} 
     ${_built_archives}
- #   ${_built_characters}
+    ${_built_characters}
     ${_built_audio}
     ${_built_xa}
 )

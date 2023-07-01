@@ -18,6 +18,8 @@ typedef int32_t fixed_t;
 #define ASCR_CHGANI 0xFE
 #define ASCR_BACK   0xFD
 
+#define CHAR_SPEC_MISSANIM (1 << 0) 
+
 struct Animation
 {
     //Animation data and script
@@ -40,12 +42,32 @@ std::vector<std::string> charAnim{
     "CharAnim_Right", "CharAnim_RightAlt",
 };
 
+std::vector<std::string> playerAnim{
+    "PlayerAnim_LeftMiss",
+    "PlayerAnim_DownMiss",
+    "PlayerAnim_UpMiss",
+    "PlayerAnim_RightMiss",
+    
+    "PlayerAnim_Peace",
+    "PlayerAnim_Sweat",
+
+    "PlayerAnim_Dead0", 
+    "PlayerAnim_Dead1", 
+    "PlayerAnim_Dead2", 
+    "PlayerAnim_Dead3", 
+    "PlayerAnim_Dead4",
+    "PlayerAnim_Dead5", 
+    
+    "PlayerAnim_Dead6", 
+    "PlayerAnim_Dead7", 
+};
+
 struct CharacterFileHeader
 {
     int32_t size_struct;
     int32_t size_frames;
     int32_t size_animation;
-    int32_t sizes_scripts[9]; // size of charAnim vector
+    int32_t sizes_scripts[32]; // size of charAnim vector + playeranim vector
     int32_t size_textures;
 
     //Character information
@@ -71,7 +93,7 @@ int main(int argc, char *argv[])
     if (argc < 3)
     {
         std::cout << "usage: funkinchrpak out_chr in_json" << std::endl;
-        return 0;
+        return 1;
     }
     
     //Read json
@@ -86,7 +108,16 @@ int main(int argc, char *argv[])
 
     CharacterFileHeader new_char;
 
-    new_char.spec = j["spec"];
+    bool isstr = j["spec"].is_string();
+    if (isstr)
+    {
+        std::string spec = j["spec"];
+        if (spec == "CHAR_SPEC_MISSANIM")
+            new_char.spec = CHAR_SPEC_MISSANIM;
+
+    }
+    else new_char.spec = 0;
+
     new_char.health_i = j["health_i"];
     std::string health_bar_str = j["health_bar"];
     new_char.health_bar = std::stoul(health_bar_str, nullptr, 16);
@@ -127,27 +158,38 @@ int main(int argc, char *argv[])
         for (int i2 = 0; i2 < j["animation"][i][1].size(); i2++) {
             if (i2 < j["animation"][i][1].size()-2)
             {
-//                std::cout << j["animation"][i][1][i2] << std::endl;
+             //   std::cout << j["animation"][i][1][i2] << std::endl;
                 scripts[i][i2] = j["animation"][i][1][i2];
             }
             else //change string to number
             {
                 if (i2 == j["animation"][i][1].size()-2) { // ascr mode
-                    //std::cout << j["animation"][i][1][i2] << std::endl;
-                    std::string ascrmode = j["animation"][i][1][i2];
-                    if (ascrmode == "ASCR_BACK")
+             //       std::cout << j["animation"][i][1][i2] << std::endl;
+                    bool isrepeat = j["animation"][i][1][i2].is_string();
+                    std::string ascrmode;
+                    if (!isrepeat && j["animation"][i][1][i2+1] == "ASCR_REPEAT")
+                        ascrmode = j["animation"][i][1][i2+1];
+                    else
+                        ascrmode = j["animation"][i][1][i2];
+
+                    if (ascrmode == "ASCR_REPEAT") {
+                        scripts[i][i2] = ASCR_REPEAT;
+                        break;
+                    }
+                    else if (ascrmode == "ASCR_BACK")
                         scripts[i][i2] = ASCR_BACK;
                     else if (ascrmode == "ASCR_CHGANI")
                         scripts[i][i2] = ASCR_CHGANI;
-                    else if (ascrmode == "ASCR_REPEAT")
-                        scripts[i][i2] = ASCR_REPEAT;
                 }
                 if (i2 == j["animation"][i][1].size()-1) // back animation
                 {
-                    bool isstring = !(j["animation"][i][1][i2] == sizeof(uint8_t));
+                    bool isstring = j["animation"][i][1][i2].is_string();
                     if (isstring) {
                         std::string backanim = j["animation"][i][1][i2];
-                        scripts[i][i2] = getEnumFromString(charAnim, backanim);
+                        if (i > charAnim.size())
+                            scripts[i][i2] = charAnim.size()+getEnumFromString(playerAnim, backanim);
+                        else
+                            scripts[i][i2] = getEnumFromString(charAnim, backanim);
                     }
                     else
                         scripts[i][i2] = j["animation"][i][1][i2];
@@ -156,10 +198,11 @@ int main(int argc, char *argv[])
             }
         }
     }
+    
 
     //copy over the shit into the arrays 
-    Animation animations[charAnim.size()];
-    for (int i = 0; i < charAnim.size(); i++)
+    Animation animations[new_char.size_animation];
+    for (int i = 0; i < new_char.size_animation; i++)
     {
         animations[i].spd = anims[i].spd;
         for (int i2 = 0; i2 < 256; i2++)
@@ -175,24 +218,25 @@ int main(int argc, char *argv[])
         strncpy(texpaths[i], curtex.c_str(), 32);
     }
 
-    std::ofstream binFile(argv[1], std::ostream::binary);
+    std::ofstream binFile(std::string(argv[1]), std::ostream::binary);
     binFile.write(reinterpret_cast<const char*>(&new_char), sizeof(new_char));
     binFile.write(reinterpret_cast<const char*>(&animations), sizeof(animations));
     binFile.write(reinterpret_cast<const char*>(&frames), sizeof(frames));
     binFile.write(reinterpret_cast<const char*>(&texpaths), sizeof(texpaths));
-    binFile.close();   
+    binFile.close();  
 
+    std::cout << "success" << std::endl;
 /*
     //test reading
-    CharacterFileHeader testchar;
-    std::ifstream inFile(argv[1], std::istream::binary);
-    inFile.read(reinterpret_cast<char *>(&testchar), sizeof(testchar));
-    Animation animationstest[testchar.size_animation];
-    CharFrame framestest[testchar.size_frames];
-    char textest[testchar.size_textures][32];
-    inFile.read(reinterpret_cast<char *>(&animationstest), testchar.size_animation * sizeof(Animation));
-    inFile.read(reinterpret_cast<char *>(&framestest), testchar.size_frames * sizeof(CharFrame));
-    inFile.read(reinterpret_cast<char *>(&textest), testchar.size_textures * 32);
+    CharacterFileHeader testchar; 
+    std::ifstream inFile(argv[1], std::istream::binary); 
+    inFile.read(reinterpret_cast<char *>(&testchar), sizeof(testchar)); 
+    Animation animationstest[testchar.size_animation]; 
+    CharFrame framestest [testchar.size_frames]; 
+    char textest[testchar.size_textures][32]; 
+    inFile.read(reinterpret_cast<char *>(&animationstest), testchar.size_animation * sizeof(Animation)); 
+    inFile.read(reinterpret_cast<char *>(&framestest), testchar.size_frames * sizeof(CharFrame)); 
+    inFile.read(reinterpret_cast<char *>(&textest), testchar.size_textures * 32); 
     inFile.close();   
 
     //print header
@@ -224,7 +268,7 @@ int main(int argc, char *argv[])
         for (int i2 = 0; i2 < 32; i2++)
             std::cout << textest[i][i2];
         std::cout << std::endl;
-    }   
-*/
+    }   */
+
     return 0;
 }

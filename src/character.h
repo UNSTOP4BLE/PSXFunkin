@@ -72,7 +72,7 @@ typedef struct CharacterFileHeader
     int32_t size_struct;
     int32_t size_frames;
     int32_t size_animation;
-    int32_t sizes_scripts[9]; // size of charAnim vector
+    int32_t sizes_scripts[32]; 
     int32_t size_textures;
 
     //Character information
