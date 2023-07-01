@@ -23,9 +23,9 @@
 
 #include "stage.h"
 #include "save.h"
-#include "character/gf.h"
+//#include "character/gf.h"
 
-#include "stdlib.h"
+#include <stdlib.h>
 
 static uint32_t Sounds[3];
 static char scoredisp[30];

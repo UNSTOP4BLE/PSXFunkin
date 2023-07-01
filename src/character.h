@@ -57,7 +57,7 @@ typedef struct Character
     Animatable animatable;
     fixed_t sing_end;
     uint16_t pad_held;
-    uint32_t *file;
+    IO_Data file;
 
     //Render data and state
     IO_Data arc_main;
@@ -73,11 +73,13 @@ typedef struct CharacterFileHeader
     int32_t size_frames;
     int32_t size_animation;
     int32_t sizes_scripts[9]; // size of charAnim vector
+    int32_t size_textures;
 
     //Character information
     uint16_t spec;
     uint16_t health_i; //hud1.tim
     uint32_t health_bar; //hud1.tim
+    char archive_path[128];
     fixed_t focus_x, focus_y, focus_zoom;
 } CharacterFileHeader;
 

@@ -46,11 +46,13 @@ struct CharacterFileHeader
     int32_t size_frames;
     int32_t size_animation;
     int32_t sizes_scripts[9]; // size of charAnim vector
+    int32_t size_textures;
 
     //Character information
     uint16_t spec;
     uint16_t health_i; //hud1.tim
     uint32_t health_bar; //hud1.tim
+    char archive_path[128];
     fixed_t focus_x, focus_y, focus_zoom;
 };
 
@@ -88,6 +90,8 @@ int main(int argc, char *argv[])
     new_char.health_i = j["health_i"];
     std::string health_bar_str = j["health_bar"];
     new_char.health_bar = std::stoul(health_bar_str, nullptr, 16);
+    std::string arcpath = j["archive"];
+    strncpy(new_char.archive_path, arcpath.c_str(), sizeof(new_char.archive_path));
     new_char.focus_x = FIXED_DEC(j["focus"][0][0], (int)j["focus"][0][1]);
     new_char.focus_y = FIXED_DEC(j["focus"][1][0], (int)j["focus"][1][1]);
     new_char.focus_zoom = FIXED_DEC(j["focus"][2][0], (int)j["focus"][2][1]);
@@ -162,21 +166,33 @@ int main(int argc, char *argv[])
             animations[i].script[i2] = scripts[i][i2];
     }
 
+    //textures
+    new_char.size_textures = j["textures"].size();
+    
+    char texpaths[new_char.size_textures][32];
+    for (int i = 0; i < j["textures"].size(); i++) {
+        std::string curtex = j["textures"][i];
+        strncpy(texpaths[i], curtex.c_str(), 32);
+    }
 
     std::ofstream binFile(argv[1], std::ostream::binary);
     binFile.write(reinterpret_cast<const char*>(&new_char), sizeof(new_char));
     binFile.write(reinterpret_cast<const char*>(&animations), sizeof(animations));
     binFile.write(reinterpret_cast<const char*>(&frames), sizeof(frames));
+    binFile.write(reinterpret_cast<const char*>(&texpaths), sizeof(texpaths));
     binFile.close();   
 
+/*
     //test reading
     CharacterFileHeader testchar;
     std::ifstream inFile(argv[1], std::istream::binary);
     inFile.read(reinterpret_cast<char *>(&testchar), sizeof(testchar));
     Animation animationstest[testchar.size_animation];
     CharFrame framestest[testchar.size_frames];
+    char textest[testchar.size_textures][32];
     inFile.read(reinterpret_cast<char *>(&animationstest), testchar.size_animation * sizeof(Animation));
     inFile.read(reinterpret_cast<char *>(&framestest), testchar.size_frames * sizeof(CharFrame));
+    inFile.read(reinterpret_cast<char *>(&textest), testchar.size_textures * 32);
     inFile.close();   
 
     //print header
@@ -201,5 +217,14 @@ int main(int argc, char *argv[])
         std::cout << std::endl;
     }
 
+    //print texture array        
+    std::cout << "tex" << std::endl;
+    for (int i = 0; i < testchar.size_textures; ++i)
+    {
+        for (int i2 = 0; i2 < 32; i2++)
+            std::cout << textest[i][i2];
+        std::cout << std::endl;
+    }   
+*/
     return 0;
 }

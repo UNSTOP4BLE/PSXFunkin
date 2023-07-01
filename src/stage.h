@@ -111,7 +111,7 @@ typedef struct
     //Characters
     struct
     {
-        Character* (*new)();
+        const char *path;
         fixed_t x, y;
     } pchar, pchar2, ochar, ochar2, gchar;
     

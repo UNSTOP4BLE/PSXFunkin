@@ -42,5 +42,16 @@
         [0, ["ASCR_CHGANI", "CharAnim_Idle"]],  
         [2, [10, 11, "ASCR_BACK", 1]],         
         [0, ["ASCR_CHGANI", "CharAnim_Idle"]]   
+    ],
+
+    "archive": "\\CHAR\\DAD.ARC;1",
+
+    "textures": [
+        "idle0.tim", 
+        "idle1.tim",
+        "left.tim", 
+        "down.tim",  
+        "up.tim",   
+        "right.tim" 
     ]
 }

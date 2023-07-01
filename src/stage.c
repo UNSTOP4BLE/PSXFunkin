@@ -43,20 +43,6 @@ static const uint8_t note_anims[4][3] = {
 bool noteshake;
 static uint32_t Sounds[7];
 
-#include "character/bf.h"
-#include "character/bfweeb.h"
-#include "character/dad.h"
-#include "character/spook.h"
-#include "character/pico.h"
-#include "character/mom.h"
-#include "character/xmasp.h"
-#include "character/monster.h"
-#include "character/senpai.h"
-#include "character/senpaim.h"
-#include "character/spirit.h"
-#include "character/gf.h"
-#include "character/gfweeb.h"
-
 #include "stage/dummy.h"
 #include "stage/week1.h"
 #include "stage/week2.h"
@@ -1271,8 +1257,8 @@ static void Stage_LoadPlayer(void)
 {
     //Load player character
     Character_Free(stage.player);
-    if (stage.stage_def->pchar.new != NULL)
-        stage.player = stage.stage_def->pchar.new(stage.stage_def->pchar.x, stage.stage_def->pchar.y);
+    if (stage.stage_def->pchar.path != NULL)
+        stage.player = Character_FromFile(stage.player, stage.stage_def->pchar.path, stage.stage_def->pchar.x, stage.stage_def->pchar.y);
     else
         stage.player = NULL;
 }
@@ -1282,8 +1268,8 @@ static void Stage_LoadPlayer2(void)
     //Load player character
     Character_Free(stage.player2);
     
-    if (stage.stage_def->pchar2.new != NULL) {
-        stage.player2 = stage.stage_def->pchar2.new(stage.stage_def->pchar2.x, stage.stage_def->pchar2.y);
+    if (stage.stage_def->pchar2.path != NULL) {
+        stage.player2 = Character_FromFile(stage.player2, stage.stage_def->pchar2.path, stage.stage_def->pchar2.x, stage.stage_def->pchar2.y);
     }
     else
         stage.player2 = NULL;
@@ -1294,15 +1280,18 @@ static void Stage_LoadOpponent(void)
 {
     //Load opponent character
     Character_Free(stage.opponent);
-    stage.opponent = Character_FromFile(stage.opponent, "\\CHAR\\DAD.CHR;1", stage.stage_def->ochar.x, stage.stage_def->ochar.y);
+    if (stage.stage_def->ochar.path != NULL)
+        stage.opponent = Character_FromFile(stage.opponent, stage.stage_def->ochar.path, stage.stage_def->ochar.x, stage.stage_def->ochar.y);
+    else
+        stage.opponent = NULL;
 }
 
 static void Stage_LoadOpponent2(void)
 {
     //Load opponent character
     Character_Free(stage.opponent2);
-    if (stage.stage_def->ochar2.new != NULL) {
-        stage.opponent2 = stage.stage_def->ochar2.new(stage.stage_def->ochar2.x, stage.stage_def->ochar2.y);
+    if (stage.stage_def->ochar2.path != NULL) {
+        stage.opponent2 = Character_FromFile(stage.opponent2, stage.stage_def->ochar2.path, stage.stage_def->ochar2.x, stage.stage_def->ochar2.y);;
     }
     else
         stage.opponent2 = NULL;
@@ -1312,8 +1301,8 @@ static void Stage_LoadGirlfriend(void)
 {
     //Load girlfriend character
     Character_Free(stage.gf);
-    if (stage.stage_def->gchar.new != NULL)
-        stage.gf = stage.stage_def->gchar.new(stage.stage_def->gchar.x, stage.stage_def->gchar.y);
+    if (stage.stage_def->gchar.path != NULL)
+        stage.gf =  Character_FromFile(stage.gf, stage.stage_def->gchar.path, stage.stage_def->gchar.x, stage.stage_def->gchar.y);
     else
         stage.gf = NULL;
 }

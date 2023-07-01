@@ -11,10 +11,14 @@
 #include <stdlib.h>      
 #include "stage.h"
 
+typedef struct TimPath{
+    char path[32];
+} TimPath;
+
 //Character functions
 void Char_Generic_SetFrame(void *user, uint8_t frame)
 {
-    printf("generic setframe \n");
+//    printf("generic setframe \n");
     Character *this = (Character*)user;
 
     //Check if this is a new frame
@@ -29,7 +33,7 @@ void Char_Generic_SetFrame(void *user, uint8_t frame)
 
 void Char_Generic_Tick(Character *character)
 {
-    printf("generic tick \n");
+  //  printf("generic tick \n");
     //Perform idle dance
     if ((character->pad_held & (INPUT_LEFT | INPUT_DOWN | INPUT_UP | INPUT_RIGHT)) == 0)
         Character_PerformIdle(character);
@@ -41,7 +45,7 @@ void Char_Generic_Tick(Character *character)
 
 void Char_Generic_SetAnim(Character *character, uint8_t anim)
 {
-    printf("generic setanim \n");
+  //  printf("generic setanim \n");
     //Set animation
     Animatable_SetAnim(&character->animatable, anim);
     Character_CheckStartSing(character);
@@ -50,8 +54,6 @@ void Char_Generic_SetAnim(Character *character, uint8_t anim)
 void Char_Generic_Free(Character *character)
 {
     //Free art
-    if (character->file != NULL)
-        free(character->file);
     free(character->arc_main);
 }
 
@@ -59,13 +61,10 @@ Character *Character_FromFile(Character *this, const char *path, fixed_t x, fixe
 {
     uint32_t offset = 0;
 
-    if (this->file != NULL)
-        free(this->file);
     if (this != NULL)
         free(this);
     this = malloc(sizeof(Character));
-    this->file = malloc(sizeof(CharacterFileHeader));
-    
+
     //load the actual character
     if (this == NULL)
     {
@@ -75,18 +74,18 @@ Character *Character_FromFile(Character *this, const char *path, fixed_t x, fixe
     }
 
     //Initialize character
-    //use generic functions later
     this->tick = Char_Generic_Tick;
     this->set_anim = Char_Generic_SetAnim;
     this->free = Char_Generic_Free;
     
     this->file = IO_Read(path);
-    CharacterFileHeader *tmphdr = (CharacterFileHeader *)this->file;
-    printf("size hedr %d, %d\n", sizeof(CharacterFileHeader), sizeof(Animation) * tmphdr->size_animation);
-    offset += sizeof(CharacterFileHeader);
-    Animatable_Init(&this->animatable, (const Animation *)(offset-51 + this->file));
-    offset += sizeof(Animation) * tmphdr->size_animation;
-    this->frames = (const CharFrame *)(offset-1779 + this->file);
+    CharacterFileHeader *tmphdr = (CharacterFileHeader *)this->file;    
+    offset += sizeof(CharacterFileHeader) / 4;
+    Animatable_Init(&this->animatable, (const Animation *)(offset + this->file));
+    offset += (sizeof(Animation) * tmphdr->size_animation) / 4;
+    this->frames = (const CharFrame *)(offset + this->file);
+    offset += (tmphdr->size_frames * sizeof(CharFrame)) / 4;
+    TimPath *tex_paths = (TimPath *)(offset + this->file);
 
     Character_Init(this, x, y);
     
@@ -103,25 +102,16 @@ Character *Character_FromFile(Character *this, const char *path, fixed_t x, fixe
     this->focus_zoom = tmphdr->focus_zoom;
     
     //Load art //todo
-    this->arc_main = IO_Read("\\CHAR\\DAD.ARC;1");
-    
-    const char **pathp = (const char *[]){
-        "idle0.tim", //Dad_ArcMain_Idle0
-        "idle1.tim", //Dad_ArcMain_Idle1
-        "left.tim",  //Dad_ArcMain_Left
-        "down.tim",  //Dad_ArcMain_Down
-        "up.tim",    //Dad_ArcMain_Up
-        "right.tim", //Dad_ArcMain_Right
-        NULL
-    };
+    this->arc_main = IO_Read(tmphdr->archive_path);
+
     IO_Data *arc_ptr = this->arc_ptr;
-    for (; *pathp != NULL; pathp++)
-        *arc_ptr++ = Archive_Find(this->arc_main, *pathp);
-    
+    for (int i = 0; i < tmphdr->size_textures; i++) {
+        printf("%s\n", tex_paths[i].path);
+        *arc_ptr++ = Archive_Find(this->arc_main, tex_paths[i].path);
+    }
     //Initialize render state
     this->tex_id = this->frame = 0xFF;
-/*
-
+    /*
     printf("struct %d, \n", tmphdr->size_struct);
     printf("frames %d, \n", tmphdr->size_frames);
     printf("animation %d, \n", tmphdr->size_animation);
