@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
     binFile.close();  
 
     std::cout << "success" << std::endl;
-/*
+///*
     //test reading
     CharacterFileHeader testchar; 
     std::ifstream inFile(argv[1], std::istream::binary); 
@@ -276,7 +276,9 @@ int main(int argc, char *argv[])
         for (int i2 = 0; i2 < 32; i2++)
             std::cout << textest[i][i2];
         std::cout << std::endl;
-    }   */
+    } 
+    inFile.close();
+      //*/
 
     return 0;
 }

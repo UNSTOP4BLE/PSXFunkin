@@ -156,7 +156,7 @@ Character *Character_FromFile(Character *this, const char *path, fixed_t x, fixe
     this->focus_x = tmphdr->focus_x;
     this->focus_y = tmphdr->focus_y;
     this->focus_zoom = tmphdr->focus_zoom;
-    /*
+    
         printf("struct %d, \n", tmphdr->size_struct);
     printf("frames %d, \n", tmphdr->size_frames);
     printf("animation %d, \n", tmphdr->size_animation);
@@ -178,7 +178,7 @@ Character *Character_FromFile(Character *this, const char *path, fixed_t x, fixe
 
     for (int i = 0; i < tmphdr->size_frames; ++i) {
         printf("tex %d, frames %d %d %d %d offsets %d %d\n", (unsigned int)this->frames[i].tex, this->frames[i].src[0], this->frames[i].src[1], this->frames[i].src[2], this->frames[i].src[3], this->frames[i].off[0], this->frames[i].off[1] ); 
-    }   */
+    }   
     //Load art 
     this->arc_main = IO_Read(tmphdr->archive_path);
 

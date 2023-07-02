@@ -48,6 +48,7 @@
 
     "textures": [
         "gf0.tim", 
-        "gf1.tim"
+        "gf1.tim",
+        "gf2.tim"
     ]
 }

@@ -1994,8 +1994,9 @@ void Stage_Tick(void)
             if (stage.cur_section->flag & SECTION_FLAG_OPPFOCUS)
                 if (stage.opponent != NULL)
                     Stage_FocusCharacter(stage.opponent, FIXED_UNIT / 24);
-            else if (stage.player != NULL)
-                Stage_FocusCharacter(stage.player, FIXED_UNIT / 24);
+            else 
+                if (stage.player != NULL)
+                    Stage_FocusCharacter(stage.player, FIXED_UNIT / 24);
             Stage_ScrollCamera();
             
             //Draw Score
