@@ -1,8 +1,8 @@
     { //StageId_1_1 (Bopeebo)
         //Characters
-        {"\\CHAR\\BF.CHR;1",   FIXED_DEC(60,1),    FIXED_DEC(100,1)},
+        {"\\CHAR\\BF.CHR;1",  FIXED_DEC(60,1),   FIXED_DEC(100,1)},
         {NULL},
-        {"\\CHAR\\DAD.CHR;1",  FIXED_DEC(-120,1),  FIXED_DEC(100,1)},
+        {"\\CHAR\\DAD.CHR;1", FIXED_DEC(-120,1), FIXED_DEC(100,1)},
         {NULL},
         {NULL,   FIXED_DEC(0,1),     FIXED_DEC(-10,1)},
         
@@ -17,9 +17,9 @@
     },
     { //StageId_1_2 (Fresh)
         //Characters
-        {NULL,    FIXED_DEC(60,1),  FIXED_DEC(100,1)},
+        {"\\CHAR\\BF.CHR;1",  FIXED_DEC(60,1),   FIXED_DEC(100,1)},
         {NULL},
-        {"\\CHAR\\DAD.CHR;1", FIXED_DEC(-120,1),  FIXED_DEC(100,1)},
+        {"\\CHAR\\DAD.CHR;1", FIXED_DEC(-120,1), FIXED_DEC(100,1)},
         {NULL},
         {NULL,     FIXED_DEC(0,1),  FIXED_DEC(-10,1)},
         
@@ -34,9 +34,9 @@
     },
     { //StageId_1_3 (Dadbattle)
         //Characters
-        {NULL,    FIXED_DEC(60,1),  FIXED_DEC(100,1)},
+        {"\\CHAR\\BF.CHR;1",  FIXED_DEC(60,1),   FIXED_DEC(100,1)},
         {NULL},
-        {NULL, FIXED_DEC(-120,1),  FIXED_DEC(100,1)},
+        {"\\CHAR\\DAD.CHR;1", FIXED_DEC(-120,1), FIXED_DEC(100,1)},
         {NULL},
         {NULL,     FIXED_DEC(0,1),  FIXED_DEC(-10,1)},
         
@@ -51,9 +51,9 @@
     },
     { //StageId_1_4 (Tutorial)
         //Characters
-        {NULL, FIXED_DEC(60,1),  FIXED_DEC(100,1)},
+        {"\\CHAR\\BF.CHR;1", FIXED_DEC(60,1), FIXED_DEC(100,1)},
         {NULL},
-        {NULL,  FIXED_DEC(0,1),  FIXED_DEC(-15,1)},
+        {"\\CHAR\\GF.CHR;1", FIXED_DEC(0,1),  FIXED_DEC(-15,1)},
         {NULL},
         {NULL},
         
@@ -69,11 +69,11 @@
     
     { //StageId_2_1 (Spookeez)
         //Characters
-        {NULL,      FIXED_DEC(56,1),   FIXED_DEC(85,1)},
+        {"\\CHAR\\BF.CHR;1",    FIXED_DEC(56,1),  FIXED_DEC(85,1)},
         {NULL},
-        {NULL,  FIXED_DEC(-90,1),   FIXED_DEC(85,1)},
+        {"\\CHAR\\SPOOK.CHR;1", FIXED_DEC(-90,1), FIXED_DEC(85,1)},
         {NULL},
-        {NULL,       FIXED_DEC(0,1),  FIXED_DEC(-15,1)},
+        {"\\CHAR\\GF.CHR;1",    FIXED_DEC(0,1),   FIXED_DEC(-15,1)},
         
         //Stage background
         Back_Week2_New,
@@ -86,11 +86,11 @@
     },
     { //StageId_2_2 (South)
         //Characters
-        {NULL,      FIXED_DEC(56,1),   FIXED_DEC(85,1)},
+        {"\\CHAR\\BF.CHR;1",    FIXED_DEC(56,1),  FIXED_DEC(85,1)},
         {NULL},
-        {NULL,  FIXED_DEC(-90,1),   FIXED_DEC(85,1)},
+        {"\\CHAR\\SPOOK.CHR;1", FIXED_DEC(-90,1), FIXED_DEC(85,1)},
         {NULL},
-        {NULL,       FIXED_DEC(0,1),  FIXED_DEC(-15,1)},
+        {"\\CHAR\\GF.CHR;1",    FIXED_DEC(0,1),   FIXED_DEC(-15,1)},
         
         //Stage background
         Back_Week2_New,
@@ -103,11 +103,11 @@
     },
     { //StageId_2_3 (Monster)
         //Characters
-        {NULL,      FIXED_DEC(56,1),   FIXED_DEC(85,1)},
+        {"\\CHAR\\BF.CHR;1",      FIXED_DEC(56,1),  FIXED_DEC(85,1)},
         {NULL},
-        {NULL,  FIXED_DEC(-90,1),   FIXED_DEC(85,1)},
+        {"\\CHAR\\MONSTER.CHR;1", FIXED_DEC(-90,1), FIXED_DEC(85,1)},
         {NULL},
-        {NULL,       FIXED_DEC(0,1),  FIXED_DEC(-15,1)},
+        {"\\CHAR\\GF.CHR;1",      FIXED_DEC(0,1),   FIXED_DEC(-15,1)},
         
         //Stage background
         Back_Week2_New,
@@ -121,12 +121,12 @@
     
     { //StageId_3_1 (Pico)
         //Characters
-        {NULL,     FIXED_DEC(56,1),   FIXED_DEC(85,1)},
+        {"\\CHAR\\BF.CHR;1",   FIXED_DEC(56,1),   FIXED_DEC(85,1)},
         {NULL},
-        {NULL, FIXED_DEC(-105,1),   FIXED_DEC(85,1)},
+        {"\\CHAR\\PICO.CHR;1", FIXED_DEC(-105,1), FIXED_DEC(85,1)},
         {NULL},
-        {NULL,      FIXED_DEC(0,1),  FIXED_DEC(-15,1)},
-        
+        {"\\CHAR\\GF.CHR;1",   FIXED_DEC(0,1),    FIXED_DEC(-15,1)},
+
         //Stage background
         Back_Week3_New,
         
@@ -138,11 +138,11 @@
     },
     { //StageId_3_2 (Philly)
         //Characters
-        {NULL,     FIXED_DEC(56,1),   FIXED_DEC(85,1)},
+        {"\\CHAR\\BF.CHR;1",   FIXED_DEC(56,1),   FIXED_DEC(85,1)},
         {NULL},
-        {NULL, FIXED_DEC(-105,1),   FIXED_DEC(85,1)},
+        {"\\CHAR\\PICO.CHR;1", FIXED_DEC(-105,1), FIXED_DEC(85,1)},
         {NULL},
-        {NULL,      FIXED_DEC(0,1),  FIXED_DEC(-15,1)},
+        {"\\CHAR\\GF.CHR;1",   FIXED_DEC(0,1),    FIXED_DEC(-15,1)},
         
         //Stage background
         Back_Week3_New,
@@ -155,11 +155,11 @@
     },
     { //StageId_3_3 (Blammed)
         //Characters
-        {NULL,     FIXED_DEC(56,1),   FIXED_DEC(85,1)},
+        {"\\CHAR\\BF.CHR;1",   FIXED_DEC(56,1),   FIXED_DEC(85,1)},
         {NULL},
-        {NULL, FIXED_DEC(-105,1),   FIXED_DEC(85,1)},
+        {"\\CHAR\\PICO.CHR;1", FIXED_DEC(-105,1), FIXED_DEC(85,1)},
         {NULL},
-        {NULL,      FIXED_DEC(0,1),  FIXED_DEC(-15,1)},
+        {"\\CHAR\\GF.CHR;1",   FIXED_DEC(0,1),    FIXED_DEC(-15,1)},
         
         //Stage background
         Back_Week3_New,
@@ -173,11 +173,11 @@
     
     { //StageId_4_1 (Satin Panties)
         //Characters
-        {NULL,   FIXED_DEC(120,1),   FIXED_DEC(40,1)},
+        {"\\CHAR\\BF.CHR;1",  FIXED_DEC(120,1),  FIXED_DEC(40,1)},
         {NULL},
-        {NULL, FIXED_DEC(-120,1),  FIXED_DEC(100,1)},
+        {"\\CHAR\\MOM.CHR;1", FIXED_DEC(-120,1), FIXED_DEC(100,1)},
         {NULL},
-        {NULL,    FIXED_DEC(-6,1),   FIXED_DEC(-5,1)},
+        {"\\CHAR\\GF.CHR;1",  FIXED_DEC(-6,1),   FIXED_DEC(-5,1)},
         
         //Stage background
         Back_Week4_New,
@@ -190,11 +190,11 @@
     },
     { //StageId_4_2 (High)
         //Characters
-        {NULL,   FIXED_DEC(120,1),   FIXED_DEC(40,1)},
+        {"\\CHAR\\BF.CHR;1",  FIXED_DEC(120,1),  FIXED_DEC(40,1)},
         {NULL},
-        {NULL, FIXED_DEC(-120,1),  FIXED_DEC(100,1)},
+        {"\\CHAR\\MOM.CHR;1", FIXED_DEC(-120,1), FIXED_DEC(100,1)},
         {NULL},
-        {NULL,    FIXED_DEC(-6,1),   FIXED_DEC(-5,1)},
+        {"\\CHAR\\GF.CHR;1",  FIXED_DEC(-6,1),   FIXED_DEC(-5,1)},
         
         //Stage background
         Back_Week4_New,
@@ -207,11 +207,11 @@
     },
     { //StageId_4_3 (MILF)
         //Characters
-        {NULL,   FIXED_DEC(120,1),   FIXED_DEC(40,1)},
+        {"\\CHAR\\BF.CHR;1",  FIXED_DEC(120,1),  FIXED_DEC(40,1)},
         {NULL},
-        {NULL, FIXED_DEC(-120,1),  FIXED_DEC(100,1)},
+        {"\\CHAR\\MOM.CHR;1", FIXED_DEC(-120,1), FIXED_DEC(100,1)},
         {NULL},
-        {NULL,    FIXED_DEC(-6,1),   FIXED_DEC(-5,1)},
+        {"\\CHAR\\GF.CHR;1",  FIXED_DEC(-6,1),   FIXED_DEC(-5,1)},
         
         //Stage background
         Back_Week4_New,
@@ -224,11 +224,11 @@
     },
     { //StageId_4_4 (Test)
         //Characters
-        {NULL,     FIXED_DEC(105,1),  FIXED_DEC(100,1)},
+        {"\\CHAR\\BF.CHR;1",  FIXED_DEC(105,1),  FIXED_DEC(100,1)},
         {NULL},
-        {NULL, FIXED_DEC(-120,1),  FIXED_DEC(100,1)},
+        {"\\CHAR\\DAD.CHR;1", FIXED_DEC(-120,1), FIXED_DEC(100,1)},
         {NULL},
-        {NULL,       FIXED_DEC(0,1),  FIXED_DEC(-15,1)},
+        {"\\CHAR\\GF.CHR;1",  FIXED_DEC(0,1),    FIXED_DEC(-15,1)},
         
         //Stage background
         Back_Dummy_New,

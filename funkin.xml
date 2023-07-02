@@ -187,9 +187,11 @@
 
                 <!-- Monster assets -->
                 <file name = "monster.arc" type = "data" source = "iso/characters/monster/main.arc"/>
+                <file name = "monster.chr" type = "data" source = "iso/characters/monster/monster.chr"/>
                 
                 <!-- Pico assets -->
                 <file name = "pico.arc" type = "data" source = "iso/characters/pico/main.arc"/>
+                <file name = "pico.chr" type = "data" source = "iso/characters/pico/pico.chr"/>
                 
                 <!-- Mom assets -->
                 <file name = "mom.arc" type = "data" source = "iso/characters/mom/main.arc"/>
@@ -207,6 +209,7 @@
                 
                 <!-- Girlfriend assets -->
                 <file name = "gf.arc" type = "data" source = "iso/characters/gf/main.arc"/>
+                <file name = "gf.chr" type = "data" source = "iso/characters/gf/gf.chr"/>
                 <file name = "gftut.arc" type = "data" source = "iso/characters/gf/tut.arc"/>
                 <file name = "gfweeb.arc" type = "data" source = "iso/characters/gf/weeb.arc"/>
                 <file name = "gfx.arc" type = "data" source = "iso/characters/gf/xmas.arc"/>

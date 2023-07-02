@@ -149,6 +149,7 @@ int main(int argc, char *argv[])
     new_char.size_animation = j["animation"].size();
 
     for (int i = 0; i < j["animation"].size(); i++) {
+    //    std::cout << "loopy" << std::endl;
         scripts.resize(j["animation"].size());
         scripts[i].resize(j["animation"][i][1].size());
         new_char.sizes_scripts[i] = j["animation"][i][1].size();
@@ -164,19 +165,23 @@ int main(int argc, char *argv[])
             else //change string to number
             {
                 if (i2 == j["animation"][i][1].size()-2) { // ascr mode
-             //       std::cout << j["animation"][i][1][i2] << std::endl;
-                    bool isrepeat = j["animation"][i][1][i2].is_string();
+                  //  std::cout << "ascr " << j["animation"][i][1][i2] << std::endl;
+                    bool isstr = j["animation"][i][1][i2].is_string();
                     std::string ascrmode;
-                    if (!isrepeat && j["animation"][i][1][i2+1] == "ASCR_REPEAT")
+                    if (!isstr && j["animation"][i][1][i2+1] == "ASCR_REPEAT")
+                    {
                         ascrmode = j["animation"][i][1][i2+1];
-                    else
-                        ascrmode = j["animation"][i][1][i2];
-
-                    if (ascrmode == "ASCR_REPEAT") {
-                        scripts[i][i2] = ASCR_REPEAT;
+                     //   std::cout << "ascr real " << j["animation"][i][1][i2+1] << std::endl;
+                        scripts[i][i2] = j["animation"][i][1][i2];
+                        scripts[i][i2+1] = ASCR_REPEAT;
                         break;
                     }
-                    else if (ascrmode == "ASCR_BACK")
+                    else {
+                        ascrmode = j["animation"][i][1][i2];
+                  //      std::cout << "ascr real " << j["animation"][i][1][i2] << std::endl;
+                    }
+
+                    if (ascrmode == "ASCR_BACK")
                         scripts[i][i2] = ASCR_BACK;
                     else if (ascrmode == "ASCR_CHGANI")
                         scripts[i][i2] = ASCR_CHGANI;
@@ -198,6 +203,7 @@ int main(int argc, char *argv[])
             }
         }
     }
+     //   std::cout << "done lmao" << std::endl;
     
 
     //copy over the shit into the arrays 
@@ -205,9 +211,10 @@ int main(int argc, char *argv[])
     for (int i = 0; i < new_char.size_animation; i++)
     {
         animations[i].spd = anims[i].spd;
-        for (int i2 = 0; i2 < 256; i2++)
+        for (int i2 = 0; i2 < scripts[i].size(); i2++)
             animations[i].script[i2] = scripts[i][i2];
     }
+//        std::cout << "anim lmao" << std::endl;
 
     //textures
     new_char.size_textures = j["textures"].size();
@@ -218,6 +225,7 @@ int main(int argc, char *argv[])
         strncpy(texpaths[i], curtex.c_str(), 32);
     }
 
+   //     std::cout << "tex lmao" << std::endl;
     std::ofstream binFile(std::string(argv[1]), std::ostream::binary);
     binFile.write(reinterpret_cast<const char*>(&new_char), sizeof(new_char));
     binFile.write(reinterpret_cast<const char*>(&animations), sizeof(animations));

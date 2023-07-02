@@ -1,0 +1,51 @@
+{
+    "spec": 0,
+    "health_i": 1,
+    "health_bar": "0xFFB5D652",
+    "focus": [[65, 1], [-65, 1], [1, 1]],
+
+    "struct": [
+        "Pico_ArcMain_Idle",
+        "Pico_ArcMain_Hit0",
+        "Pico_ArcMain_Hit1"
+    ],
+
+    "frames": [    
+        ["Pico_ArcMain_Idle", [  0,   0, 110, 116], [ 64, 104]],                                                                                                                                                  
+        ["Pico_ArcMain_Idle", [111,   0, 112, 118], [ 64, 106]],                                                                                                                                                  
+        ["Pico_ArcMain_Idle", [  0, 117, 112, 119], [ 62, 107]],                                                                                                                                                  
+        ["Pico_ArcMain_Idle", [113, 119, 111, 120], [ 61, 108]],                                                                                                                                                  
+                                                                                                                                                                                                                
+        ["Pico_ArcMain_Hit0", [  0,   0, 115, 120], [ 77, 110]],                                                                                                                                                  
+        ["Pico_ArcMain_Hit0", [116,   0, 111, 119], [ 73, 109]],                                                                                                                                                  
+                                                                                                                                                                                                                
+        ["Pico_ArcMain_Hit0", [  0, 121, 124,  96], [ 53,  85]],                                                                                                                                                  
+        ["Pico_ArcMain_Hit0", [125, 120, 126,  98], [ 51,  87]],                                                                                                                                                  
+                                                                                                                                                                                                                
+        ["Pico_ArcMain_Hit1", [  0,   0, 109, 125], [ 51, 117]],                                                                                                                                                  
+        ["Pico_ArcMain_Hit1", [110,   0, 109, 123], [ 53, 116]],                                                                                                                                                  
+                                                                                                                                                                                                                
+        ["Pico_ArcMain_Hit1", [  0, 126, 113, 116], [ 41, 105]],                                                                                                                                                  
+        ["Pico_ArcMain_Hit1", [114, 124, 114, 117], [ 40, 106]]
+    ],
+
+    "animation": [                                                                                                                                                            
+        [2, [ 0,  1,  2,  3, "ASCR_BACK", 1]],                                                                                                                                                                    
+        [2, [ 4,  5, "ASCR_BACK", 1]],                                                                                                                                                                            
+        [0, ["ASCR_CHGANI", "CharAnim_Idle"]],                                                                                                                                                                      
+        [2, [ 6,  7, "ASCR_BACK", 1]],                                                                                                                                                                            
+        [0, ["ASCR_CHGANI", "CharAnim_Idle"]],                                                                                                                                                                      
+        [2, [ 8,  9, "ASCR_BACK", 1]],                                                                                                                                                                            
+        [0, ["ASCR_CHGANI", "CharAnim_Idle"]],                                                                                                                                                                      
+        [2, [10, 11, "ASCR_BACK", 1]],                                                                                                                                                                            
+        [0, ["ASCR_CHGANI", "CharAnim_Idle"]]    
+    ],
+
+    "archive": "\\CHAR\\PICO.ARC;1",
+
+    "textures": [
+        "idle.tim", 
+        "hit0.tim", 
+        "hit1.tim"
+    ]
+}

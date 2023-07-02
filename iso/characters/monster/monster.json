@@ -1,50 +1,50 @@
 {
     "spec": 0,
-    "health_i": 1,
-    "health_bar": "0xFFAD63D6",
-    "focus": [[0, 1], [0, 1], [1, 1]],
+    "health_i": 2,
+    "health_bar": "0xFFF7FF6B",
+    "focus": [[65, 1], [-80, 1], [1, 1]],
 
     "struct": [
-        "Dad_ArcMain_Idle0",
-        "Dad_ArcMain_Idle1",
-        "Dad_ArcMain_Left",
-        "Dad_ArcMain_Down",
-        "Dad_ArcMain_Up",
-        "Dad_ArcMain_Right"
+        "Monster_ArcMain_Idle0",
+        "Monster_ArcMain_Idle1",
+        "Monster_ArcMain_Left",
+        "Monster_ArcMain_Down",
+        "Monster_ArcMain_Up",
+        "Monster_ArcMain_Right"
     ],
 
-    "frames": [
-        ["Dad_ArcMain_Idle0", [  0,   0, 106, 192], [ 42, 187]], 
-        ["Dad_ArcMain_Idle0", [107,   0, 108, 190], [ 43, 185]], 
-        ["Dad_ArcMain_Idle1", [  0,   0, 107, 190], [ 42, 185]],
-        ["Dad_ArcMain_Idle1", [108,   0, 105, 192], [ 41, 187]],
-       
-        ["Dad_ArcMain_Left", [  0,   0,  93, 195], [ 40, 189]], 
-        ["Dad_ArcMain_Left", [ 94,   0,  95, 195], [ 40, 189]], 
-        
-        ["Dad_ArcMain_Down", [  0,   0, 118, 183], [ 43, 178]], 
-        ["Dad_ArcMain_Down", [119,   0, 117, 183], [ 43, 179]], 
-        
-        ["Dad_ArcMain_Up", [  0,   0, 102, 205], [ 40, 200]],
-        ["Dad_ArcMain_Up", [103,   0, 103, 203], [ 40, 198]], 
-        
-        ["Dad_ArcMain_Right", [  0,   0, 117, 199], [ 43, 193]], 
-        ["Dad_ArcMain_Right", [118,   0, 114, 199], [ 42, 193]] 
+    "frames": [                                                                                                                                                    
+        ["Monster_ArcMain_Idle0", [  0,   0, 106, 159], [ 52, 159]],                                                                                                                                              
+        ["Monster_ArcMain_Idle0", [107,   0, 105, 162], [ 53, 162]],                                                                                                                                              
+        ["Monster_ArcMain_Idle1", [  0,   0, 110, 160], [ 54, 160]],                                                                                                                                              
+        ["Monster_ArcMain_Idle1", [111,   0, 121, 175], [ 63, 175]],                                                                                                                                              
+                                                                                                                                                                                                                
+        ["Monster_ArcMain_Left", [  0,   0,  115, 178], [ 47, 178]],                                                                                                                                              
+        ["Monster_ArcMain_Left", [117,   0,  119, 176], [ 52, 176]],                                                                                                                                              
+                                                                                                                                                                                                                
+        ["Monster_ArcMain_Down", [  0,   0, 107, 153], [ 49, 153]],                                                                                                                                               
+        ["Monster_ArcMain_Down", [108,   0, 108, 153], [ 51, 152]],                                                                                                                                               
+                                                                                                                                                                                                                
+        ["Monster_ArcMain_Up", [  0,   0, 102, 188], [ 52, 188]],                                                                                                                                                 
+        ["Monster_ArcMain_Up", [103,   0, 105, 188], [ 55, 181]],                                                                                                                                                 
+                                                                                                                                                                                                                
+        ["Monster_ArcMain_Right", [  0,   0, 93, 180], [ 49, 180]],                                                                                                                                               
+        ["Monster_ArcMain_Right", [ 93,   0, 95, 180], [ 52, 178]]
     ],
 
-    "animation": [
-        [2, [ 1,  2,  3,  0, "ASCR_BACK", 1]], 
-        [2, [ 4,  5, "ASCR_BACK", 1]],         
-        [0, ["ASCR_CHGANI", "CharAnim_Idle"]],   
-        [2, [ 6,  7, "ASCR_BACK", 1]],        
-        [0, ["ASCR_CHGANI", "CharAnim_Idle"]],  
-        [2, [ 8,  9, "ASCR_BACK", 1]],      
-        [0, ["ASCR_CHGANI", "CharAnim_Idle"]],  
-        [2, [10, 11, "ASCR_BACK", 1]],         
-        [0, ["ASCR_CHGANI", "CharAnim_Idle"]]   
+    "animation": [                                        
+        [2, [ 0, 1, 2, 3, "ASCR_BACK", 0]],                                                                                     
+        [2, [ 4,  5, "ASCR_BACK", 0]],                                                                                          
+        [0, ["ASCR_CHGANI", "CharAnim_Idle"]],                                                                                    
+        [2, [ 6,  7, "ASCR_BACK", 0]],                                                                                          
+        [0, ["ASCR_CHGANI", "CharAnim_Idle"]],                                                                                    
+        [2, [ 8,  9, "ASCR_BACK", 0]],                                                                                          
+        [0, ["ASCR_CHGANI", "CharAnim_Idle"]],                                                                                    
+        [2, [10, 11, "ASCR_BACK", 0]],                                                                                          
+        [0, ["ASCR_CHGANI", "CharAnim_Idle"]]
     ],
 
-    "archive": "\\CHAR\\DAD.ARC;1",
+    "archive": "\\CHAR\\MONSTER.ARC;1",
 
     "textures": [
         "idle0.tim", 

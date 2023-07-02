@@ -45,9 +45,15 @@ for curpath in dapaths:
 
     bpp = 0
     with open(curpath + '.txt', 'r') as file:
+        if not file.closed:
+            print("opened file "+ curpath + '.txt')
+        else:
+            print("failed to open file "+ curpath + '.txt')
+            continue
         bpp = file.read()
-        bpp.strip()
+        bpp.strip(' ')
         bppstr = ''.join(bpp.split('\n'))
+        bppstr = ''.join(bppstr.split('\r\n'))
         bpp = bppstr
         bpp = bpp[-1] 
 
