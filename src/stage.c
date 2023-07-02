@@ -111,16 +111,10 @@ static void Stage_ScrollCamera(void)
         }
         else
         {
-            //Get delta position
-            fixed_t dx = stage.camera.tx - stage.camera.x;
-            fixed_t dy = stage.camera.ty - stage.camera.y;
-            fixed_t dz = stage.camera.tz - stage.camera.zoom;
-            
-            //Scroll based off current divisor
-            stage.camera.x += FIXED_MUL(dx, stage.camera.td);
-            stage.camera.y += FIXED_MUL(dy, stage.camera.td);
-            stage.camera.zoom += FIXED_MUL(dz, stage.camera.td);
-            
+            stage.camera.x = FIXED_LERP(stage.camera.x, stage.camera.tx, stage.camera.speed);
+            stage.camera.y = FIXED_LERP(stage.camera.y, stage.camera.ty, stage.camera.speed);
+            stage.camera.zoom = FIXED_LERP(stage.camera.zoom, stage.camera.tz, stage.camera.speed);
+        
             //Shake in Week 4
             if (stage.stage_id >= StageId_4_1 && stage.stage_id <= StageId_4_3 && !stage.paused)
             {

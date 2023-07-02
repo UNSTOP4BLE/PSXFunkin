@@ -67,9 +67,13 @@ int main(int argc, char **argv)
     gameloop = GameLoop_Menu;
     Gfx_ScreenSetup();
     Menu_Load(MenuPage_Opening);
+    char dbginfo[256];
+    int next_run, curfps, framecount = 0;
 
     //Game loop
     while (PSX_Running()) {
+        int cur_t = Timer_GetTime();
+        framecount ++;
 #ifndef NDEBUG
         Timer_StartProfile();
 #endif
@@ -80,10 +84,15 @@ int main(int argc, char **argv)
 //        Audio_FeedStream();
         Pad_Update();
 
+        //debug infos
+        //if (dbginfo != NULL)
+      //      Gfx_DrawText(0, 5, 0, dbginfo);
+        sprintf(dbginfo, "FPS: %d", curfps);
+        Gfx_DrawText(5, 5, 0, dbginfo);
+
         //Tick and draw game
         switch (gameloop)
         {
-
             case GameLoop_Menu:
                 Menu_Tick();
                 break;
@@ -101,11 +110,8 @@ int main(int argc, char **argv)
 
         int cpu = Timer_EndProfile();
         int ram = 100 * heap.alloc / heap.total;
-
-        FntPrint(
-            0, "CPU:%3d%%  HEAP:%06x\nRAM:%3d%%  MAX: %06x\n",
-            cpu, heap.alloc, ram, heap.alloc_max
-        );
+        sprintf(dbginfo, "CPU:%3d%%  HEAP:%06x\nRAM:%3d%%  MAX: %06x\n",
+            cpu, heap.alloc, ram, heap.alloc_max);
 #endif
 
         //Flip gfx buffers
@@ -113,6 +119,11 @@ int main(int argc, char **argv)
             STR_Proccess();
         else
             Gfx_Flip();
+        if (cur_t > next_run) {
+            curfps = framecount;
+            framecount = 0;
+            next_run = cur_t + TICKS_PER_SEC;
+        }
     }
     
     return 0;

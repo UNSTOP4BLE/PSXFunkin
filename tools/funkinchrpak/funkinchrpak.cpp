@@ -87,7 +87,8 @@ int getEnumFromString(std::vector<std::string> &compare, std::string str) {
     for (int i = 0; i < compare.size(); i++)
         if (strcmp(compare[i].c_str(), str.c_str()) == 0) return i;
 
-    std::cout << "invalid enum " << str << std::endl;   
+    std::cout << "invalid enum " <<"(" << str << ")" <<std::endl;   
+    exit(1);
     return 0;
 }
 
@@ -123,7 +124,8 @@ int main(int argc, char *argv[])
             new_char.spec = CHAR_SPEC_GIRLFRIEND;
         else if (spec == "CHAR_SPEC_MOMHAIR")
             new_char.spec = CHAR_SPEC_MOMHAIR;
-        else new_char.spec = 0;
+        else 
+            std::cout << "invalid spec " << spec << std::endl;   
 
     }
     else new_char.spec = 0;
@@ -201,7 +203,7 @@ int main(int argc, char *argv[])
                     bool isstring = j["animation"][i][1][i2].is_string();
                     if (isstring) {
                         std::string backanim = j["animation"][i][1][i2];
-                        if (i > charAnim.size())
+                        if (i > charAnim.size() && !std::count(charAnim.begin(), charAnim.end(), backanim))
                             scripts[i][i2] = charAnim.size()+getEnumFromString(playerAnim, backanim);
                         else
                             scripts[i][i2] = getEnumFromString(charAnim, backanim);
@@ -281,13 +283,13 @@ int main(int argc, char *argv[])
 
     //print texture array        
     std::cout << "tex" << std::endl;
+    std::cout << testchar.archive_path << std::endl;
     for (int i = 0; i < testchar.size_textures; ++i)
     {
         for (int i2 = 0; i2 < 32; i2++)
             std::cout << textest[i][i2];
         std::cout << std::endl;
     } 
-    inFile.close();
       //*/
 
     return 0;

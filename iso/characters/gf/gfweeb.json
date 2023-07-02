@@ -1,0 +1,42 @@
+{
+    "spec": "CHAR_SPEC_GIRLFRIEND",
+    "health_i": 1,
+    "health_bar": "0xFFAD63D6",
+    "focus": [[0, 1], [0, 1], [1, 1]],
+
+    "struct": [                                                                                                                                                                                                                                    
+        "GFWeeb_ArcMain_Weeb0",                                                                                                                                                                                                                                      
+        "GFWeeb_ArcMain_Weeb1"
+    ],
+
+    "frames": [
+        ["GFWeeb_ArcMain_Weeb0", [  0,   0, 104,  92], [ 52,  92]],                                                                                                                                                                                                  
+        ["GFWeeb_ArcMain_Weeb0", [105,   0, 103,  93], [ 52,  93]],                                                                                                                                                                                                  
+        ["GFWeeb_ArcMain_Weeb0", [  0,  93,  98,  96], [ 49,  96]],                                                                                                                                                                                                  
+        ["GFWeeb_ArcMain_Weeb0", [ 99,  94,  98,  96], [ 49,  96]],                                                                                                                                                                                                  
+                                                                                                                                                                                                                                                                   
+        ["GFWeeb_ArcMain_Weeb1", [  0,   0, 104,  91], [ 52,  91]],                                                                                                                                                                                                  
+        ["GFWeeb_ArcMain_Weeb1", [105,   0, 102,  92], [ 51,  92]],                                                                                                                                                                                                  
+        ["GFWeeb_ArcMain_Weeb1", [  0,  92,  98,  96], [ 49,  96]],                                                                                                                                                                                                  
+        ["GFWeeb_ArcMain_Weeb1", [ 99,  93,  98,  95], [ 49,  95]]
+    ],
+
+    "animation": [                                                                                                                                    
+        [0, ["ASCR_CHGANI", "CharAnim_Left"]],                                                                                                                                                                                                                         
+        [1, [ 0,  0,  1,  1,  1,  2,  2,  2,  2,  3, "ASCR_BACK", 1]],                                                                                                                                                                                               
+        [0, ["ASCR_CHGANI", "CharAnim_Left"]],                                                                                                                                                                                                                         
+        [0, ["ASCR_CHGANI", "CharAnim_Left"]],                                                                                                                                                                                                                         
+        [0, ["ASCR_CHGANI", "CharAnim_Left"]],                                                                                                                                                                                                                         
+        [0, ["ASCR_CHGANI", "CharAnim_Left"]],                                                                                                                                                                                                                         
+        [0, ["ASCR_CHGANI", "CharAnim_Left"]],                                                                                                                                                                                                                         
+        [1, [ 4,  4,  5,  5,  5,  6,  6,  6,  6,  7, "ASCR_BACK", 1]],                                                                                                                                                                                               
+        [0, ["ASCR_CHGANI", "CharAnim_Left"]]
+    ],
+
+    "archive": "\\CHAR\\GFWEEB.ARC;1",
+
+    "textures": [
+        "weeb0.tim",                                                                                                                                                                                                                                           
+        "weeb1.tim"    
+    ]
+}

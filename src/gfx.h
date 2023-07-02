@@ -44,6 +44,7 @@ typedef struct
 //Gfx functions
 void Gfx_Init(void);
 void Gfx_ScreenSetup(void);
+void Gfx_DrawText(int x, int y, int z, const char *text);
 void Gfx_Quit(void);
 void Gfx_Flip(void);
 void Gfx_SetClear(uint8_t r, uint8_t g, uint8_t b);

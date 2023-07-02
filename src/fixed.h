@@ -38,4 +38,5 @@ typedef struct
 #define FIXEDU_MUL(x, y) ((fixedu_t)(((uint64_t)(x) * (y)) >> FIXED_SHIFT))
 #define FIXEDU_DIV(x, y) ((fixedu_t)(((uint32_t)(x) * FIXED_UNIT) / (y)))
 
+#define FIXED_LERP(c, t, s) (c+FIXED_MUL((t-c), s))
 #endif

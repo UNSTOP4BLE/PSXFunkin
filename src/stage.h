@@ -226,6 +226,7 @@ typedef struct
     {
         fixed_t x, y, zoom;
         fixed_t tx, ty, tz, td;
+        fixed_t speed;
         fixed_t bzoom;
     } camera;
     fixed_t bump, sbump;

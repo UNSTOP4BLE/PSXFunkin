@@ -4,7 +4,7 @@
         {NULL},
         {"\\CHAR\\DAD.CHR;1", FIXED_DEC(-120,1), FIXED_DEC(100,1)},
         {NULL},
-        {NULL,   FIXED_DEC(0,1),     FIXED_DEC(-10,1)},
+        {"\\CHAR\\GF.CHR;1",  FIXED_DEC(0,1),    FIXED_DEC(-10,1)},
         
         //Stage background
         Back_Week1_New,
@@ -21,7 +21,7 @@
         {NULL},
         {"\\CHAR\\DAD.CHR;1", FIXED_DEC(-120,1), FIXED_DEC(100,1)},
         {NULL},
-        {NULL,     FIXED_DEC(0,1),  FIXED_DEC(-10,1)},
+        {"\\CHAR\\GF.CHR;1",  FIXED_DEC(0,1),    FIXED_DEC(-10,1)},
         
         //Stage background
         Back_Week1_New,
@@ -38,7 +38,7 @@
         {NULL},
         {"\\CHAR\\DAD.CHR;1", FIXED_DEC(-120,1), FIXED_DEC(100,1)},
         {NULL},
-        {NULL,     FIXED_DEC(0,1),  FIXED_DEC(-10,1)},
+        {"\\CHAR\\GF.CHR;1",  FIXED_DEC(0,1),    FIXED_DEC(-10,1)},
         
         //Stage background
         Back_Week1_New,
@@ -242,11 +242,11 @@
     
     { //StageId_5_1 (Cocoa)
         //Characters
-        {NULL,  FIXED_DEC(90,1),   FIXED_DEC(85,1)},
+        {"\\CHAR\\BFX.CHR;1",   FIXED_DEC(90,1),   FIXED_DEC(85,1)},
         {NULL},
-        {NULL, FIXED_DEC(-190,1),   FIXED_DEC(90,1)},
+        {"\\CHAR\\XMASP.CHR;1", FIXED_DEC(-190,1), FIXED_DEC(90,1)},
         {NULL},
-        {NULL,   FIXED_DEC(-13,1),  FIXED_DEC(-13,1)},
+        {"\\CHAR\\GFX.CHR;1",   FIXED_DEC(-13,1),  FIXED_DEC(-13,1)},
         
         //Stage background
         Back_Week5_New,
@@ -259,11 +259,11 @@
     },
     { //StageId_5_2 (Eggnog)
         //Characters
-        {NULL,  FIXED_DEC(90,1),   FIXED_DEC(85,1)},
+        {"\\CHAR\\BFX.CHR;1",   FIXED_DEC(90,1),   FIXED_DEC(85,1)},
         {NULL},
-        {NULL, FIXED_DEC(-190,1),   FIXED_DEC(90,1)},
+        {"\\CHAR\\XMASP.CHR;1", FIXED_DEC(-190,1), FIXED_DEC(90,1)},
         {NULL},
-        {NULL,   FIXED_DEC(-13,1),  FIXED_DEC(-13,1)},
+        {"\\CHAR\\GFX.CHR;1",   FIXED_DEC(-13,1),  FIXED_DEC(-13,1)},
         
         //Stage background
         Back_Week5_New,
@@ -276,11 +276,11 @@
     },
     { //StageId_5_3 (Winter Horrorland)
         //Characters
-        {NULL, FIXED_DEC(105,1),  FIXED_DEC(100,1)},
+        {"\\CHAR\\BFX.CHR;1",      FIXED_DEC(105,1),  FIXED_DEC(100,1)},
         {NULL},
-        {NULL,   FIXED_DEC(-120,1),  FIXED_DEC(100,1)},
+        {"\\CHAR\\MONSTERX.CHR;1", FIXED_DEC(-120,1), FIXED_DEC(100,1)},
         {NULL},
-        {NULL,   FIXED_DEC(-14,1),  FIXED_DEC(2,1)},
+        {"\\CHAR\\GFX.CHR;1",      FIXED_DEC(-14,1),  FIXED_DEC(2,1)},
         
         //Stage background
         Back_Week5_New,
@@ -294,11 +294,11 @@
     
     { //StageId_6_1 (Senpai)
         //Characters
-        {NULL,  FIXED_DEC(52,1),  FIXED_DEC(50,1)},
+        {"\\CHAR\\BFWEEB.CHR;1", FIXED_DEC(52,1),  FIXED_DEC(50,1)},
         {NULL},
-        {NULL, FIXED_DEC(-60,1),  FIXED_DEC(50,1)},
+        {"\\CHAR\\SENPAI.CHR;1", FIXED_DEC(-60,1),  FIXED_DEC(50,1)},
         {NULL},
-        {NULL,   FIXED_DEC(0,1),  FIXED_DEC(45,1)},
+        {"\\CHAR\\GFWEEB.CHR;1", FIXED_DEC(0,1),  FIXED_DEC(45,1)},
         
         //Stage background
         Back_Week6_New,
@@ -311,11 +311,11 @@
     },
     { //StageId_6_2 (Roses)
         //Characters
-        {NULL,   FIXED_DEC(52,1),  FIXED_DEC(50,1)},
+        {"\\CHAR\\BFWEEB.CHR;1",  FIXED_DEC(52,1),  FIXED_DEC(50,1)},
         {NULL},
-        {NULL, FIXED_DEC(-60,1),  FIXED_DEC(50,1)},
+        {"\\CHAR\\SENPAIM.CHR;1", FIXED_DEC(-60,1),  FIXED_DEC(50,1)},
         {NULL},
-        {NULL,    FIXED_DEC(0,1),  FIXED_DEC(45,1)},
+        {"\\CHAR\\GFWEEB.CHR;1",  FIXED_DEC(0,1),  FIXED_DEC(45,1)},
         
         //Stage background
         Back_Week6_New,
@@ -328,11 +328,11 @@
     },
     { //StageId_6_3 (Thorns)
         //Characters
-        {NULL,  FIXED_DEC(52,1),  FIXED_DEC(50,1)},
+        {"\\CHAR\\BFWEEB.CHR;1",  FIXED_DEC(52,1),  FIXED_DEC(50,1)},
         {NULL},
         {NULL, FIXED_DEC(-60,1),  FIXED_DEC(50,1)},
         {NULL},
-        {NULL,   FIXED_DEC(0,1),  FIXED_DEC(45,1)},
+        {"\\CHAR\\GFWEEB.CHR;1",   FIXED_DEC(0,1),  FIXED_DEC(45,1)},
         
         //Stage background
         Back_Week6_New,

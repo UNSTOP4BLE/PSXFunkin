@@ -90,6 +90,11 @@ void Gfx_ScreenSetup(void) {
     stage.disp[1].screen.y = stage.prefs.scr_y;
 }
 
+void Gfx_DrawText(int x, int y, int z, const char *text) 
+{
+    nextpri = FntSort(&ot[db][z], nextpri, x, y, text);
+}
+
 void Gfx_Quit(void)
 {
     SetDispMask(0); // turn screen off
@@ -145,12 +150,7 @@ void Gfx_LoadTex(Gfx_Tex *tex, IO_Data data, Gfx_LoadTex_Flag flag)
     TIM_IMAGE tparam;
     GetTimInfo((uint32_t *)data, &tparam);
     
-    if (tex != NULL)
-    {
-        tex->tim_mode = tparam.mode;
-        tex->pxshift = (2 - (tparam.mode & 0x3));
-    }
-    
+
     //Upload pixel data to framebuffer
     if (!(flag & GFX_LOADTEX_NOTEX))
     {
@@ -160,7 +160,6 @@ void Gfx_LoadTex(Gfx_Tex *tex, IO_Data data, Gfx_LoadTex_Flag flag)
             tex->tpage = getTPage(tparam.mode & 0x3, 0, tparam.prect->x, tparam.prect->y);
         }
         LoadImage(tparam.prect, (uint32_t *)tparam.paddr);
-        DrawSync(0);
     }
     
     //Upload CLUT to framebuffer if present
@@ -172,7 +171,6 @@ void Gfx_LoadTex(Gfx_Tex *tex, IO_Data data, Gfx_LoadTex_Flag flag)
             tex->clut = getClut(tparam.crect->x, tparam.crect->y);
         }
         LoadImage(tparam.crect, (uint32_t *)tparam.caddr);
-        DrawSync(0);
     }
     
     //Free data

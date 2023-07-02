@@ -44,7 +44,6 @@ typedef struct Character
     //Character functions
     void (*tick)(struct Character*);
     void (*set_anim)(struct Character*, uint8_t);
-    void (*free)(struct Character*);
     
     //Position
     fixed_t x, y;
@@ -87,6 +86,7 @@ typedef struct __attribute__((packed)) CharacterFileHeader
 } CharacterFileHeader;
 
 //Character functions
+void Char_SetFrame(void *user, uint8_t frame);
 Character *Character_FromFile(Character *this, const char *path, fixed_t x, fixed_t y);
 void Character_Free(Character *this);
 void Character_Init(Character *this, fixed_t x, fixed_t y);

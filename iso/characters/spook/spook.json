@@ -1,0 +1,61 @@
+{
+    "spec": "CHAR_SPEC_SPOOKIDLE",
+    "health_i": 1,
+    "health_bar": "0xFFD67B00",
+    "focus": [[65, 1], [-80, 1], [1, 1]],
+
+    "struct": [
+        "Spook_ArcMain_Idle0",                                                                                                                                                                                                                                                                                              
+        "Spook_ArcMain_Idle1",                                                                                                                                                                                                                                                                                              
+        "Spook_ArcMain_Idle2",                                                                                                                                                                                                                                                                                              
+        "Spook_ArcMain_Left",                                                                                                                                                                                                                                                                                               
+        "Spook_ArcMain_Down",                                                                                                                                                                                                                                                                                               
+        "Spook_ArcMain_Up",                                                                                                                                                                                                                                                                                                 
+        "Spook_ArcMain_Right"
+    ],
+
+    "frames": [
+        ["Spook_ArcMain_Idle0", [  0,   0,  97, 137], [ 61, 132]],                                                                                                                                                                                                                                                          
+        ["Spook_ArcMain_Idle0", [ 98,   0,  94, 136], [ 59, 131]],                                                                                                                                                                                                                                                          
+        ["Spook_ArcMain_Idle1", [  0,   0,  90, 121], [ 55, 117]],                                                                                                                                                                                                                                                          
+        ["Spook_ArcMain_Idle1", [ 91,   0,  89, 124], [ 56, 120]],                                                                                                                                                                                                                                                          
+        ["Spook_ArcMain_Idle2", [  0,   0, 124, 133], [ 76, 127]],                                                                                                                                                                                                                                                          
+        ["Spook_ArcMain_Idle2", [125,   0, 121, 131], [ 74, 127]],                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                          
+        ["Spook_ArcMain_Left", [  0,   0, 140, 134], [103, 130]],                                                                                                                                                                                                                                                           
+        ["Spook_ArcMain_Left", [115, 123, 140, 132], [100, 128]],                                                                                                                                                                                                                                                           
+                                                                                                                                                                                                                                                                                                                          
+        ["Spook_ArcMain_Down", [  0,   0, 117, 102], [ 66,  99]],                                                                                                                                                                                                                                                           
+        ["Spook_ArcMain_Down", [118,   0, 113, 101], [ 65,  98]],                                                                                                                                                                                                                                                           
+                                                                                                                                                                                                                                                                                                                          
+        ["Spook_ArcMain_Up", [  0,   0, 101, 143], [ 70, 139]],                                                                                                                                                                                                                                                             
+        ["Spook_ArcMain_Up", [102,   0, 102, 142], [ 69, 138]],                                                                                                                                                                                                                                                             
+                                                                                                                                                                                                                                                                                                                          
+        ["Spook_ArcMain_Right", [  0,   0, 111, 130], [ 42, 128]],                                                                                                                                                                                                                                                          
+        ["Spook_ArcMain_Right", [112,   0, 110, 133], [ 39, 131]]
+    ],
+
+    "animation": [
+        [2, ["ASCR_CHGANI", "CharAnim_LeftAlt"]],                                                                                                                                                                                                                                                                             
+        [2, [ 6,  7, "ASCR_BACK", 1]],                                                                                                                                                                                                                                                                                      
+        [2, [ 0,  1,  2,  3, "ASCR_BACK", 1]],                                                                                                                                                                                                                                                                              
+        [2, [ 8,  9, "ASCR_BACK", 1]],                                                                                                                                                                                                                                                                                      
+        [0, ["ASCR_CHGANI", "CharAnim_LeftAlt"]],                                                                                                                                                                                                                                                                             
+        [2, [10, 11, "ASCR_BACK", 1]],                                                                                                                                                                                                                                                                                      
+        [0, ["ASCR_CHGANI", "CharAnim_LeftAlt"]],                                                                                                                                                                                                                                                                             
+        [2, [12, 13, "ASCR_BACK", 1]],                                                                                                                                                                                                                                                                                      
+        [2, [ 4,  5,  2,  3, "ASCR_BACK", 1]] 
+    ],
+
+    "archive": "\\CHAR\\SPOOK.ARC;1",
+
+    "textures": [
+        "idle0.tim",                                                                                                                                                                                                                                                                                                  
+        "idle1.tim",                                                                                                                                                                                                                                                                                                  
+        "idle2.tim",                                                                                                                                                                                                                                                                                                  
+        "left.tim",                                                                                                                                                                                                                                                                                                   
+        "down.tim",                                                                                                                                                                                                                                                                                                   
+        "up.tim",                                                                                                                                                                                                                                                                                                     
+        "right.tim"
+    ]
+}

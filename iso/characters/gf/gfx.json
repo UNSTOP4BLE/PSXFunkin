@@ -1,0 +1,54 @@
+{
+    "spec": "CHAR_SPEC_GIRLFRIEND",
+    "health_i": 1,
+    "health_bar": "0xFFAD63D6",
+    "focus": [[0, 1], [0, 1], [1, 1]],
+
+    "struct": [
+        "GF_ArcMain_GF0",
+        "GF_ArcMain_GF1",
+        "GF_ArcMain_GF2"
+    ],
+
+    "frames": [
+        ["GF_ArcMain_GF0", [  0,   0,  74, 103], [ 37,  72]],                                                                                                                                                     
+        ["GF_ArcMain_GF0", [ 75,   0,  74, 103], [ 38,  72]],                                                                                                                                                     
+        ["GF_ArcMain_GF0", [150,   0,  73, 102], [ 37,  72]],                                                                                                                                                     
+        ["GF_ArcMain_GF0", [  0, 104,  73, 103], [ 36,  73]],                                                                                                                                                     
+        ["GF_ArcMain_GF0", [ 74, 104,  78, 105], [ 38,  75]],                                                                                                                                                     
+        ["GF_ArcMain_GF0", [153, 103,  81, 106], [ 41,  76]],                                                                                                                                                     
+                                                                                                                                                                                                                
+        ["GF_ArcMain_GF1", [  0,   0,  81, 104], [ 40,  73]],                                                                                                                                                     
+        ["GF_ArcMain_GF1", [ 82,   0,  81, 104], [ 40,  73]],                                                                                                                                                     
+        ["GF_ArcMain_GF1", [164,   0,  80, 103], [ 39,  73]],                                                                                                                                                     
+        ["GF_ArcMain_GF1", [  0, 104,  79, 103], [ 38,  74]],                                                                                                                                                     
+        ["GF_ArcMain_GF1", [ 80, 105,  74, 104], [ 32,  74]],                                                                                                                                                     
+        ["GF_ArcMain_GF1", [155, 104,  74, 104], [ 32,  74]],                                                                                                                                                     
+                                                                                                                                                                                                                
+        ["GF_ArcMain_GF2", [  0,   0,  73, 100], [ 34,  71]],                                                                                                                                                     
+        ["GF_ArcMain_GF2", [ 74,   0,  73, 102], [ 35,  72]],                                                                                                                                                     
+        ["GF_ArcMain_GF2", [148,   0,  73, 102], [ 34,  72]],                                                                                                                                                     
+        ["GF_ArcMain_GF2", [  0, 101,  74, 102], [ 35,  72]],                                                                                                                                                     
+        ["GF_ArcMain_GF2", [ 75, 102,  73, 102], [ 34,  72]]  
+    ],
+
+    "animation": [                                                                                                                                    
+        [0, ["ASCR_CHGANI", "CharAnim_LeftAlt"]],                                                                                                                                                                   
+        [2, [17, 18, "ASCR_BACK", 1]],                                                                                                                                                                            
+        [1, [ 0,  0,  1,  1,  2,  2,  3,  4,  4,  5, "ASCR_BACK", 1]],                                                                                                                                            
+        [2, [19, 20, "ASCR_BACK", 1]],                                                                                                                                                                            
+        [1, [12, 13, 14, 15, 16, "ASCR_REPEAT"]],                                                                                                                                                                 
+        [2, [21, 22, "ASCR_BACK", 1]],                                                                                                                                                                            
+        [2, [25, 26, "ASCR_BACK", 1]],                                                                                                                                                                            
+        [2, [23, 24, "ASCR_BACK", 1]],                                                                                                                                                                            
+        [1, [ 6,  6,  7,  7,  8,  8,  9, 10, 10, 11, "ASCR_BACK", 1]]
+    ],
+
+    "archive": "\\CHAR\\GFX.ARC;1",
+
+    "textures": [
+        "xmasgf0.tim", 
+        "xmasgf1.tim",
+        "xmasgf2.tim"
+    ]
+}

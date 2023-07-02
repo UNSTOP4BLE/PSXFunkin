@@ -1,0 +1,50 @@
+{
+    "spec": 0,
+    "health_i": 1,
+    "health_bar": "0xFFFFAA70",
+    "focus": [[24, 1], [-66, 1], [2, 1]],
+
+    "struct": [                                                                                                                                                                                                                          
+        "SenpaiM_ArcMain_SenpaiM0",                                                                                                                                                                                                                                    
+        "SenpaiM_ArcMain_SenpaiM1"     
+    ],
+
+    "frames": [
+        ["SenpaiM_ArcMain_SenpaiM0", [  0,   0,  66, 112], [ 32, 107]],                                                                                                                                                                                              
+        ["SenpaiM_ArcMain_SenpaiM0", [ 67,   0,  65, 112], [ 31, 107]],                                                                                                                                                                                              
+        ["SenpaiM_ArcMain_SenpaiM0", [133,   0,  65, 113], [ 31, 108]],                                                                                                                                                                                              
+        ["SenpaiM_ArcMain_SenpaiM0", [  0, 113,  67, 116], [ 31, 111]],                                                                                                                                                                                              
+        ["SenpaiM_ArcMain_SenpaiM0", [ 71, 113,  67, 115], [ 31, 110]],                                                                                                                                                                                              
+                                                                                                                                                                                                                                                                   
+        ["SenpaiM_ArcMain_SenpaiM1", [  0,   0,  59, 115], [ 33, 110]],                                                                                                                                                                                              
+        ["SenpaiM_ArcMain_SenpaiM1", [ 60,   0,  61, 115], [ 35, 110]],                                                                                                                                                                                              
+                                                                                                                                                                                                                                                                   
+        ["SenpaiM_ArcMain_SenpaiM1", [122,   0,  63, 107], [ 31, 102]],                                                                                                                                                                                              
+        ["SenpaiM_ArcMain_SenpaiM1", [186,   1,  62, 108], [ 30, 103]],                                                                                                                                                                                              
+                                                                                                                                                                                                                                                                   
+        ["SenpaiM_ArcMain_SenpaiM1", [  0, 116,  64, 122], [ 31, 115]],                                                                                                                                                                                              
+        ["SenpaiM_ArcMain_SenpaiM1", [ 65, 116,  66, 122], [ 32, 115]],                                                                                                                                                                                              
+                                                                                                                                                                                                                                                                   
+        ["SenpaiM_ArcMain_SenpaiM1", [132, 110,  65, 114], [ 27, 109]],                                                                                                                                                                                              
+        ["SenpaiM_ArcMain_SenpaiM0", [139, 114,  64, 114], [ 28, 109]]
+    ],
+
+    "animation": [
+        [2, [ 0,  1,  2,  3,  4, "ASCR_BACK", 1]],                                                                                                                                                                                                                   
+        [2, [ 5,  6, "ASCR_BACK", 1]],                                                                                                                                                                                                                               
+        [0, ["ASCR_CHGANI", "CharAnim_Idle"]],                                                                                                                                                                                                                         
+        [2, [ 7,  8, "ASCR_BACK", 1]],                                                                                                                                                                                                                               
+        [0, ["ASCR_CHGANI", "CharAnim_Idle"]],                                                                                                                                                                                                                         
+        [2, [ 9, 10, "ASCR_BACK", 1]],                                                                                                                                                                                                                               
+        [0, ["ASCR_CHGANI", "CharAnim_Idle"]],                                                                                                                                                                                                                         
+        [2, [11, 12, "ASCR_BACK", 1]],                                                                                                                                                                                                                               
+        [0, ["ASCR_CHGANI", "CharAnim_Idle"]]
+    ],
+
+    "archive": "\\CHAR\\SENPAIM.ARC;1",
+
+    "textures": [
+        "senpai0.tim",                                                                                                                                                                                                                                         
+        "senpai1.tim"
+    ]
+}
