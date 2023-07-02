@@ -11,6 +11,10 @@
 #include <stdlib.h>      
 #include "stage.h"
 
+#include "character/speaker.h"
+
+Speaker speaker; //sorry about global vars
+
 //Character functions
 void Char_Generic_SetFrame(void *user, uint8_t frame)
 {
@@ -28,6 +32,17 @@ void Char_Generic_SetFrame(void *user, uint8_t frame)
 }
 
 void Char_Generic_Tick(Character *character)
+{
+  //  printf("generic tick \n");
+    if ((character->pad_held & (INPUT_LEFT | INPUT_DOWN | INPUT_UP | INPUT_RIGHT)) == 0) //not player
+        Character_PerformIdle(character);
+    
+    //Animate and draw
+    Animatable_Animate(&character->animatable, (void*)character, Char_Generic_SetFrame);
+    Character_Draw(character, &character->tex, &character->frames[character->frame]);
+}
+
+void Player_Generic_Tick(Character *character)
 {
   //  printf("generic tick \n");
 
@@ -82,12 +97,62 @@ void Char_Generic_Tick(Character *character)
             }
         }
     }
-    else if ((character->pad_held & (INPUT_LEFT | INPUT_DOWN | INPUT_UP | INPUT_RIGHT)) == 0) //not player
-        Character_PerformIdle(character);
     
     //Animate and draw
     Animatable_Animate(&character->animatable, (void*)character, Char_Generic_SetFrame);
     Character_Draw(character, &character->tex, &character->frames[character->frame]);
+}
+
+void GirlFriend_Generic_Tick(Character *character)
+{
+  //  printf("generic tick \n");
+
+    if (stage.flag & STAGE_FLAG_JUST_STEP)
+    {
+        //Stage specific animations
+        if (stage.note_scroll >= 0)
+        {
+            switch (stage.stage_id)
+            {
+                case StageId_1_4: //Tutorial cheer
+                    if (stage.song_step > 64 && stage.song_step < 192 && (stage.song_step & 0x3F) == 60)
+                        character->set_anim(character, CharAnim_UpAlt);
+                    break;
+                default:
+                    break;
+            }
+        }
+            
+        //Perform dance
+        if (stage.note_scroll >= character->sing_end && (stage.song_step % stage.gf_speed) == 0)
+        {
+            //Switch animation
+            if (character->animatable.anim == CharAnim_LeftAlt || character->animatable.anim == CharAnim_Right)
+                character->set_anim(character, CharAnim_RightAlt);
+            else
+                character->set_anim(character, CharAnim_LeftAlt);
+            
+            //Bump speakers
+            Speaker_Bump(&speaker);
+        }
+    }
+
+    //Get parallax
+    fixed_t parallax;
+    if (stage.stage_id >= StageId_1_1 && stage.stage_id <= StageId_1_4)
+        parallax = FIXED_DEC(7,10);
+    else
+        parallax = FIXED_UNIT;
+    
+    //Animate and draw
+    Animatable_Animate(&character->animatable, (void*)character, Char_Generic_SetFrame);
+    Character_DrawParallax(character, &character->tex, &character->frames[character->frame], parallax);
+    
+    //Tick speakers
+    if (stage.stage_id >= StageId_5_1 && stage.stage_id <= StageId_5_3)
+        Speaker_Tick(&speaker, character->x - FIXED_DEC(13,1), character->y, parallax);
+    else
+        Speaker_Tick(&speaker, character->x, character->y, parallax);
 }
 
 void Char_Generic_SetAnim(Character *character, uint8_t anim)
@@ -96,6 +161,14 @@ void Char_Generic_SetAnim(Character *character, uint8_t anim)
     //Set animation
     Animatable_SetAnim(&character->animatable, anim);
     Character_CheckStartSing(character);
+}
+
+void GirlFriend_Generic_SetAnim(Character *character, uint8_t anim)
+{
+  //  printf("generic setanim \n");
+    if (anim == CharAnim_Left || anim == CharAnim_Down || anim == CharAnim_Up || anim == CharAnim_Right || anim == CharAnim_UpAlt)
+        character->sing_end = stage.note_scroll + FIXED_DEC(22,1); //Nearly 2 steps
+    Animatable_SetAnim(&character->animatable, anim);
 }
 
 void Char_Generic_Free(Character *character)
@@ -125,29 +198,62 @@ Character *Character_FromFile(Character *this, const char *path, fixed_t x, fixe
     }
 
     //Initialize character
-    this->tick = Char_Generic_Tick;
-    this->set_anim = Char_Generic_SetAnim;
-    this->free = Char_Generic_Free;
-    
-    this->file = IO_Read(path);
+    this->file = (uint8_t *)IO_Read(path);
     CharacterFileHeader *tmphdr = (CharacterFileHeader *)this->file;    
-    offset += sizeof(CharacterFileHeader) / 4;
-    Animatable_Init(&this->animatable, (const Animation *)(offset + this->file));
-    offset += (sizeof(Animation) * tmphdr->size_animation) / 4;
-    this->frames = (const CharFrame *)(offset + this->file);
-    offset += (tmphdr->size_frames * sizeof(CharFrame)) / 4;
-
-    typedef struct TimPath{
-        char path[32];
-    } TimPath;
-    TimPath *tex_paths;
-    tex_paths = (TimPath *)(offset + this->file);
-
-    Character_Init(this, x, y);
+    offset += sizeof(CharacterFileHeader);
+    printf("offset %d, \n", offset);
+    Animatable_Init(&this->animatable, (const Animation *)&this->file[offset]);
+    offset += (sizeof(Animation) * tmphdr->size_animation);
+    printf("offset %d, \n", offset);
+    this->frames = (const CharFrame *)&this->file[offset];
+    offset += (tmphdr->size_frames * sizeof(CharFrame));
+    printf("offset %d, \n", offset);
+    
+    char tex_paths[tmphdr->size_textures][32];
+    for (int i = 0; i < tmphdr->size_textures; i++) {
+ //           printf("offset %d", offset);
+        for (int i2 = 0; i2 < 32; i2 ++)
+        {
+            tex_paths[i][i2] = this->file[offset];
+            offset ++;
+        }
+ //       printf("%s str\n", tex_paths[i]);
+    }
     
     //Set character information
-    this->spec = tmphdr->spec;
     
+    this->spec = tmphdr->spec;
+    switch (this->spec)
+    {
+        case CHAR_SPEC_MISSANIM:
+            this->tick = Player_Generic_Tick;
+            this->set_anim = Char_Generic_SetAnim;
+            this->free = Char_Generic_Free;
+            break;  
+        case CHAR_SPEC_SPOOKIDLE:
+            this->tick = Char_Generic_Tick;
+            this->set_anim = Char_Generic_SetAnim;
+            this->free = Char_Generic_Free;
+            break;  
+        case CHAR_SPEC_GIRLFRIEND:
+            Speaker_Init(&speaker);
+            this->tick = GirlFriend_Generic_Tick;
+            this->set_anim = GirlFriend_Generic_SetAnim;
+            this->free = Char_Generic_Free;
+            break;
+        case CHAR_SPEC_MOMHAIR:
+            this->tick = Char_Generic_Tick;
+            this->set_anim = Char_Generic_SetAnim;
+            this->free = Char_Generic_Free;
+            break;
+        default:
+            this->tick = Char_Generic_Tick;
+            this->set_anim = Char_Generic_SetAnim;
+            this->free = Char_Generic_Free;
+            break;
+    }
+    Character_Init(this, x, y);
+
     this->health_i = tmphdr->health_i;
 
     //health bar color
@@ -156,7 +262,7 @@ Character *Character_FromFile(Character *this, const char *path, fixed_t x, fixe
     this->focus_x = tmphdr->focus_x;
     this->focus_y = tmphdr->focus_y;
     this->focus_zoom = tmphdr->focus_zoom;
-    
+    /*
         printf("struct %d, \n", tmphdr->size_struct);
     printf("frames %d, \n", tmphdr->size_frames);
     printf("animation %d, \n", tmphdr->size_animation);
@@ -178,15 +284,16 @@ Character *Character_FromFile(Character *this, const char *path, fixed_t x, fixe
 
     for (int i = 0; i < tmphdr->size_frames; ++i) {
         printf("tex %d, frames %d %d %d %d offsets %d %d\n", (unsigned int)this->frames[i].tex, this->frames[i].src[0], this->frames[i].src[1], this->frames[i].src[2], this->frames[i].src[3], this->frames[i].off[0], this->frames[i].off[1] ); 
-    }   
+    }   */
     //Load art 
+    printf("%s\n", tmphdr->archive_path);
     this->arc_main = IO_Read(tmphdr->archive_path);
 
     this->arc_ptr = malloc(sizeof(IO_Data) * tmphdr->size_textures);
     for (int i = 0; i < tmphdr->size_textures; i++) {
-        printf("%s\n", tex_paths[i].path);
-        this->arc_ptr[i] = Archive_Find(this->arc_main, tex_paths[i].path);
-    }
+        printf("%s\n", tex_paths[i]);
+        this->arc_ptr[i] = Archive_Find(this->arc_main, tex_paths[i]);
+    } 
     //Initialize render state
     this->tex_id = this->frame = 0xFF;
 

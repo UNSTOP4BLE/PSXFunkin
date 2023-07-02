@@ -15,7 +15,10 @@
 
 //Character specs
 typedef uint8_t CharSpec;
-#define CHAR_SPEC_MISSANIM (1 << 0) //Has miss animations
+#define CHAR_SPEC_MISSANIM   (1 << 0) //Has miss animations
+#define CHAR_SPEC_SPOOKIDLE  (2 << 0) //Has spookeez animations
+#define CHAR_SPEC_GIRLFRIEND (3 << 0) //Has gf animations
+#define CHAR_SPEC_MOMHAIR    (4 << 0) //Has mom hair
 
 typedef enum
 {
@@ -29,7 +32,7 @@ typedef enum
 } CharAnim;
 
 //Character structures
-typedef struct CharFrame
+typedef struct __attribute__((packed)) CharFrame
 {
     uint8_t tex;
     uint16_t src[4];
@@ -57,7 +60,7 @@ typedef struct Character
     Animatable animatable;
     fixed_t sing_end;
     uint16_t pad_held;
-    IO_Data file;
+    uint8_t *file;
 
     //Render data and state
     IO_Data arc_main;
@@ -67,7 +70,7 @@ typedef struct Character
     uint8_t frame, tex_id;
 } Character;
 
-typedef struct CharacterFileHeader
+typedef struct __attribute__((packed)) CharacterFileHeader
 {
     int32_t size_struct;
     int32_t size_frames;

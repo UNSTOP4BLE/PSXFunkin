@@ -11,7 +11,6 @@
 #include "../stage.h"
 #include "../main.h"
 
-#include "speaker.h"
 
 //GF character structure
 enum
@@ -39,7 +38,6 @@ typedef struct
     uint8_t frame, tex_id;
     
     //Speaker
-    Speaker speaker;
     
 } Char_GF;
 

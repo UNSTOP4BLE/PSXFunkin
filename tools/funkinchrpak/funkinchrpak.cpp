@@ -18,16 +18,19 @@ typedef int32_t fixed_t;
 #define ASCR_CHGANI 0xFE
 #define ASCR_BACK   0xFD
 
-#define CHAR_SPEC_MISSANIM (1 << 0) 
+#define CHAR_SPEC_MISSANIM (1 << 0) //Has miss animations
+#define CHAR_SPEC_SPOOKIDLE (2 << 0) //Has spookeez animations
+#define CHAR_SPEC_GIRLFRIEND (3 << 0) //Has gf animations
+#define CHAR_SPEC_MOMHAIR (4 << 0) //Has mom hair
 
-struct Animation
+struct __attribute__((packed)) Animation
 {
     //Animation data and script
     uint8_t spd;
     uint8_t script[255];
 };
 
-struct CharFrame
+struct __attribute__((packed)) CharFrame
 {
     uint8_t tex;
     uint16_t src[4];
@@ -62,7 +65,7 @@ std::vector<std::string> playerAnim{
     "PlayerAnim_Dead7", 
 };
 
-struct CharacterFileHeader
+struct __attribute__((packed)) CharacterFileHeader
 {
     int32_t size_struct;
     int32_t size_frames;
@@ -114,6 +117,13 @@ int main(int argc, char *argv[])
         std::string spec = j["spec"];
         if (spec == "CHAR_SPEC_MISSANIM")
             new_char.spec = CHAR_SPEC_MISSANIM;
+        else if (spec == "CHAR_SPEC_SPOOKIDLE")
+            new_char.spec = CHAR_SPEC_SPOOKIDLE;
+        else if (spec == "CHAR_SPEC_GIRLFRIEND")
+            new_char.spec = CHAR_SPEC_GIRLFRIEND;
+        else if (spec == "CHAR_SPEC_MOMHAIR")
+            new_char.spec = CHAR_SPEC_MOMHAIR;
+        else new_char.spec = 0;
 
     }
     else new_char.spec = 0;

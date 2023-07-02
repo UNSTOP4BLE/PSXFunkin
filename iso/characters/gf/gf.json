@@ -1,5 +1,5 @@
 {
-    "spec": 0,
+    "spec": "CHAR_SPEC_GIRLFRIEND",
     "health_i": 1,
     "health_bar": "0xFFAD63D6",
     "focus": [[0, 1], [0, 1], [1, 1]],

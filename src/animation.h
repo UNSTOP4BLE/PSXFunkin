@@ -16,7 +16,7 @@
 #define ASCR_CHGANI 0xFE
 #define ASCR_BACK   0xFD
 
-typedef struct
+typedef struct __attribute__((packed)) 
 {
     //Animation data and script
     uint8_t spd;
