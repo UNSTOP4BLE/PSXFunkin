@@ -149,7 +149,6 @@ void Gfx_LoadTex(Gfx_Tex *tex, IO_Data data, Gfx_LoadTex_Flag flag)
     //Read TIM information
     TIM_IMAGE tparam;
     GetTimInfo((uint32_t *)data, &tparam);
-    
 
     //Upload pixel data to framebuffer
     if (!(flag & GFX_LOADTEX_NOTEX))

@@ -120,7 +120,6 @@ typedef struct
     
     //Song info
     uint8_t week, week_song;
-    uint8_t music_track, music_channel;
     
     StageId next_stage;
     uint8_t next_load;

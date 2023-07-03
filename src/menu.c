@@ -292,13 +292,13 @@ void Menu_Load(MenuPage page)
     stage.song_step = 0;
 
     // to load
-    Sounds[0] = Audio_LoadSound("\\SOUNDS\\SCROLL.VAG;1");
-    Sounds[1] = Audio_LoadSound("\\SOUNDS\\CONFIRM.VAG;1");
-    Sounds[2] = Audio_LoadSound("\\SOUNDS\\CANCEL.VAG;1");
+//    Sounds[0] = Audio_LoadSound("\\SOUNDS\\SCROLL.VAG;1");
+  //  Sounds[1] = Audio_LoadSound("\\SOUNDS\\CONFIRM.VAG;1");
+    //Sounds[2] = Audio_LoadSound("\\SOUNDS\\CANCEL.VAG;1");
 
     //Play menu music
-    Audio_PlayXA_Track(XA_GettinFreaky, 0x40, 0, 1);
-    Audio_ResumeXA();
+    Audio_LoadStream("\\MUSIC\\FREAKY.VAG;1", true);
+    Audio_StartStream(false);
     
     //Set background colour
     Gfx_SetClear(0, 0, 0);
@@ -337,7 +337,7 @@ void Menu_Tick(void)
     stage.flag &= ~STAGE_FLAG_JUST_STEP;
     
     //Get song position
-    int next_step = (int)Audio_TellXA_Milli() / 147;
+    int next_step = (int)Audio_GetTimeMS() / 147;
     if (next_step != stage.song_step)
     {
         if (next_step >= stage.song_step)

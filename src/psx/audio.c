@@ -1,465 +1,279 @@
 /*
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at http://mozilla.org/MPL/2.0/.
-*/
+ * PSn00bSDK SPU CD-ROM streaming example
+ * (C) 2022-2023 spicyjpeg - MPL licensed
+ *
+ * This is an extended version of the sound/spustream example demonstrating
+ * playback of a large multi-channel audio file from the CD-ROM using the SPU,
+ * without having to rely on the CD drive's own ability to play CD-DA or XA
+ * tracks.
+ *
+ * A ring buffer takes the place of the stream_data array from the spustream
+ * example. This buffer is filled from the CD-ROM by the main thread and drained
+ * by the SPU IRQ handler, which pulls a single chunk at a time out of it and
+ * transfers it to SPU RAM for playback. The feed_stream() function handles
+ * fetching chunks, which are read once again from an interleaved .VAG file laid
+ * out on the disc as follows:
+ *
+ *  +--Sector--+--Sector--+--Sector--+--Sector--+--Sector--+--Sector--+----
+ *  |          | +--------------------+---------------------+         |
+ *  |   .VAG   | | Left channel data  | Right channel data  | Padding | ...
+ *  |  header  | +--------------------+---------------------+         |
+ *  +----------+----------+----------+----------+----------+----------+----
+ *               \__________________Chunk___________________/
+ *
+ * Note that the ring buffer must be large enough to give the drive enough time
+ * to seek from one chunk to another. A larger buffer will take up more main RAM
+ * but will not influence SPU RAM usage, which depends only on the chunk size
+ * (interleave) and channel count of the .VAG file. Generally, interleave values
+ * in the 2048-4096 byte range work well (the interleaving script in the
+ * spustream directory uses 4096 bytes by default).
+ *
+ * Implementing SPU streaming might seem pointless, but it actually has a number
+ * of advantages over CD-DA or XA:
+ *
+ * - Any sample rate up to 44.1 kHz can be used. The sample rate can also be
+ *   changed on-the-fly to play the stream at different speeds and pitches (as
+ *   long as the CD drive can keep up), or even interpolated for effects like
+ *   tape stops.
+ * - Manual streaming is not limited to mono or stereo but can be expanded to as
+ *   many channels as needed, only limited by the amount of SPU RAM required for
+ *   chunks and CD bandwidth. Having more than 2 channels can be useful for e.g.
+ *   smoothly crossfading between tracks (not possible with XA) or controlling
+ *   volume and panning of each instrument separately.
+ * - XA playback tends to skip on consoles with a worn out drive, as XA sectors
+ *   cannot have any error correction data. SPU streaming is not subject to this
+ *   limitation since sectors are read and processed in software.
+ * - Depending on how streaming/interleaving is implemented it is possible to
+ *   have 500-1000ms idle periods during which the CD drive isn't buffering the
+ *   stream, that can be used to read small amounts of other data without ever
+ *   interrupting playback. This is different from XA-style interleaving as the
+ *   drive is free to seek to *any* region of the disc during these periods (it
+ *   must seek back to the stream's next chunk afterwards though).
+ * - It is also possible to seek back to the beginning of the stream and load
+ *   the first chunk before the end is reached, allowing for seamless looping
+ *   without having to resort to tricks like separate filler samples.
+ * - Finally, SPU streaming can be used on some PS1-based arcade boards that use
+ *   IDE/SCSI drives or flash memory for storage and thus lack support for XA or
+ *   CD-DA playback.
+ */
 
-#include "../audio.h"
-#include <hwregs_c.h>
+#include <stdint.h>
+#include <stddef.h>
 #include <stdlib.h>
+#include <psxetc.h>
+#include <psxapi.h>
+#include <psxgpu.h>
+#include <stdio.h> 
+#include <psxpad.h>
+#include <psxspu.h>
+#include <psxcd.h>
+#include <hwregs_c.h>
 
-#include "../io.h"
+#include "stream.h"
+
+#include "../timer.h"
 #include "../main.h"
 
-//XA state
-#define XA_STATE_INIT    (1 << 0)
-#define XA_STATE_PLAYING (1 << 1)
-#define XA_STATE_LOOPS   (1 << 2)
-#define XA_STATE_SEEKING (1 << 3)
+// Size of the ring buffer in main RAM in bytes.
+#define RAM_BUFFER_SIZE 0x18000
 
-static uint8_t xa_state, xa_resync, xa_volume, xa_channel;
-static uint32_t xa_pos, xa_start;
+// Minimum number of sectors that will be read from the CD-ROM at once. Higher
+// values will improve efficiency at the cost of requiring a larger buffer in
+// order to prevent underruns and glitches in the audio output.
+#define REFILL_THRESHOLD 24
 
-//audio stuff
-#define XA_FLAG_EOR (1 << 0)
-#define XA_FLAG_EOF (1 << 7)
-#define BUFFER_SIZE (13 << 11) //13 sectors
-#define CHUNK_SIZE (BUFFER_SIZE)
-#define CHUNK_SIZE_MAX (BUFFER_SIZE * 4) // there are never more than 4 channels
+/* .VAG header structure */
 
-#define BUFFER_TIME FIXED_DEC(((BUFFER_SIZE * 28) / 16), 44100)
+typedef struct {
+    uint32_t magic;         // 0x69474156 ("VAGi") for interleaved files
+    uint32_t version;
+    uint32_t interleave;    // Little-endian, size of each channel buffer
+    uint32_t size;          // Big-endian, in bytes
+    uint32_t sample_rate;   // Big-endian, in Hertz
+    uint16_t _reserved[5];
+    uint16_t channels;      // Little-endian, channel count (stereo if 0)
+    char     name[16];
+} VAG_Header;
 
-#define BUFFER_START_ADDR 0x1010
-#define DUMMY_ADDR (BUFFER_START_ADDR + (CHUNK_SIZE_MAX * 2))
-#define ALLOC_START_ADDR (BUFFER_START_ADDR + (CHUNK_SIZE_MAX * 2) + 64)
+#define SWAP_ENDIAN(x) ( \
+    (((uint32_t) (x) & 0x000000ff) << 24) | \
+    (((uint32_t) (x) & 0x0000ff00) <<  8) | \
+    (((uint32_t) (x) & 0x00ff0000) >>  8) | \
+    (((uint32_t) (x) & 0xff000000) >> 24) \
+)
 
-//SPU registers
-typedef struct
-{
-    uint16_t vol_left;
-    uint16_t vol_right;
-    uint16_t freq;
-    uint16_t addr;
-    uint32_t adsr_param;
-    uint16_t _reserved;
-    uint16_t loop_addr;
-} Audio_SPUChannel;
+/* Interrupt callbacks */
 
-#define SPU_CHANNELS    ((volatile Audio_SPUChannel*)0x1f801c00)
-#define SPU_RAM_ADDR(x) ((uint16_t)(((uint32_t)(x)) >> 3))
+#define DUMMY_BLOCK_ADDR   0x1000
+#define STREAM_BUFFER_ADDR 0x1010
 
-static volatile uint32_t audio_alloc_ptr = 0;
+typedef struct {
+    int start_lba, stream_length;
 
-//XA files and tracks
-static CdlFILE xa_files[XA_Max];
+    volatile int    next_sector;
+    volatile size_t refill_length;
+} StreamReadContext;
 
-#include "../audio_def.h"
+static Stream_Context    stream_ctx;
+static StreamReadContext read_ctx;
 
-static void IO_SeekFile(CdlFILE *file)
-{
-    //Seek to file position
-    CdControl(CdlSetloc, (uint8_t*)&file->pos, NULL);
-    CdControlB(CdlSeekL, NULL, NULL);
+void cd_read_handler(CdlIntrResult event, uint8_t *payload) {
+    // Mark the data as valid.
+    if (event != CdlDiskError)
+        Stream_Feed(&stream_ctx, read_ctx.refill_length * 2048);
 }
 
-uint32_t Audio_GetLength(XA_Track lengthtrack)
-{
-    return (xa_tracks[lengthtrack].length / 75) / IO_SECT_SIZE;
+/* Helper functions */
+
+// This isn't actually required for this example, however it is necessary if the
+// stream buffers are going to be allocated into a region of SPU RAM that was
+// previously used (to make sure the IRQ is not going to be triggered by any
+// inactive channels).
+void Audio_ResetChannels(void) {
+    SpuSetKey(0, 0x00ffffff);
+
+    for (int i = 0; i < 24; i++) {
+        SPU_CH_ADDR(i) = getSPUAddr(DUMMY_BLOCK_ADDR);
+        SPU_CH_FREQ(i) = 0x1000;
+    }
+
+    SpuSetKey(1, 0x00ffffff);
 }
 
-//Internal XA functions
-static uint8_t XA_BCD(uint8_t x)
-{
-    return x - 6 * (x >> 4);
-}
-
-static uint32_t XA_TellSector(void)
-{
-    uint8_t result[8];
-    CdControl(CdlGetlocL, NULL, result);
-    if (result[6] & (XA_FLAG_EOF | XA_FLAG_EOR))
-        return -1; // file ended
-
-    return CdPosToInt((CdlLOC *) result);
-}
-
-static void XA_SetVolume(uint8_t x)
-{
-    //Set CD mix volume
-    CdlATV cd_vol;
-    xa_volume = cd_vol.val0 = cd_vol.val1 = cd_vol.val2 = cd_vol.val3 = x;
-    CdMix(&cd_vol);
-}
-
-static void XA_Init(void)
-{
-    uint8_t param[4];
-    
-    //Set XA state
-    if (xa_state & XA_STATE_INIT)
-        return;
-    xa_state = XA_STATE_INIT;
-    xa_resync = 0;
-
-    //Set volume
-    SPU_CD_VOL_L = 0x6000;
-    SPU_CD_VOL_R = 0x6000;
-
-    //Set initial volume
-    XA_SetVolume(0);
-    
-    //Prepare CD drive for XA reading
-    param[0] = CdlModeRT | CdlModeSF | CdlModeSize;
-    
-    CdControl(CdlSetmode, param, NULL);
-    CdControlB(CdlPause, NULL, NULL);
-}
-
-static void XA_Quit(void)
-{
-    //Set XA state
-    if (!(xa_state & XA_STATE_INIT))
-        return;
-    xa_state = 0;
-    
-    //Stop playing XA
-    XA_SetVolume(0);
-    CdControlB(CdlPause, NULL, NULL);
-}
-
-static void XA_Play(uint32_t start)
-{
-    //Play at given position
-    CdlLOC cd_loc;
-    CdIntToPos(start, &cd_loc);
-    CdControl(CdlSetloc, (uint8_t*)&cd_loc, NULL);
-    CdControl(CdlReadS, NULL, NULL);
-}
-
-static void XA_WaitPlay(void) {
-    CdControl(CdlNop, NULL, NULL);
-    while (!(CdStatus() & CdlStatRead))
-        CdControl(CdlNop, NULL, NULL);
-}
-
-static void XA_Pause(void)
-{
-    //Set XA state
-    if (!(xa_state & XA_STATE_PLAYING))
-        return;
-    xa_state &= ~XA_STATE_PLAYING;
-    
-    //Pause playback
-    CdControlB(CdlPause, NULL, NULL);
-}
-
-static void XA_SetFilter(uint8_t channel)
-{
-    //Change CD filter
-    CdlFILTER filter;
-    filter.file = 1;
-    xa_channel = filter.chan = channel;
-    CdControlF(CdlSetfilter, (uint8_t*)&filter);
-}
-
-//Audio functions
-void Audio_Init(void)
-{
-    //Initialize SPU
+void Audio_Init(void) {
     SpuInit();
-    Audio_ClearAlloc();
-    
-    //Set volume (this is done by default but i just put it here cus why not)
-    SPU_MASTER_VOL_L = 0x3fff;
-    SPU_MASTER_VOL_R = 0x3fff;
-    
-    //Set XA state
-    xa_state = 0;
-    
-    //Get file positions
-    CdlFILE *filep = xa_files;
-    for (const char **pathp = xa_paths; *pathp != NULL; pathp++)
-        IO_FindFile(filep++, *pathp);
+    Audio_ResetChannels();
 }
 
-void Audio_Quit(void)
-{
-    
-}
+bool Audio_FeedStream(void) {
+    // Do nothing if the drive is already busy reading a chunk.
+    if (CdReadSync(1, 0) > 0)
+        return true;
 
-static void Audio_GetXAFile(CdlFILE *file, XA_Track track)
-{
-    const XA_TrackDef *track_def = &xa_tracks[track];
-    file->pos = xa_files[track_def->file].pos;
-    file->size = track_def->length;
-}
+    // To improve efficiency, do not start refilling immediately but wait until
+    // there is enough space in the buffer (see REFILL_THRESHOLD).
+    if (Stream_GetRefillLength(&stream_ctx) < (REFILL_THRESHOLD * 2048))
+        return false;
 
-static void Audio_PlayXA_File(CdlFILE *file, uint8_t volume, uint8_t channel, bool loop)
-{
-    //Initialize XA system and stop previous song
-    XA_Init();
-    XA_SetVolume(0);
-    
-    //Set XA state
-    xa_start = xa_pos = CdPosToInt(&file->pos);
-    //xa_end = xa_start + (file->size / IO_SECT_SIZE) - 1;
-    xa_state = XA_STATE_INIT | XA_STATE_PLAYING | XA_STATE_SEEKING;
-    xa_resync = 0;
-    if (loop)
-        xa_state |= XA_STATE_LOOPS;
-    
-    //Start seeking to XA and use parameters
-    IO_SeekFile(file);
-    XA_SetFilter(channel);
-    XA_SetVolume(volume);
-}
+    uint8_t *ptr;
+    size_t  refill_length = Stream_GetFeedPtr(&stream_ctx, &ptr) / 2048;
 
-void Audio_PlayXA_Track(XA_Track track, uint8_t volume, uint8_t channel, bool loop)
-{
-    //Get track information
-    CdlFILE file;
-    Audio_GetXAFile(&file, track);
+    // Figure out how much data can be read in one shot. If the end of the file
+    // would be reached before the buffer is full, split the read into two
+    // separate reads.
+    int next_sector = read_ctx.next_sector;
+    int max_length  = read_ctx.stream_length - next_sector;
 
-    //Play track
-    Audio_PlayXA_File(&file, volume, channel, loop);
-}
-
-void Audio_SeekXA_Track(XA_Track track)
-{
-    //Get track file and seek
-    CdlFILE file;
-    Audio_GetXAFile(&file, track);
-    IO_SeekFile(&file);
-}
-
-void Audio_PauseXA(void)
-{
-    //Pause playing XA file
-    XA_Pause();
-}
-
-void Audio_ResumeXA(void)
-{
-    if (xa_state & XA_STATE_PLAYING)
-        return;
-    xa_state |= XA_STATE_PLAYING;
-
-    XA_Play(xa_pos);
-    XA_WaitPlay();
-}
-
-void Audio_StopXA(void)
-{
-    //Deinitialize XA system
-    XA_Quit();
-}
-
-void Audio_ChannelXA(uint8_t channel)
-{
-    //Set XA filter to the given channel
-    XA_SetFilter(channel);
-}
-
-int32_t Audio_TellXA_Sector(void)
-{
-    //Get CD position
-    return (int32_t)xa_pos - (int32_t)xa_start; //Meh casting
-}
-
-int32_t Audio_TellXA_Milli(void)
-{  
-    int pos = XA_TellSector();
-    if (pos != -1)  
-        return ((int32_t)pos - (int32_t)xa_start) * 1000 / 75; //1000 / (75 * speed (1x))
-}
-
-bool Audio_PlayingXA(void)
-{
-    return (xa_state & XA_STATE_PLAYING) != 0;
-}
-
-void Audio_WaitPlayXA(void)
-{
-    while (1)
-    {
-        Audio_ProcessXA();
-        if (Audio_PlayingXA())
-            return;
-        VSync(0);
-    }   
-
-    XA_WaitPlay();
-}
-
-void Audio_ProcessXA(void)
-{
-    //Handle playing state
-    if (xa_state & XA_STATE_PLAYING)
-    {
-        //Retrieve CD status
-        CdControl(CdlNop, NULL, NULL);
-        uint8_t cd_status = CdStatus();
-        
-        //Handle resync timer
-        if (xa_resync != 0)
-        {
-            //Wait for resync timer
-            if (--xa_resync != 0)
-                return;
-            
-            //Check if we're in a proper state
-            if (cd_status & CdlStatShellOpen)
-                return;
-            
-            //Attempt to get CD drive active
-            while (1)
-            {
-                CdControl(CdlNop, NULL, NULL);
-                cd_status = CdStatus();
-                if (cd_status & CdlStatStandby)
-                    break;
-            }
-            
-            //Re-initialize XA system
-            uint8_t prev_state = xa_state;
-            XA_Init();
-            xa_state = prev_state;
-            
-            XA_SetFilter(xa_channel);
-            XA_SetVolume(xa_volume);
-            
-            //Get new CD status
-            CdControl(CdlNop, NULL, NULL);
-            cd_status = CdStatus();
-        }
-        
-        //Check CD status for issues
-        if (cd_status & CdlStatShellOpen)
-        {
-            //Seek just ahead of last reported valid position
-            if (!(xa_state & XA_STATE_SEEKING))
-            {
-                xa_pos++;
-                xa_state |= XA_STATE_SEEKING;
-            }
-            
-            //Wait a moment before attempting the actual resync
-            xa_resync = 60;
-            return;
-        }
-        
-        //Handle seeking state
-        if (xa_state & XA_STATE_SEEKING)
-        {
-            //Check if CD is still seeking to the XA's beginning
-            if (!(cd_status & CdlStatSeek))
-            {
-                //Stopped seeking
-                xa_state &= ~XA_STATE_SEEKING;
-                XA_Play(xa_pos);
-            }
-            else
-            {
-                //Still seeking
-                return;
-            }
-        }
-        
-        //Get CD position
-        uint32_t next_pos = XA_TellSector();
-        if (next_pos > xa_pos)
-            xa_pos = next_pos;
-        
-        //Check position
-        if (XA_TellSector() == -1)
-        {
-            if (xa_state & XA_STATE_LOOPS)
-            {
-                //Reset XA playback
-                CdlLOC cd_loc;
-                CdIntToPos(xa_pos = xa_start, &cd_loc);
-                CdControl(CdlSetloc, (uint8_t*)&cd_loc, NULL);
-                CdControlB(CdlSeekL, NULL, NULL);
-                xa_state |= XA_STATE_SEEKING;
-            }
-            else
-            {
-                //Stop XA playback
-                Audio_StopXA();
-            }
-        }
-    }
-}
-
-/* .VAG file loader */
-#define VAG_HEADER_SIZE 48
-static int lastChannelUsed = 0;
-
-static int getFreeChannel(void) {
-    int channel = lastChannelUsed;
-    lastChannelUsed = (channel + 1) % 24;
-    return channel;
-}
-
-void Audio_ClearAlloc(void) {
-    audio_alloc_ptr = ALLOC_START_ADDR;
-}
-
-uint32_t Audio_LoadVAGData(uint32_t *sound, uint32_t sound_size) {
-    // subtract size of .vag header (48 bytes), round to 64 bytes
-    uint32_t xfer_size = ((sound_size - VAG_HEADER_SIZE) + 63) & 0xffffffc0;
-    uint8_t  *data = (uint8_t *) sound;
-
-    // modify sound data to ensure sound "loops" to dummy sample
-    // https://psx-spx.consoledev.net/soundprocessingunitspu/#flag-bits-in-2nd-byte-of-adpcm-header
-    data[sound_size - 15] = 1; // end + mute
-
-    // allocate SPU memory for sound
-    uint32_t addr = audio_alloc_ptr;
-    audio_alloc_ptr += xfer_size;
-
-    if (audio_alloc_ptr > 0x80000) {
-        // TODO: add proper error handling code
-        printf("FATAL: SPU RAM overflow! (%d bytes overflowing)\n", audio_alloc_ptr - 0x80000);
-        while (1);
+    while (max_length <= 0) {
+        next_sector -= read_ctx.stream_length;
+        max_length  += read_ctx.stream_length;
     }
 
-    SpuSetTransferStartAddr(addr); // set transfer starting address to malloced area
-    SpuSetTransferMode(SPU_TRANSFER_BY_DMA); // set transfer mode to DMA
-    SpuWrite((uint32_t *)data + VAG_HEADER_SIZE, xfer_size); // perform actual transfer
-    SpuIsTransferCompleted(SPU_TRANSFER_WAIT); // wait for DMA to complete
+    if (refill_length > max_length)
+        refill_length = max_length;
 
-    printf("Allocated new sound (addr=%08x, size=%d)\n", addr, xfer_size);
-    return addr;
+    // Start reading the next chunk from the CD-ROM into the buffer.
+    CdlLOC pos;
+
+    CdIntToPos(read_ctx.start_lba + next_sector, &pos);
+    CdControl(CdlSetloc, &pos, 0);
+    CdReadCallback(&cd_read_handler);
+    CdRead(refill_length, (uint32_t *) ptr, CdlModeSpeed);
+
+    read_ctx.next_sector   = next_sector + refill_length;
+    read_ctx.refill_length = refill_length;
+
+    return true;
 }
 
-void Audio_PlaySoundOnChannel(uint32_t addr, uint32_t channel, int volume) {
-    SPU_KEY_OFF1 = (1 << channel);
-
-    SPU_CHANNELS[channel].vol_left   = volume;
-    SPU_CHANNELS[channel].vol_right  = volume;
-    SPU_CHANNELS[channel].addr       = SPU_RAM_ADDR(addr);
-    SPU_CHANNELS[channel].loop_addr  = SPU_RAM_ADDR(DUMMY_ADDR);
-    SPU_CHANNELS[channel].freq       = 0x1000; // 44100 Hz
-    SPU_CHANNELS[channel].adsr_param = 0x1fc080ff;
-
-    SPU_KEY_ON1 = (1 << channel);
-}
-
-void Audio_PlaySound(uint32_t addr, int volume) {
-    Audio_PlaySoundOnChannel(addr, getFreeChannel(), volume);
-   // printf("Could not find free channel to play sound (addr=%08x)\n", addr);
-}
-
-uint32_t Audio_LoadSound(const char *path)
-{
+void Audio_LoadStream(const char *path, bool loop) {
+    stream_ctx.loop = loop;
     CdlFILE file;
-    uint32_t Sound;
+    if (!CdSearchFile(&file, path))
+    {
+        sprintf(error_msg, "[Audio_LoadStream] cant find %s", path);
+        ErrorLock();
+    }
 
-    IO_FindFile(&file, path);
-    uint32_t *data = IO_ReadFile(&file);
-    Sound = Audio_LoadVAGData(data, file.size);
-    free(data);
+    // Read the .VAG header from the first sector of the file.
+    uint32_t header[512];
+    CdControl(CdlSetloc, &file.pos, 0);
 
-    return Sound;
+    CdReadCallback(0);
+    CdRead(1, header, CdlModeSpeed);
+    CdReadSync(0, 0);
+
+    VAG_Header    *vag = (VAG_Header *) header;
+    Stream_Config config;
+
+    int num_channels = vag->channels ? vag->channels : 2;
+    int num_chunks   =
+        (SWAP_ENDIAN(vag->size) + vag->interleave - 1) / vag->interleave;
+
+    config.spu_address       = STREAM_BUFFER_ADDR;
+    config.channel_mask      = 0;
+    config.interleave        = vag->interleave;
+    config.buffer_size       = RAM_BUFFER_SIZE;
+    config.refill_threshold  = 0;
+    config.sample_rate       = SWAP_ENDIAN(vag->sample_rate);
+    stream_ctx.sample_rate   = SWAP_ENDIAN(vag->sample_rate);
+    stream_ctx.samples       = (SWAP_ENDIAN(vag->size) / 16) * 28;
+    config.refill_callback   = (void *) 0;
+    config.underrun_callback = (void *) 0;
+    config.timer_function    = &Timer_GetTimeint32;
+    config.timer_rate        = F_CPU/TICKS_PER_SEC;
+
+    // Use the first N channels of the SPU and pan them left/right in pairs
+    // (this assumes the stream contains one or more stereo tracks).
+    for (int ch = 0; ch < num_channels; ch++) {
+        config.channel_mask = (config.channel_mask << 1) | 1;
+
+        SPU_CH_VOL_L(ch) = (ch % 2) ? 0x0000 : 0x3fff;
+        SPU_CH_VOL_R(ch) = (ch % 2) ? 0x3fff : 0x0000;
+    }
+
+    Stream_Init(&stream_ctx, &config);
+
+    read_ctx.start_lba     = CdPosToInt(&file.pos) + 1;
+    read_ctx.stream_length =
+        (num_channels * num_chunks * vag->interleave + 2047) / 2048;
+    read_ctx.next_sector   = 0;
+    read_ctx.refill_length = 0;
+
+    // Ensure the buffer is full before starting playback.
+    while (Audio_FeedStream())
+        __asm__ volatile("");
 }
+
+void Audio_StartStream(bool resume) {
+    Stream_Start(&stream_ctx, resume);
+}
+
+void Audio_StopStream(void) {
+    Stream_Stop();
+}
+
+bool Audio_IsPlaying(void) {
+    return Stream_IsActive(&stream_ctx);
+}
+
+uint64_t Audio_GetTimeMS(void) {
+    if (stream_ctx.sample_rate != 0)
+        return Stream_GetSamplesPlayed(&stream_ctx)*1000 / stream_ctx.sample_rate;
+    else return 0;
+}
+
+uint32_t Audio_GetInitialTime(void) {
+    return 0;//stream_ctx.samples / stream_ctx.sample_rate;
+}
+
+void Audio_SetVolume(uint8_t i, uint16_t vol_left, uint16_t vol_right) {
+    SPU_CH_VOL_L(i) = vol_left;
+    SPU_CH_VOL_R(i) = vol_right;
+}
+
+void Audio_ClearAlloc(void) {}
+uint32_t Audio_LoadVAGData(uint32_t *sound, uint32_t sound_size) {return 1;}
+void Audio_PlaySoundOnChannel(uint32_t addr, uint32_t channel, int volume) {}
+void Audio_PlaySound(uint32_t addr, int volume) {}
+uint32_t Audio_LoadSound(const char *path) {return 1;}

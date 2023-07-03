@@ -68,26 +68,23 @@ int main(int argc, char **argv)
     Gfx_ScreenSetup();
     Menu_Load(MenuPage_Opening);
     char dbginfo[256];
-    int next_run, curfps, framecount = 0;
 
     //Game loop
     while (PSX_Running()) {
-        int cur_t = Timer_GetTime();
-        framecount ++;
+        Timer_incrementFrameCount();
 #ifndef NDEBUG
         Timer_StartProfile();
 #endif
 
         //Prepare frame
         Timer_CalcDT();
-        Audio_ProcessXA();
-//        Audio_FeedStream();
+        Audio_FeedStream();
         Pad_Update();
 
         //debug infos
         //if (dbginfo != NULL)
       //      Gfx_DrawText(0, 5, 0, dbginfo);
-        sprintf(dbginfo, "FPS: %d", curfps);
+        sprintf(dbginfo, "FPS: %d", Timer_GetFPS());
         Gfx_DrawText(5, 5, 0, dbginfo);
 
         //Tick and draw game
@@ -119,11 +116,7 @@ int main(int argc, char **argv)
             STR_Proccess();
         else
             Gfx_Flip();
-        if (cur_t > next_run) {
-            curfps = framecount;
-            framecount = 0;
-            next_run = cur_t + TICKS_PER_SEC;
-        }
+        Timer_CalcFPS();
     }
     
     return 0;

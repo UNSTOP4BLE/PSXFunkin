@@ -64,7 +64,8 @@ static void Stage_StartVocal(void)
 {
     if (!(stage.flag & STAGE_FLAG_VOCAL_ACTIVE))
     {
-        Audio_ChannelXA(stage.stage_def->music_channel);
+        Audio_SetVolume(2, 0x3FFF, 0x3FFF);
+//        Audio_ChannelXA(stage.stage_def->music_channel);
         stage.flag |= STAGE_FLAG_VOCAL_ACTIVE;
     }
 }
@@ -73,7 +74,8 @@ static void Stage_CutVocal(void)
 {
     if (stage.flag & STAGE_FLAG_VOCAL_ACTIVE)
     {
-        Audio_ChannelXA(stage.stage_def->music_channel + 1);
+        Audio_SetVolume(2, 0x0000, 0x0000);
+//        Audio_ChannelXA(stage.stage_def->music_channel + 1);
         stage.flag &= ~STAGE_FLAG_VOCAL_ACTIVE;
     }
 }
@@ -115,9 +117,19 @@ static void Stage_ScrollCamera(void)
         }
         else
         {
-            stage.camera.x = FIXED_LERP(stage.camera.x, stage.camera.tx, stage.camera.speed);
-            stage.camera.y = FIXED_LERP(stage.camera.y, stage.camera.ty, stage.camera.speed);
-            stage.camera.zoom = FIXED_LERP(stage.camera.zoom, stage.camera.tz, stage.camera.speed);
+            //stage.camera.x = FIXED_LERP(stage.camera.x, stage.camera.tx, stage.camera.speed);
+          //  stage.camera.y = FIXED_LERP(stage.camera.y, stage.camera.ty, stage.camera.speed);
+        //    stage.camera.zoom = FIXED_LERP(stage.camera.zoom, stage.camera.tz, stage.camera.speed);
+        
+        //Get delta position
+        fixed_t dx = stage.camera.tx - stage.camera.x;
+        fixed_t dy = stage.camera.ty - stage.camera.y;
+        fixed_t dz = stage.camera.tz - stage.camera.zoom;
+        
+        //Scroll based off current divisor
+        stage.camera.x += FIXED_MUL(dx, stage.camera.td);
+        stage.camera.y += FIXED_MUL(dy, stage.camera.td);
+        stage.camera.zoom += FIXED_MUL(dz, stage.camera.td);
         
             //Shake in Week 4
             if (stage.stage_id >= StageId_4_1 && stage.stage_id <= StageId_4_3 && !stage.paused)
@@ -1192,8 +1204,8 @@ static void Stage_CountDown(void)
     switch(stage.song_step)
     {
         case -20:
-            if (soundcooldown == 0)
-                Audio_PlaySound(Sounds[0], 0x3fff);
+   //         if (soundcooldown == 0)
+ //               Audio_PlaySound(Sounds[0], 0x3fff);
             soundcooldown ++;
             break;
         case -16:
@@ -1201,8 +1213,8 @@ static void Stage_CountDown(void)
             break;
         case -15:
             drawshit = 3;
-            if (soundcooldown == 0)
-                Audio_PlaySound(Sounds[1], 0x3fff);
+     //       if (soundcooldown == 0)
+       //         Audio_PlaySound(Sounds[1], 0x3fff);
             soundcooldown ++;
             break;
         case -11:
@@ -1210,8 +1222,8 @@ static void Stage_CountDown(void)
             break;
         case -10:
             drawshit = 2;
-            if (soundcooldown == 0)
-                Audio_PlaySound(Sounds[2], 0x3fff);
+         //   if (soundcooldown == 0)
+           //     Audio_PlaySound(Sounds[2], 0x3fff);
             soundcooldown ++;
             break;
         case -6:
@@ -1219,8 +1231,8 @@ static void Stage_CountDown(void)
             break;
         case -5:
             drawshit = 1;
-            if (soundcooldown == 0)
-                Audio_PlaySound(Sounds[3], 0x3fff);
+            //if (soundcooldown == 0)
+              //  Audio_PlaySound(Sounds[3], 0x3fff);
             soundcooldown ++;
             break;
     }
@@ -1373,7 +1385,7 @@ static void Stage_LoadSFX(void)
     {
         char text[0x80];
         sprintf(text, "\\SOUNDS\\INTRO%d%s.VAG;1", i, (stage.stage_id >= StageId_6_1 && stage.stage_id <= StageId_6_3) ? "P" : "");
-        Sounds[i] = Audio_LoadSound(text);
+      //  Sounds[i] = Audio_LoadSound(text);
     }
 
     //miss sound
@@ -1383,7 +1395,7 @@ static void Stage_LoadSFX(void)
         {
             char text[0x80];
             sprintf(text, "\\SOUNDS\\MISS%d.VAG;1", i + 1);
-            Sounds[i + 4] = Audio_LoadSound(text);
+        //    Sounds[i + 4] = Audio_LoadSound(text);
         }
     }
 }
@@ -1403,7 +1415,9 @@ static void Stage_LoadMusic(void)
         stage.gf->sing_end -= stage.note_scroll;
     
     //Find music file and begin seeking to it
-    Audio_SeekXA_Track(stage.stage_def->music_track);
+    char audio_path[64];
+    sprintf(audio_path, "\\MUSIC\\%d_%d.VAG;1", stage.stage_def->week, stage.stage_def->week_song);
+    Audio_LoadStream(audio_path, false);
 
     //Initialize music state
     stage.note_scroll = FIXED_DEC(-5 * 6 * 12,1);
@@ -1722,7 +1736,7 @@ void Stage_Tick(void)
     {
         stage.pause_scroll = -1;
         pad_state.press = false;
-        Audio_PauseXA();
+        Audio_StopStream();
         stage.paused = true;
     }
 
@@ -1745,8 +1759,8 @@ void Stage_Tick(void)
         if (deadtimer == 0)
         {
             inctimer = true;
-            Audio_StopXA();
-            Audio_PlaySound(Sounds[1], 0x3fff);
+            Audio_StopStream();
+          //  Audio_PlaySound(Sounds[1], 0x3fff);
         }
     }
     else if (pad_state.press & PAD_CIRCLE && stage.state != StageState_Play)
@@ -1873,10 +1887,10 @@ void Stage_Tick(void)
                         //Song has started
                         playing = true;
 
-                        Audio_PlayXA_Track(stage.stage_def->music_track, 0x40, stage.stage_def->music_channel, 0);
+                        Audio_StartStream(false);//(stage.stage_def->music_track, 0x40, stage.stage_def->music_channel, 0);
                             
                         //Update song time
-                        fixed_t audio_time = (fixed_t)Audio_TellXA_Milli() - stage.offset;
+                        fixed_t audio_time = (fixed_t)Timer_GetTime() - stage.offset;
                         if (audio_time < 0)
                             audio_time = 0;
                         stage.interp_ms = (audio_time << FIXED_SHIFT) / 1000;
@@ -1892,9 +1906,9 @@ void Stage_Tick(void)
                     //Update scroll
                     next_scroll = FIXED_MUL(stage.song_time, stage.step_crochet);
                 }
-                else if (Audio_PlayingXA())
+                else if (Audio_IsPlaying())
                 {
-                    fixed_t audio_time_pof = (fixed_t)Audio_TellXA_Milli();
+                    fixed_t audio_time_pof = (fixed_t)Timer_GetTime();
                     fixed_t audio_time = (audio_time_pof > 0) ? (audio_time_pof - stage.offset) : 0;
                     
                     //Old sync
@@ -2273,7 +2287,7 @@ void Stage_Tick(void)
         case StageState_Dead: //Start BREAK animation and reading extra data from CD
         {
             //Stop music immediately
-            Audio_StopXA();
+            Audio_StopStream();
             deadtimer = 0;
             inctimer = false;
 
@@ -2314,11 +2328,11 @@ void Stage_Tick(void)
             stage.song_time = 0;
             
             stage.state = StageState_DeadLoad;
-            if (stage.stage_id >= StageId_6_1 && stage.stage_id <= StageId_6_3)         
-                Sounds[0] = Audio_LoadSound("\\SOUNDS\\LOSSP.VAG;1");
-            else
-                Sounds[0] = Audio_LoadSound("\\SOUNDS\\LOSS.VAG;1");
-            Audio_PlaySound(Sounds[0], 0x3fff);
+            //if (stage.stage_id >= StageId_6_1 && stage.stage_id <= StageId_6_3)         
+           //     Sounds[0] = Audio_LoadSound("\\SOUNDS\\LOSSP.VAG;1");
+            //else
+              //  Sounds[0] = Audio_LoadSound("\\SOUNDS\\LOSS.VAG;1");
+            //Audio_PlaySound(Sounds[0], 0x3fff);
         }
     //Fallthrough
         case StageState_DeadLoad:
@@ -2339,11 +2353,11 @@ void Stage_Tick(void)
             //load sounds
             if (stage.stage_id >= StageId_6_1 && stage.stage_id <= StageId_6_3)         
             {
-                Sounds[1] = Audio_LoadSound("\\SOUNDS\\ENDP.VAG;1");
+              //  Sounds[1] = Audio_LoadSound("\\SOUNDS\\ENDP.VAG;1");
             }
             else
             {
-                Sounds[1] = Audio_LoadSound("\\SOUNDS\\END.VAG;1");
+              //  Sounds[1] = Audio_LoadSound("\\SOUNDS\\END.VAG;1");
             }
 
             if (stage.player != NULL)
@@ -2364,7 +2378,9 @@ void Stage_Tick(void)
             if (stage.player != NULL &&stage.player->animatable.anim == PlayerAnim_Dead3)
             {
                 stage.state = StageState_DeadRetry;
-                Audio_PlayXA_Track(XA_GameOver, 0x40, 1, true);
+                //Audio_PlayXA_Track(XA_GameOver, 0x40, 1, true);
+                Audio_LoadStream("fdf", true);
+                Audio_StartStream(false);
             }
             break;
         }

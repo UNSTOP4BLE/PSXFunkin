@@ -15,6 +15,7 @@
 Timer timer;
 
 uint16_t profile_start, total_time;
+int curfps, next_run, framecount;
 
 void Timer_StartProfile(void) {
     total_time = (TIMER_VALUE(1) - profile_start) & 0xffff;
@@ -41,6 +42,27 @@ void Timer_Init(void) {
     ExitCriticalSection();
 }
 
+void Timer_incrementFrameCount(void)
+{
+    framecount ++;
+}
+
+void Timer_CalcFPS(void)
+{
+    int cur_t = Timer_GetTime();
+    if (cur_t > next_run) {
+        printf("updating fps yay time %d\n", cur_t);
+        curfps = framecount;
+        framecount = 0;
+        next_run = cur_t + TICKS_PER_SEC;
+    }
+}
+
+int Timer_GetFPS(void)
+{
+    return curfps;
+}
+
 uint32_t Timer_GetAnimfCount(void)
 {
     if (stage.paused)
@@ -55,6 +77,12 @@ uint64_t Timer_GetTime(void) {
     ((uint64_t) TIMER_VALUE(2) >> (16 - TIMER_SHIFT));
 }
 
+uint32_t Timer_GetTimeint32(void) {
+    return
+    ((uint32_t) timer.timer_irq_count << TIMER_SHIFT) |
+    ((uint32_t) TIMER_VALUE(2) >> (16 - TIMER_SHIFT));
+}
+
 uint64_t Timer_GetTimeMS(void) {
     return (Timer_GetTime() * 1000) / TICKS_PER_SEC;
 }
@@ -63,6 +91,9 @@ void Timer_Reset(void)
 {
     TIMER_VALUE(2)  = 0;
     timer.timer_irq_count = 0;
+    next_run = 0;
+    framecount = 0;
+    curfps = 0;
 }
 
 int last_time = 0;
@@ -85,7 +116,7 @@ int Timer_GetDT()
 void StageTimer_Tick()
 {
     //im deeply sorry for anyone reading this code
-    timer.timer = Audio_GetLength(stage.stage_def->music_track) - ((stage.song_time >= 0) ? (Audio_TellXA_Milli() / 1000) : 0); //seconds (initial)
+    timer.timer = Audio_GetInitialTime() - ((stage.song_time >= 0) ? (Timer_GetTime() / 1000) : 0); //seconds (initial)
     timer.timermin = timer.timer / 60; //minutes left till song ends
     timer.timersec = timer.timer % 60; //seconds left till song ends
 }

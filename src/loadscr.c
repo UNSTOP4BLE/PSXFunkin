@@ -17,7 +17,7 @@
 void LoadScr_Start(void)
 {
     //Stop VAG playback
-    Audio_StopXA();
+    Audio_StopStream();
     
     //free all sounds it loaded before and make sure frame has been drawn
     Audio_ClearAlloc();

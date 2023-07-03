@@ -8,89 +8,24 @@
 #define PSXF_GUARD_AUDIO_H
 
 #include "psx.h"
-
-//XA enumerations
-typedef enum
-{
-    XA_Menu,   //MENU.XA
-    XA_Week1A, //WEEK1A.XA
-    XA_Week1B, //WEEK1B.XA
-    XA_Week2A, //WEEK2A.XA
-    XA_Week2B, //WEEK2B.XA
-    XA_Week3A, //WEEK3A.XA
-    XA_Week3B, //WEEK3B.XA
-    XA_Week4A, //WEEK4A.XA
-    XA_Week4B, //WEEK4B.XA
-    XA_Week5A, //WEEK5A.XA
-    XA_Week5B, //WEEK5B.XA
-    XA_Week6A, //WEEK6A.XA
-    XA_Week6B, //WEEK6B.XA
-    
-    XA_Max,
-} XA_File;
-
-typedef enum
-{
-    //MENU.XA
-    XA_GettinFreaky, //Gettin' Freaky
-    XA_GameOver,     //Game Over
-    //WEEK1A.XA
-    XA_Bopeebo, //Bopeebo
-    XA_Fresh,   //Fresh
-    //WEEK1B.XA
-    XA_Dadbattle, //DadBattle
-    XA_Tutorial,  //Tutorial
-    //WEEK2A.XA
-    XA_Spookeez, //Spookeez
-    XA_South,    //South
-    //WEEK2B.XA
-    XA_Monster, //Monster
-    //WEEK3A.XA
-    XA_Pico,   //Pico
-    XA_Philly, //Philly
-    //WEEK3B.XA
-    XA_Blammed, //Blammed
-    //WEEK4A.XA
-    XA_SatinPanties, //Satin Panties
-    XA_High,         //High
-    //WEEK4B.XA
-    XA_MILF, //M.I.L.F
-    XA_Test, //Test
-    //WEEK5A.XA
-    XA_Cocoa,  //Cocoa
-    XA_Eggnog, //Eggnog
-    //WEEK5B.XA
-    XA_WinterHorrorland, //Winter Horrorland
-    //WEEK6A.XA
-    XA_Senpai, //Senpai
-    XA_Roses,  //Roses
-    //WEEK6B.XA
-    XA_Thorns, //Thorns
-    
-    XA_TrackMax,
-} XA_Track;
+#include "psx/stream.h"
 
 //Audio functions
-uint32_t Audio_GetLength(XA_Track lengthtrack);
+void Audio_ResetChannels(void);
 void Audio_Init(void);
-void Audio_Quit(void);
-void Audio_PlayXA_Track(XA_Track track, uint8_t volume, uint8_t channel, bool loop);
-void Audio_SeekXA_Track(XA_Track track);
-void Audio_PauseXA(void);
-void Audio_ResumeXA(void);
-void Audio_StopXA(void);
-void Audio_ChannelXA(uint8_t channel);
-int32_t Audio_TellXA_Sector(void);
-int32_t Audio_TellXA_Milli(void);
-bool Audio_PlayingXA(void);
-void Audio_WaitPlayXA(void);
-void Audio_ProcessXA(void);
-void findFreeChannel(void);
+bool Audio_FeedStream(void);
+void Audio_LoadStream(const char *path, bool loop);
+void Audio_StartStream(bool resume);
+void Audio_StopStream(void);
+uint64_t Audio_GetTimeMS(void);
+uint32_t Audio_GetInitialTime(void);
+bool Audio_IsPlaying(void);
+void Audio_SetVolume(uint8_t i, uint16_t vol_left, uint16_t vol_right);
+
+void Audio_ClearAlloc(void);
 uint32_t Audio_LoadVAGData(uint32_t *sound, uint32_t sound_size);
-void AudioPlayVAG(int channel, uint32_t addr);
 void Audio_PlaySoundOnChannel(uint32_t addr, uint32_t channel, int volume);
 void Audio_PlaySound(uint32_t addr, int volume);
 uint32_t Audio_LoadSound(const char *path);
-void Audio_ClearAlloc(void);
 
 #endif

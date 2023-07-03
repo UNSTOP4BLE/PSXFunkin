@@ -27,8 +27,12 @@ extern Timer timer;
 
 //Timer interface 
 void Timer_Init(void);
+void Timer_incrementFrameCount(void);
+void Timer_CalcFPS(void);
+int Timer_GetFPS(void);
 uint32_t Timer_GetAnimfCount(void);
 uint64_t Timer_GetTime(void);
+uint32_t Timer_GetTimeint32(void);
 uint64_t Timer_GetTimeMS(void);
 void Timer_Reset(void);
 void Timer_CalcDT();
