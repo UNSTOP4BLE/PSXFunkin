@@ -3,6 +3,7 @@
     "health_i": 0,
     "health_bar": "0xFF29B5D6",
     "focus": [[-50, 1], [-65, 1], [1, 1]],
+    "scale": [1,1],
 
     "struct": [
         "BF_ArcMain_BF0",

@@ -3,6 +3,7 @@
     "health_i": 1,
     "health_bar": "0xFFAD63D6",
     "focus": [[-23, 1], [-100, 1], [1, 1]],
+    "scale": [1,1],
 
     "struct": [
         "XmasP_ArcMain_Idle0",                                                                                                                                                                                                                                                                                              

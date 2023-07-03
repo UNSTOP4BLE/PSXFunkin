@@ -3,6 +3,7 @@
     "health_i": 1,
     "health_bar": "0xFFB5D652",
     "focus": [[65, 1], [-65, 1], [1, 1]],
+    "scale": [1,1],
 
     "struct": [
         "Pico_ArcMain_Idle",

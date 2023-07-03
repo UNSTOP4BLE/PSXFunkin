@@ -81,6 +81,10 @@ static void Stage_CutVocal(void)
 //Stage camera functions
 static void Stage_FocusCharacter(Character *ch, fixed_t div)
 {
+    //if (ch == stage.player)
+    //    printf("focusing on player with x %d and y %d and z %d\n", ch->focus_x, ch->focus_y, ch->focus_zoom);
+  //  else
+//        printf("focusing on opponent with x %d and y %d and z %d\n", ch->focus_x, ch->focus_y, ch->focus_zoom);
     //Use character focus settings to update target position and zoom
     stage.camera.tx = ch->x + ch->focus_x;
     stage.camera.ty = ch->y + ch->focus_y;
@@ -1566,11 +1570,9 @@ void Stage_Load(StageId id, StageDiff difficulty, bool story)
     
     //Initialize camera
     if (stage.cur_section->flag & SECTION_FLAG_OPPFOCUS)
-        if (stage.opponent != NULL)
-            Stage_FocusCharacter(stage.opponent, FIXED_UNIT);
-    else
-        if (stage.player != NULL)
-            Stage_FocusCharacter(stage.player, FIXED_UNIT);
+        Stage_FocusCharacter(stage.opponent, FIXED_UNIT);
+    else 
+        Stage_FocusCharacter(stage.player, FIXED_UNIT);
     stage.camera.x = stage.camera.tx;
     stage.camera.y = stage.camera.ty;
     stage.camera.zoom = stage.camera.tz;
@@ -1986,11 +1988,9 @@ void Stage_Tick(void)
             
             //Scroll camera
             if (stage.cur_section->flag & SECTION_FLAG_OPPFOCUS)
-                if (stage.opponent != NULL)
-                    Stage_FocusCharacter(stage.opponent, FIXED_UNIT / 24);
+                Stage_FocusCharacter(stage.opponent, FIXED_UNIT / 24);
             else 
-                if (stage.player != NULL)
-                    Stage_FocusCharacter(stage.player, FIXED_UNIT / 24);
+                Stage_FocusCharacter(stage.player, FIXED_UNIT / 24);
             Stage_ScrollCamera();
             
             //Draw Score

@@ -3,6 +3,7 @@
     "health_i": 1,
     "health_bar": "0xFFD67B00",
     "focus": [[65, 1], [-80, 1], [1, 1]],
+    "scale": [1,1],
 
     "struct": [
         "Spook_ArcMain_Idle0",                                                                                                                                                                                                                                                                                              

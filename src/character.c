@@ -77,7 +77,8 @@ Character *Character_FromFile(Character *this, const char *path, fixed_t x, fixe
             //default
         //    break;  
         case CHAR_SPEC_GIRLFRIEND:
-            Speaker_Init(&speaker);
+            if (!(stage.stage_id >= StageId_6_1 && stage.stage_id <= StageId_6_3))
+                Speaker_Init(&speaker);
             this->tick = GirlFriend_Generic_Tick;
             this->set_anim = GirlFriend_Generic_SetAnim;
             break;
@@ -97,9 +98,9 @@ Character *Character_FromFile(Character *this, const char *path, fixed_t x, fixe
     //health bar color
     this->health_bar = tmphdr->health_bar;
     
-    this->focus_x = tmphdr->focus_x;
-    this->focus_y = tmphdr->focus_y;
-    this->focus_zoom = tmphdr->focus_zoom;
+    this->focus_x = FIXED_DEC(tmphdr->focus_x[0], tmphdr->focus_x[1]);
+    this->focus_y = FIXED_DEC(tmphdr->focus_y[0], tmphdr->focus_y[1]);
+    this->focus_zoom = FIXED_DEC(tmphdr->focus_zoom[0], tmphdr->focus_zoom[1]);
     /*
         printf("struct %d, \n", tmphdr->size_struct);
     printf("frames %d, \n", tmphdr->size_frames);

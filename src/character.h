@@ -82,7 +82,8 @@ typedef struct __attribute__((packed)) CharacterFileHeader
     uint16_t health_i; //hud1.tim
     uint32_t health_bar; //hud1.tim
     char archive_path[128];
-    fixed_t focus_x, focus_y, focus_zoom;
+    fixed_t focus_x[2], focus_y[2], focus_zoom[2];
+    fixed_t scale[2];
 } CharacterFileHeader;
 
 //Character functions

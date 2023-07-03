@@ -10,9 +10,6 @@
 using json = nlohmann::json;
 
 typedef int32_t fixed_t;
-#define FIXED_SHIFT (10)
-#define FIXED_UNIT  (1 << FIXED_SHIFT)
-#define FIXED_DEC(d, f) ((fixed_t)(((int64_t)(d) * FIXED_UNIT) / (f)))
 
 #define ASCR_REPEAT 0xFF
 #define ASCR_CHGANI 0xFE
@@ -78,7 +75,8 @@ struct __attribute__((packed)) CharacterFileHeader
     uint16_t health_i; //hud1.tim
     uint32_t health_bar; //hud1.tim
     char archive_path[128];
-    fixed_t focus_x, focus_y, focus_zoom;
+    fixed_t focus_x[2], focus_y[2], focus_zoom[2];
+    fixed_t scale[2];
 };
 
 std::vector<std::string> charStruct;
@@ -135,9 +133,14 @@ int main(int argc, char *argv[])
     new_char.health_bar = std::stoul(health_bar_str, nullptr, 16);
     std::string arcpath = j["archive"];
     strncpy(new_char.archive_path, arcpath.c_str(), sizeof(new_char.archive_path));
-    new_char.focus_x = FIXED_DEC(j["focus"][0][0], (int)j["focus"][0][1]);
-    new_char.focus_y = FIXED_DEC(j["focus"][1][0], (int)j["focus"][1][1]);
-    new_char.focus_zoom = FIXED_DEC(j["focus"][2][0], (int)j["focus"][2][1]);
+    new_char.focus_x[0] = j["focus"][0][0];
+    new_char.focus_x[1] = j["focus"][0][1];
+    new_char.focus_y[0] = j["focus"][1][0];
+    new_char.focus_y[1] = j["focus"][1][1];
+    new_char.focus_zoom[0] = j["focus"][2][0];
+    new_char.focus_zoom[1] = j["focus"][2][1];
+    new_char.scale[0] = j["scale"][0];
+    new_char.scale[1] = j["scale"][1];
 
     //parse animation
     for (int i = 0; i < j["struct"].size(); i++) 
