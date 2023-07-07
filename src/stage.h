@@ -189,7 +189,8 @@ typedef struct
     {
         bool ghost, downscroll, middlescroll, practice, debug, palmode, widescreen, stereo, sfxmiss, songtimer, botplay;
         int16_t scr_x, scr_y;
-        int savescore[StageId_Max][3];
+        int32_t savescore[StageId_Max][3];
+        int32_t audio_offset;
     } prefs;
     bool paused;
     int32_t mode;
