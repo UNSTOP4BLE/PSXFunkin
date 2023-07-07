@@ -15,9 +15,9 @@ jobs:
       - name: Download PSn00bSDK
         uses: robinraju/release-downloader@main
         with: 
-          repository: "spicyjpeg/PSn00bSDK"
-          tag: "v0.21"
-          fileName: "PSn00bSDK-0.21-Linux.zip"
+          repository: "Lameguy64/PSn00bSDK"
+          tag: "v0.24"
+          fileName: "PSn00bSDK-0.24-Linux.zip"
       - name: Compile
         run: |
           unzip -q PSn00bSDK-0.21-Linux.zip
