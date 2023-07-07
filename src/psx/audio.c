@@ -109,6 +109,7 @@ typedef struct {
 
 typedef struct {
     int start_lba, stream_length, sample_rate;
+    bool loop;
 
     volatile int    next_sector;
     volatile size_t refill_length;
@@ -163,10 +164,15 @@ bool Audio_FeedStream(void) {
     // separate reads.
     int next_sector = read_ctx.next_sector;
     int max_length  = read_ctx.stream_length - next_sector;
-
-    while (max_length <= 0) {
-        next_sector -= read_ctx.stream_length;
-        max_length  += read_ctx.stream_length;
+    
+    if (read_ctx.loop) {
+        while (max_length <= 0) {
+            next_sector -= read_ctx.stream_length;
+            max_length  += read_ctx.stream_length;
+        }
+    } else {
+        if (max_length <= 0)
+            return false;
     }
 
     if (refill_length > max_length)
@@ -187,7 +193,6 @@ bool Audio_FeedStream(void) {
 }
 
 void Audio_LoadStream(const char *path, bool loop) {
-    stream_ctx.loop = loop;
     CdlFILE file;
     if (!CdSearchFile(&file, path))
     {
@@ -216,7 +221,7 @@ void Audio_LoadStream(const char *path, bool loop) {
     config.buffer_size = RAM_BUFFER_SIZE;
     config.sample_rate = SWAP_ENDIAN(vag->sample_rate);
     config.timer_function    = &Timer_GetTimeint32;
-    config.timer_rate        = F_CPU/TICKS_PER_SEC;
+    config.timer_rate        = TICKS_PER_SEC;
 
     // Use the first N channels of the SPU and pan them left/right in pairs
     // (this assumes the stream contains one or more stereo tracks).
@@ -237,6 +242,7 @@ void Audio_LoadStream(const char *path, bool loop) {
     read_ctx.refill_length = 0;
     stream_ctx.samples       = (SWAP_ENDIAN(vag->size) / 16) * 28;
     stream_ctx.sample_rate   = read_ctx.sample_rate;
+    read_ctx.loop = loop;
 
     // Ensure the buffer is full before starting playback.
     while (Audio_FeedStream())
@@ -257,7 +263,9 @@ bool Audio_IsPlaying(void) {
 
 uint64_t Audio_GetTimeMS(void) {
     if (stream_ctx.sample_rate != 0)
+    {
         return Stream_GetSamplesPlayed(&stream_ctx)*1000 / stream_ctx.sample_rate;
+    }
     else return 0;
 }
 

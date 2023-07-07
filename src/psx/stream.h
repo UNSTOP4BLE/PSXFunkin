@@ -88,7 +88,6 @@ typedef struct {
     size_t  chunk_size, samples_per_chunk;
     uint8_t num_channels;
     int sample_rate, samples;
-    bool loop;
 
     volatile uint8_t     db_active, buffering, callback_issued;
     volatile Stream_Time last_updated, last_stopped, play_time;

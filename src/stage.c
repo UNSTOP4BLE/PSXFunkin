@@ -1602,7 +1602,7 @@ void Stage_Load(StageId id, StageDiff difficulty, bool story)
     Stage_LoadMusic();
     
     //Test offset
-    stage.offset = 0;
+    stage.offset = 360;
     printf("[Stage_Load] Done (id=%d)\n", id);
 }
 
@@ -1890,7 +1890,7 @@ void Stage_Tick(void)
                         Audio_StartStream(false);//(stage.stage_def->music_track, 0x40, stage.stage_def->music_channel, 0);
                             
                         //Update song time
-                        fixed_t audio_time = (fixed_t)Timer_GetTime() - stage.offset;
+                        fixed_t audio_time = (fixed_t)Audio_GetTimeMS() - stage.offset;
                         if (audio_time < 0)
                             audio_time = 0;
                         stage.interp_ms = (audio_time << FIXED_SHIFT) / 1000;
@@ -1908,7 +1908,7 @@ void Stage_Tick(void)
                 }
                 else if (Audio_IsPlaying())
                 {
-                    fixed_t audio_time_pof = (fixed_t)Timer_GetTime();
+                    fixed_t audio_time_pof = (fixed_t)Audio_GetTimeMS();
                     fixed_t audio_time = (audio_time_pof > 0) ? (audio_time_pof - stage.offset) : 0;
                     
                     //Old sync

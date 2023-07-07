@@ -116,7 +116,7 @@ int Timer_GetDT()
 void StageTimer_Tick()
 {
     //im deeply sorry for anyone reading this code
-    timer.timer = Audio_GetInitialTime() - ((stage.song_time >= 0) ? (Timer_GetTime() / 1000) : 0); //seconds (initial)
+    timer.timer = Audio_GetInitialTime() - ((stage.song_time >= 0) ? (stage.song_time / 1000) : 0); //seconds (initial)
     timer.timermin = timer.timer / 60; //minutes left till song ends
     timer.timersec = timer.timer % 60; //seconds left till song ends
 }
