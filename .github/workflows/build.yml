@@ -15,13 +15,13 @@ jobs:
       - name: Download PSn00bSDK
         uses: robinraju/release-downloader@main
         with: 
-          repository: "spicyjpeg/PSn00bSDK"
-          tag: "v0.21"
-          fileName: "PSn00bSDK-0.21-Linux.zip"
+          repository: "Lameguy64/PSn00bSDK"
+          tag: "v0.24"
+          fileName: "PSn00bSDK-0.24-Linux.zip"
       - name: Compile
         run: |
-          unzip -q PSn00bSDK-0.21-Linux.zip
-          mv PSn00bSDK-0.21-Linux /opt/psn00bsdk
+          unzip -q PSn00bSDK-0.24-Linux.zip
+          mv PSn00bSDK-0.24-Linux /opt/psn00bsdk
           export PATH=$PATH:/opt/psn00bsdk/bin
           export PSN00BSDK_LIBS=/opt/psn00bsdk/lib/libpsn00b
           cmake -S ./tools -B ./tools/build -G "Ninja"
