@@ -108,7 +108,7 @@ typedef struct {
 #define STREAM_BUFFER_ADDR 0x1010
 
 typedef struct {
-    int start_lba, stream_length;
+    int start_lba, stream_length, sample_rate;
 
     volatile int    next_sector;
     volatile size_t refill_length;
@@ -195,7 +195,6 @@ void Audio_LoadStream(const char *path, bool loop) {
         ErrorLock();
     }
 
-    // Read the .VAG header from the first sector of the file.
     uint32_t header[512];
     CdControl(CdlSetloc, &file.pos, 0);
 
@@ -210,16 +209,12 @@ void Audio_LoadStream(const char *path, bool loop) {
     int num_chunks   =
         (SWAP_ENDIAN(vag->size) + vag->interleave - 1) / vag->interleave;
 
-    config.spu_address       = STREAM_BUFFER_ADDR;
-    config.channel_mask      = 0;
-    config.interleave        = vag->interleave;
-    config.buffer_size       = RAM_BUFFER_SIZE;
-    config.refill_threshold  = 0;
-    config.sample_rate       = SWAP_ENDIAN(vag->sample_rate);
-    stream_ctx.sample_rate   = SWAP_ENDIAN(vag->sample_rate);
-    stream_ctx.samples       = (SWAP_ENDIAN(vag->size) / 16) * 28;
-    config.refill_callback   = (void *) 0;
-    config.underrun_callback = (void *) 0;
+    __builtin_memset(&config, 0, sizeof(Stream_Config));
+
+    config.spu_address = STREAM_BUFFER_ADDR;
+    config.interleave  = vag->interleave;
+    config.buffer_size = RAM_BUFFER_SIZE;
+    config.sample_rate = SWAP_ENDIAN(vag->sample_rate);
     config.timer_function    = &Timer_GetTimeint32;
     config.timer_rate        = F_CPU/TICKS_PER_SEC;
 
@@ -237,8 +232,11 @@ void Audio_LoadStream(const char *path, bool loop) {
     read_ctx.start_lba     = CdPosToInt(&file.pos) + 1;
     read_ctx.stream_length =
         (num_channels * num_chunks * vag->interleave + 2047) / 2048;
+    read_ctx.sample_rate   = config.sample_rate;
     read_ctx.next_sector   = 0;
     read_ctx.refill_length = 0;
+    stream_ctx.samples       = (SWAP_ENDIAN(vag->size) / 16) * 28;
+    stream_ctx.sample_rate   = read_ctx.sample_rate;
 
     // Ensure the buffer is full before starting playback.
     while (Audio_FeedStream())
@@ -264,7 +262,9 @@ uint64_t Audio_GetTimeMS(void) {
 }
 
 uint32_t Audio_GetInitialTime(void) {
-    return 0;//stream_ctx.samples / stream_ctx.sample_rate;
+    if (stream_ctx.sample_rate != 0)
+        return stream_ctx.samples / stream_ctx.sample_rate;
+    else return 0;
 }
 
 void Audio_SetVolume(uint8_t i, uint16_t vol_left, uint16_t vol_right) {
