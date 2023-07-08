@@ -70,6 +70,7 @@
 #include <hwregs_c.h>
 
 #include "stream.h"
+#include "../io.h"
 
 #include "../timer.h"
 #include "../main.h"
@@ -280,8 +281,77 @@ void Audio_SetVolume(uint8_t i, uint16_t vol_left, uint16_t vol_right) {
     SPU_CH_VOL_R(i) = vol_right;
 }
 
-void Audio_ClearAlloc(void) {}
-uint32_t Audio_LoadVAGData(uint32_t *sound, uint32_t sound_size) {return 1;}
-void Audio_PlaySoundOnChannel(uint32_t addr, uint32_t channel, int volume) {}
-void Audio_PlaySound(uint32_t addr, int volume) {}
-uint32_t Audio_LoadSound(const char *path) {return 1;}
+#define VAG_HEADER_SIZE 48
+
+#define BUFFER_SIZE (13 << 11) //13 sectors
+#define CHUNK_SIZE (BUFFER_SIZE)
+#define CHUNK_SIZE_MAX (BUFFER_SIZE)
+#define SPU_RAM_ADDR(x) ((uint16_t)(((uint32_t)(x)) >> 3))
+#define BUFFER_START_ADDR 0x1010
+#define DUMMY_ADDR (BUFFER_START_ADDR + (CHUNK_SIZE_MAX * 2))
+#define ALLOC_START_ADDR (BUFFER_START_ADDR + (CHUNK_SIZE_MAX * 2) + 64)
+#define SPU_KEY_ON   *((volatile uint32_t*)0x1f801d88)
+#define SPU_KEY_OFF  *((volatile uint32_t*)0x1f801d8c)
+
+static uint8_t lastChannelUsed = 0;
+static volatile uint32_t audio_alloc_ptr = 0;
+
+static uint8_t getFreeChannel(void) {
+    uint8_t channel = lastChannelUsed;
+    lastChannelUsed = (channel + 1) % 20;
+    return channel + 4;
+}
+
+void Audio_ClearAlloc(void) {
+    audio_alloc_ptr = ALLOC_START_ADDR;
+}
+
+void Audio_PlaySound(uint32_t addr, int volume) {
+    uint8_t channel = getFreeChannel();
+    SPU_KEY_OFF = (1 << channel);
+
+    SPU_CH_VOL_L(channel)      = volume;
+    SPU_CH_VOL_R(channel)      = volume;
+    SPU_CH_ADDR(channel)       = getSPUAddr(addr);
+    SPU_CH_LOOP_ADDR(channel)  = getSPUAddr(DUMMY_ADDR);
+    SPU_CH_FREQ(channel)       = 0x1000; // 44100 Hz
+    SPU_CH_ADSR1(channel) = 0x00ff;
+    SPU_CH_ADSR2(channel) = 0x0000;
+
+    SPU_KEY_ON = (1 << channel);
+}
+
+uint32_t Audio_LoadSound(const char *path) {        
+    //Load Sound File
+    CdlFILE sfx_file;
+    IO_FindFile(&sfx_file, path);
+    uint32_t *sfx_data = IO_ReadFile(&sfx_file);
+
+    // subtract size of .vag header (48 bytes), round to 64 bytes
+    uint32_t xfer_size = ((sfx_file.size - VAG_HEADER_SIZE) + 63) & 0xffffffc0;
+
+    uint8_t  *data = (uint8_t *) sfx_data;
+
+    // modify sound data to ensure sound "loops" to dummy sample
+    // https://psx-spx.consoledev.net/soundprocessingunitspu/#flag-bits-in-2nd-byte-of-adpcm-header
+    data[sfx_file.size - 15] = 1; // end + mute
+
+    // allocate SPU memory for sound
+    uint32_t addr = audio_alloc_ptr;
+    audio_alloc_ptr += xfer_size;
+
+    if (audio_alloc_ptr > 0x80000) {        
+        sprintf(error_msg, "[Audio_LoadSound] FATAL: SPU RAM overflow! (%d bytes overflowing)\n", audio_alloc_ptr - 0x80000);
+        ErrorLock();
+    }
+
+    SpuSetTransferStartAddr(addr); // set transfer starting address to malloced area
+    SpuSetTransferMode(SPU_TRANSFER_BY_DMA); // set transfer mode to DMA
+    SpuWrite((uint32_t *)data + VAG_HEADER_SIZE, xfer_size); // perform actual transfer
+    SpuIsTransferCompleted(SPU_TRANSFER_WAIT); // wait for DMA to complete
+
+    printf("Allocated new sound (addr=%08x, size=%d)\n", addr, xfer_size);
+
+    free(sfx_data);
+    return addr;
+}

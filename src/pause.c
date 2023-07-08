@@ -109,6 +109,7 @@ void OptionsState(int *note_x)
         "MIDDLESCROLL",
         "SHOW SONG TIME",
         "WIDESCREEN",
+        "AUDIO OFFSET",
         "DEBUG MODE"
     };
 
@@ -176,12 +177,27 @@ void OptionsState(int *note_x)
                 stage.prefs.widescreen = !stage.prefs.widescreen;
                 Gfx_ScreenSetup();
                 break;
+            case 9:
+            //audio offset
                 break;
-            case 9: //Debug mode
+            case 10: //Debug mode
                 stage.prefs.debug = !stage.prefs.debug;
                 break;
         }
     }
+
+    if (pause_select == 9 && pad_state.held & (PAD_LEFT | PAD_RIGHT))
+    {
+        if (pad_state.held & PAD_LEFT)
+            stage.offset --;
+        else if (pad_state.held & PAD_RIGHT)
+            stage.offset ++;
+        stage.prefs.audio_offset = stage.offset;
+    }
+
+    char offset_test[24];
+    sprintf(offset_test, "AUDIO OFFSET %d", stage.offset);
+    Gfx_DrawText(5, screen.SCREEN_HEIGHT - 15, 0, offset_test);
 
     //Change option
     if (pad_state.press & PAD_UP)

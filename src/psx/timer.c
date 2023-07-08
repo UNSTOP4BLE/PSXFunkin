@@ -51,7 +51,6 @@ void Timer_CalcFPS(void)
 {
     int cur_t = Timer_GetTime();
     if (cur_t > next_run) {
-        printf("updating fps yay time %d\n", cur_t);
         curfps = framecount;
         framecount = 0;
         next_run = cur_t + TICKS_PER_SEC;
