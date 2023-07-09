@@ -292,9 +292,9 @@ void Menu_Load(MenuPage page)
     stage.song_step = 0;
 
     // to load
-//    Sounds[0] = Audio_LoadSound("\\SOUNDS\\SCROLL.VAG;1");
-  //  Sounds[1] = Audio_LoadSound("\\SOUNDS\\CONFIRM.VAG;1");
-    //Sounds[2] = Audio_LoadSound("\\SOUNDS\\CANCEL.VAG;1");
+    Sounds[0] = Audio_LoadSound("\\SOUNDS\\SCROLL.VAG;1");
+    Sounds[1] = Audio_LoadSound("\\SOUNDS\\CONFIRM.VAG;1");
+    Sounds[2] = Audio_LoadSound("\\SOUNDS\\CANCEL.VAG;1");
 
     //Play menu music
     Audio_LoadStream("\\MUSIC\\FREAKY.VAG;1", true);

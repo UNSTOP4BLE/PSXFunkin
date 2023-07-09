@@ -1732,7 +1732,7 @@ void Stage_Tick(void)
     SeamLoad:;
     
     //Tick transition
-    if (stage.paused == false && pad_state.press & PAD_START && stage.state == StageState_Play)
+    if (stage.paused == false && pad_state.press & PAD_START && stage.state == StageState_Play && stage.song_time > 0)
     {
         stage.pause_scroll = -1;
         pad_state.press = false;
