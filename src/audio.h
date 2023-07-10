@@ -17,6 +17,7 @@ bool Audio_FeedStream(void);
 void Audio_LoadStream(const char *path, bool loop);
 void Audio_StartStream(bool resume);
 void Audio_StopStream(void);
+void Audio_DestroyStream(void);
 uint64_t Audio_GetTimeMS(void);
 uint32_t Audio_GetInitialTime(void);
 bool Audio_IsPlaying(void);

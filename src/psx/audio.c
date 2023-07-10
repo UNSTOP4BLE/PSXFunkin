@@ -77,7 +77,7 @@
 
 // Size of the ring buffer in main RAM in bytes.
 #define RAM_BUFFER_SIZE 0x18000
-
+int buffers_size = 0;
 // Minimum number of sectors that will be read from the CD-ROM at once. Higher
 // values will improve efficiency at the cost of requiring a larger buffer in
 // order to prevent underruns and glitches in the audio output.
@@ -234,6 +234,8 @@ void Audio_LoadStream(const char *path, bool loop) {
     }
 
     Stream_Init(&stream_ctx, &config);
+    buffers_size = stream_ctx.chunk_size * 2;
+    printf("buf size%d,\n", buffers_size);
 
     read_ctx.start_lba     = CdPosToInt(&file.pos) + 1;
     read_ctx.stream_length =
@@ -256,6 +258,10 @@ void Audio_StartStream(bool resume) {
 
 void Audio_StopStream(void) {
     Stream_Stop();
+}
+
+void Audio_DestroyStream(void) {
+    Stream_Destroy(&stream_ctx);
 }
 
 bool Audio_IsPlaying(void) {
@@ -282,7 +288,12 @@ void Audio_SetVolume(uint8_t i, uint16_t vol_left, uint16_t vol_right) {
 }
 
 //vag sillies
+#define VAG_HEADER_SIZE 48
+#define ALLOC_START_ADDR 0x1010
+
 static uint8_t lastChannelUsed = 0;
+
+static volatile uint32_t audio_alloc_ptr = ALLOC_START_ADDR;
 
 static uint8_t getFreeChannel(void) {
     uint8_t channel = lastChannelUsed;
@@ -296,38 +307,62 @@ void Audio_ClearAlloc(void) {
 
 void Audio_PlaySound(uint32_t addr, int volume) {
     uint8_t channel = getFreeChannel();
-    SPU_KEY_OFF = (1 << channel);
+   
+    // Make sure the channel is stopped.
+    SpuSetKey(0, 1 << channel);
 
-    SPU_CH_VOL_L(channel)      = volume;
-    SPU_CH_VOL_R(channel)      = volume;
-    SPU_CH_ADDR(channel)       = getSPUAddr(addr);
-    SPU_CH_LOOP_ADDR(channel)  = getSPUAddr(DUMMY_ADDR);
-    SPU_CH_FREQ(channel)       = 0x1000; // 44100 Hz
+    // Set the channel's sample rate and start address. Note that the SPU
+    // expects the sample rate to be in 4.12 fixed point format (with
+    // 1.0 = 44100 Hz) and the address in 8-byte units; psxspu.h provides the
+    // getSPUSampleRate() and getSPUAddr() macros to convert values to these
+    // units.
+    SPU_CH_FREQ(channel) = 0x1000;//getSPUSampleRate();
+    SPU_CH_ADDR(channel) = getSPUAddr(addr);
+
+    // Set the channel's volume and ADSR parameters (0x80ff and 0x1fee are
+    // dummy values that disable the ADSR envelope entirely).
+    SPU_CH_VOL_L(channel) = volume;
+    SPU_CH_VOL_R(channel) = volume;
     SPU_CH_ADSR1(channel) = 0x00ff;
     SPU_CH_ADSR2(channel) = 0x0000;
 
-    SPU_KEY_ON = (1 << channel);
+    // Start the channel.
+    SpuSetKey(1, 1 << channel);
 }
 
-uint32_t Audio_LoadSound(const char *path) {        
+uint32_t Audio_LoadSound(const char *path) {    
     //Load Sound File
     CdlFILE sfx_file;
     IO_FindFile(&sfx_file, path);
-    VAG_Header *data = IO_ReadFile(&sfx_file);
+    IO_Data sfx_data = IO_ReadFile(&sfx_file);
 
-    // Round the size up to the nearest multiple of 64, as SPU DMA transfers
-    // are done in 64-byte blocks.
-    int _size = SWAP_ENDIAN(data->size);
-    int _addr = next_sample_addr;
-    int _size = (size + 63) & 0xffffffc0;
+    // subtract size of .vag header (48 bytes), round to 64 bytes
+    uint32_t xfer_size = ((sfx_file.size - VAG_HEADER_SIZE) + 63) & 0xffffffc0;
 
-    SpuSetTransferMode(SPU_TRANSFER_BY_DMA);
-    SpuSetTransferStartAddr(_addr);
+    uint8_t  *data = (uint8_t *) sfx_data;
 
-    SpuWrite((const uint32_t *) data, _size);
-    SpuIsTransferCompleted(SPU_TRANSFER_WAIT);
+    // modify sound data to ensure sound "loops" to dummy sample
+    // https://psx-spx.consoledev.net/soundprocessingunitspu/#flag-bits-in-2nd-byte-of-adpcm-header
+    data[sfx_file.size - 15] = 1; // end + mute
 
-    next_sample_addr = _addr + _size;
-    free(data);
-    return _addr;
+    // allocate SPU memory for sound
+    audio_alloc_ptr  += buffers_size;
+    uint32_t addr = audio_alloc_ptr;
+    audio_alloc_ptr += xfer_size;
+
+    if (audio_alloc_ptr > 0x80000) {
+        // TODO: add proper error handling code
+        printf("FATAL: SPU RAM overflow! (%d bytes overflowing)\n", audio_alloc_ptr - 0x80000);
+        while (1);
+    }
+
+    SpuSetTransferStartAddr(addr); // set transfer starting address to malloced area
+    SpuSetTransferMode(SPU_TRANSFER_BY_DMA); // set transfer mode to DMA
+    SpuWrite((uint32_t *)data + VAG_HEADER_SIZE, xfer_size); // perform actual transfer
+    SpuIsTransferCompleted(SPU_TRANSFER_WAIT); // wait for DMA to complete
+
+    printf("Allocated new sound (addr=%08x, size=%d)\n", addr, xfer_size);
+
+    free(sfx_data);
+    return addr;
 }

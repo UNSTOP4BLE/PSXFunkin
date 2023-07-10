@@ -1385,7 +1385,7 @@ static void Stage_LoadSFX(void)
     {
         char text[0x80];
         sprintf(text, "\\SOUNDS\\INTRO%d%s.VAG;1", i, (stage.stage_id >= StageId_6_1 && stage.stage_id <= StageId_6_3) ? "P" : "");
-      //  Sounds[i] = Audio_LoadSound(text);
+        Sounds[i] = Audio_LoadSound(text);
     }
 
     //miss sound
@@ -1395,7 +1395,7 @@ static void Stage_LoadSFX(void)
         {
             char text[0x80];
             sprintf(text, "\\SOUNDS\\MISS%d.VAG;1", i + 1);
-        //    Sounds[i + 4] = Audio_LoadSound(text);
+            Sounds[i + 4] = Audio_LoadSound(text);
         }
     }
 }
@@ -1560,9 +1560,6 @@ void Stage_Load(StageId id, StageDiff difficulty, bool story)
     //Load stage background
     Stage_LoadStage();
 
-    //Load SFX
-    Stage_LoadSFX();
-
     //load fonts
     FontData_Load(&stage.font_cdr, Font_CDR);
     FontData_Load(&stage.font_bold, Font_Bold);
@@ -1600,6 +1597,8 @@ void Stage_Load(StageId id, StageDiff difficulty, bool story)
     //Load music
     stage.note_scroll = 0;
     Stage_LoadMusic();
+    //Load SFX
+    Stage_LoadSFX();
     
     //Test offset
     stage.offset = stage.prefs.audio_offset;
@@ -1637,6 +1636,8 @@ void Stage_Unload(void)
     stage.opponent2 = NULL;
     Character_Free(stage.gf);
     stage.gf = NULL;
+    
+    Audio_DestroyStream();
 }
 
 static bool Stage_NextLoad(void)

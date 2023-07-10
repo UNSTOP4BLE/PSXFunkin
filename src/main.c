@@ -82,8 +82,8 @@ int main(int argc, char **argv)
         Pad_Update();
 
         //debug infos
-        //if (dbginfo != NULL)
-      //      Gfx_DrawText(0, 5, 0, dbginfo);
+        if (dbginfo != NULL)
+            FntPrint(-1, dbginfo);
         sprintf(dbginfo, "FPS: %d", Timer_GetFPS());
         Gfx_DrawText(5, 5, 0, dbginfo);
 
@@ -107,7 +107,10 @@ int main(int argc, char **argv)
 
         int cpu = Timer_EndProfile();
         int ram = 100 * heap.alloc / heap.total;
-        sprintf(dbginfo, "CPU:%3d%%  HEAP:%06x\nRAM:%3d%%  MAX: %06x\n",
+        //sprintf(dbginfo, "CPU:%3d%%  HEAP:%06x\nRAM:%3d%%  MAX: %06x\n",
+         //   cpu, heap.alloc, ram, heap.alloc_max);
+
+        FntPrint(-1, "CPU:%3d%%  HEAP:%06x\nRAM:%3d%%  MAX: %06x\n",
             cpu, heap.alloc, ram, heap.alloc_max);
 #endif
 
