@@ -268,12 +268,11 @@ bool Audio_IsPlaying(void) {
     return Stream_IsActive(&stream_ctx);
 }
 
-uint64_t Audio_GetTimeMS(void) {
+uint64_t Audio_GetTime(int unit) {
     if (stream_ctx.sample_rate != 0)
-    {
-        return Stream_GetSamplesPlayed(&stream_ctx)*1000 / stream_ctx.sample_rate;
-    }
-    else return 0;
+        return ((uint64_t) Stream_GetSamplesPlayed(&stream_ctx)) * ((uint64_t) unit) / ((uint64_t) stream_ctx.sample_rate);
+
+    return 0;
 }
 
 uint32_t Audio_GetInitialTime(void) {

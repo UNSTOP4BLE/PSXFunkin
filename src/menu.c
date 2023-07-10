@@ -338,7 +338,7 @@ void Menu_Tick(void)
     stage.flag &= ~STAGE_FLAG_JUST_STEP;
     
     //Get song position
-    int next_step = (int)Audio_GetTimeMS() / 147;
+    int next_step = (int)Audio_GetTime(1000) / 147;
     if (next_step != stage.song_step)
     {
         if (next_step >= stage.song_step)

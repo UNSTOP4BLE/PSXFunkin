@@ -67,7 +67,7 @@ void defaultSettings()
     stage.prefs.botplay = 1;    
     stage.prefs.songtimer = 1;
     stage.prefs.stereo = 1;
-    stage.prefs.audio_offset = 360;
+    stage.prefs.audio_offset = 288;
 
     for (int i = 0; i < StageId_Max; i++)
     {

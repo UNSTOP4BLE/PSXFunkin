@@ -1895,7 +1895,7 @@ void Stage_Tick(void)
                         Stage_StartVocal();
                         
                         //Update song time
-                        fixed_t audio_time = (fixed_t)Audio_GetTimeMS() - stage.offset;
+                        fixed_t audio_time = (fixed_t)Audio_GetTime(1000) - stage.offset;
                         if (audio_time < 0)
                             audio_time = 0;
                         stage.interp_ms = (audio_time << FIXED_SHIFT) / 1000;
@@ -1913,7 +1913,7 @@ void Stage_Tick(void)
                 }
                 else if (Audio_IsPlaying())
                 {
-                    fixed_t audio_time_pof = (fixed_t)Audio_GetTimeMS();
+                    fixed_t audio_time_pof = (fixed_t)Audio_GetTime(1000);
                     fixed_t audio_time = (audio_time_pof > 0) ? (audio_time_pof - stage.offset) : 0;
                     
                     //Old sync
