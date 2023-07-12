@@ -16,7 +16,7 @@ jobs:
         uses: robinraju/release-downloader@main
         with: 
           repository: "UNSTOP4BLE/PSn00bSDK-kuseg"
-          tag: "v0.24 kuseg"
+          tag: "v0.24-kuseg"
           fileName: "PSn00bSDK-0.24-Linux.zip"
       - name: Compile
         run: |
