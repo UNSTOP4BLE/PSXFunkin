@@ -16,7 +16,7 @@ Textures should only be up to 256x256, which for 4bpp is 1x1 TPages, and for 8bp
 
 You should keep TPage and VRAM space in mind when positioning them. Look at the default included txt files for reference.
 
-TIMs should be packed into .arc files, and you can control the dependencies and rules of .tim conversion and packing in [Makefile.tim](/Makefile.tim).
+TIMs should be packed into .arc files, and you can control the dependencies and rules of .tim conversion and packing in [CMakeLists.txt](/CMakeLists.txt).
 
 ## VAG files
 
