@@ -309,11 +309,11 @@
     },
     { //StageId_6_3 (Thorns)
         //Characters
-        {"\\CHAR\\BFWEEB.CHR;1",  FIXED_DEC(52,1),  FIXED_DEC(50,1)},
+        {"\\CHAR\\BFWEEB.CHR;1", FIXED_DEC(52,1),  FIXED_DEC(50,1)},
         {NULL},
-        {NULL, FIXED_DEC(-60,1),  FIXED_DEC(50,1)},
+        {"\\CHAR\\SPIRIT.CHR;1", FIXED_DEC(-60,1),  FIXED_DEC(50,1)},
         {NULL},
-        {"\\CHAR\\GFWEEB.CHR;1",   FIXED_DEC(0,1),  FIXED_DEC(45,1)},
+        {"\\CHAR\\GFWEEB.CHR;1", FIXED_DEC(0,1),  FIXED_DEC(45,1)},
         
         //Stage background
         Back_Week6_New,

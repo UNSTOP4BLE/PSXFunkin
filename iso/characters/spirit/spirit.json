@@ -1,0 +1,54 @@
+{
+    "spec": "CHAR_SPEC_GHOST",
+    "health_i": 2,
+    "health_bar": "0xFFFF3A6E",
+    "focus": [[24, 1], [-55, 1], [2, 1]],
+    "scale": [1,1],
+
+    "struct": [                                                                                                                                                                               
+        "Spirit_ArcMain_Spirit0",                                                                                                                                                                                 
+        "Spirit_ArcMain_Spirit1"                                                                                                                                                                                                    
+    ],
+
+    "frames": [                                                                                                                                                
+        ["Spirit_ArcMain_Spirit0", [  0,   0,  48, 104], [ 24, 102]],                                                                                                                                         
+        ["Spirit_ArcMain_Spirit0", [ 49,   0,  49, 108], [ 25, 104]],                                                                                                                                         
+        ["Spirit_ArcMain_Spirit0", [ 99,   0,  49, 106], [ 24, 103]],                                                                                                                                         
+        ["Spirit_ArcMain_Spirit0", [149,   0,  48, 104], [ 25, 102]],                                                                                                                                         
+                                                                                                                                                                                                                
+        ["Spirit_ArcMain_Spirit0", [198,   0,  41,  99], [ 31, 100]],                                                                                                                                         
+        ["Spirit_ArcMain_Spirit0", [  0, 109,  51, 100], [ 25, 101]],                                                                                                                                         
+        ["Spirit_ArcMain_Spirit0", [ 52, 109,  51, 100], [ 25, 101]],                                                                                                                                         
+                                                                                                                                                                                                                
+        ["Spirit_ArcMain_Spirit0", [104, 107,  48, 131], [ 22, 105]],                                                                                                                                         
+        ["Spirit_ArcMain_Spirit0", [153, 105,  46, 113], [ 21, 107]],                                                                                                                                         
+        ["Spirit_ArcMain_Spirit0", [200, 100,  47, 110], [ 22, 108]],                                                                                                                                         
+                                                                                                                                                                                                                
+        ["Spirit_ArcMain_Spirit1", [  0,   0,  43, 110], [ 22, 115]],                                                                                                                                         
+        ["Spirit_ArcMain_Spirit1", [ 44,   0,  42, 125], [ 21, 114]],                                                                                                                                         
+        ["Spirit_ArcMain_Spirit1", [ 87,   0,  43, 126], [ 22, 113]],                                                                                                                                         
+                                                                                                                                                                                                                
+        ["Spirit_ArcMain_Spirit1", [131,   0,  60, 109], [ 15, 106]],                                                                                                                                         
+        ["Spirit_ArcMain_Spirit1", [192,   0,  50, 105], [ 20, 103]],                                                                                                                                         
+        ["Spirit_ArcMain_Spirit1", [  0, 111,  54, 111], [ 19, 105]]     
+    ],
+
+    "animation": [                                                                                                                                     
+        [1, [ 0,  0,  1,  1,  2,  2,  3,  3, "ASCR_REPEAT"]],                                                                                                                                                     
+        [1, [ 4,  4,  5,  5,  6,  6, "ASCR_BACK", 4]],                                                                                                                                                            
+        [0, ["ASCR_CHGANI", "CharAnim_Idle"]],                                                                                                                                                                      
+        [1, [ 7,  8,  8,  9,  9, "ASCR_BACK", 4]],                                                                                                                                                                
+        [0, ["ASCR_CHGANI", "CharAnim_Idle"]],                                                                                                                                                                      
+        [1, [10, 11, 11, 12, 12, "ASCR_BACK", 4]],                                                                                                                                                                
+        [0, ["ASCR_CHGANI", "CharAnim_Idle"]],                                                                                                                                                                      
+        [1, [13, 14, 14, 15, 15, "ASCR_BACK", 4]],                                                                                                                                                                
+        [0, ["ASCR_CHGANI", "CharAnim_Idle"]]       
+    ],
+
+    "archive": "\\CHAR\\SPIRIT.ARC;1",
+
+    "textures": [        
+        "spirit0.tim",                                                                                                                                                                                      
+        "spirit1.tim"  
+    ]
+}

@@ -1196,49 +1196,32 @@ static void Stage_DrawNotes(void)
     }
 }
 
-int soundcooldown;
-int drawshit;
-
+int drawshit = 0;
 static void Stage_CountDown(void)
 {
-    switch(stage.song_step)
+    if (stage.flag &= STAGE_FLAG_JUST_STEP)
     {
-        case -20:
-            if (soundcooldown == 0)
-                Audio_PlaySound(Sounds[0], 0x3fff);
-            soundcooldown ++;
-            break;
-        case -16:
-            soundcooldown = 0;
-            break;
-        case -15:
-            drawshit = 3;
-            if (soundcooldown == 0)
-                Audio_PlaySound(Sounds[1], 0x3fff);
-            soundcooldown ++;
-            break;
-        case -11:
-            soundcooldown = 0;
-            break;
-        case -10:
-            drawshit = 2;
-            if (soundcooldown == 0)
-                Audio_PlaySound(Sounds[2], 0x3fff);
-            soundcooldown ++;
-            break;
-        case -6:
-            soundcooldown = 0;
-            break;
-        case -5:
-            drawshit = 1;
-            if (soundcooldown == 0)
-                Audio_PlaySound(Sounds[3], 0x3fff);
-            soundcooldown ++;
-            break;
+        switch(stage.song_step)
+        {
+            case -20:
+                Audio_PlaySound(Sounds[0], 0x3fff); //3
+                break;
+            case -15:
+                drawshit = 3; 
+                Audio_PlaySound(Sounds[1], 0x3fff); //2 
+                break;
+            case -10:
+                drawshit = 2;
+                Audio_PlaySound(Sounds[2], 0x3fff); //1
+                break;
+            case -5:
+                drawshit = 1;
+                Audio_PlaySound(Sounds[3], 0x3fff); //go
+                break;
+        }
     }
-
-    RECT ready_src = {197, 112, 58, 125};   
-    RECT_FIXED ready_dst = {FIXED_DEC(10,1), FIXED_DEC(30,1), FIXED_DEC(58 * 2,1), FIXED_DEC(125 * 2,1)};   
+    RECT ready_src = {197, 112, 58, 118};   
+    RECT_FIXED ready_dst = {FIXED_DEC(10,1), FIXED_DEC(30,1), FIXED_DEC(58 * 2,1), FIXED_DEC(118 * 2,1)};   
 
     RECT set_src = {211, 65, 44, 94};   
     RECT_FIXED set_dst = {FIXED_DEC(10,1), FIXED_DEC(40,1), FIXED_DEC(54 * 2,1), FIXED_DEC(96 * 2,1)};  
@@ -1471,8 +1454,7 @@ static void Stage_LoadState(void)
         stage.player_state[i].combo = 0;
         stage.oppo2sing = "none";
         stage.player2sing = "none";
-        soundcooldown = 0;
-        drawshit = 0;
+        drawshit = 1;
         if (!stage.prefs.debug)
             stage.freecam = 0;
         stage.player_state[i].miss = 0;

@@ -86,6 +86,10 @@ Character *Character_FromFile(Character *this, const char *path, fixed_t x, fixe
             this->tick = Char_Generic_Tick;
             this->set_anim = Char_Generic_SetAnim;
             break;
+        case CHAR_SPEC_GHOST:
+            this->tick = Char_Ghost_Tick;
+            this->set_anim = Char_Ghost_SetAnim;
+            break;
         default:
             this->tick = Char_Generic_Tick;
             this->set_anim = Char_Generic_SetAnim;
@@ -101,6 +105,7 @@ Character *Character_FromFile(Character *this, const char *path, fixed_t x, fixe
     this->focus_x = FIXED_DEC(tmphdr->focus_x[0], tmphdr->focus_x[1]);
     this->focus_y = FIXED_DEC(tmphdr->focus_y[0], tmphdr->focus_y[1]);
     this->focus_zoom = FIXED_DEC(tmphdr->focus_zoom[0], tmphdr->focus_zoom[1]);
+    this->scale = FIXED_DEC(tmphdr->scale[0], tmphdr->scale[1]);
     /*
         printf("struct %d, \n", tmphdr->size_struct);
     printf("frames %d, \n", tmphdr->size_frames);
@@ -168,22 +173,28 @@ void Character_Init(Character *this, fixed_t x, fixed_t y)
 void Character_DrawParallax(Character *this, Gfx_Tex *tex, const CharFrame *cframe, fixed_t parallax)
 {
     //Draw character
-    fixed_t x = this->x - FIXED_MUL(stage.camera.x, parallax) - FIXED_DEC(cframe->off[0],1);
-    fixed_t y = this->y - FIXED_MUL(stage.camera.y, parallax) - FIXED_DEC(cframe->off[1],1);
+    fixed_t x = this->x - FIXED_MUL(stage.camera.x, parallax) - FIXED_MUL(FIXED_DEC(cframe->off[0],1),this->scale);
+    fixed_t y = this->y - FIXED_MUL(stage.camera.y, parallax) - FIXED_MUL(FIXED_DEC(cframe->off[1],1),this->scale);
     
     RECT src = {cframe->src[0], cframe->src[1], cframe->src[2], cframe->src[3]};
     RECT_FIXED dst = {x, y, src.w << FIXED_SHIFT, src.h << FIXED_SHIFT};
+    
+    dst.w = FIXED_MUL(dst.w,this->scale);
+    dst.h = FIXED_MUL(dst.h,this->scale);
+    
     Stage_DrawTex(tex, &src, &dst, stage.camera.bzoom);
 }
 
 void Character_DrawParallaxFlipped(Character *this, Gfx_Tex *tex, const CharFrame *cframe, fixed_t parallax)
 {
-    //Draw character
-    fixed_t x = this->x - FIXED_MUL(stage.camera.x, parallax) - FIXED_DEC(-cframe->off[0],1);
-    fixed_t y = this->y - FIXED_MUL(stage.camera.y, parallax) - FIXED_DEC(cframe->off[1],1);
+    fixed_t x = this->x - FIXED_MUL(stage.camera.x, parallax) - FIXED_MUL(FIXED_DEC(-cframe->off[0],1),this->scale);
+    fixed_t y = this->y - FIXED_MUL(stage.camera.y, parallax) - FIXED_MUL(FIXED_DEC(cframe->off[1],1),this->scale);
     
     RECT src = {cframe->src[0], cframe->src[1], cframe->src[2], cframe->src[3]};
     RECT_FIXED dst = {x, y, -src.w << FIXED_SHIFT, src.h << FIXED_SHIFT};
+    
+    dst.w = FIXED_MUL(dst.w,this->scale);
+    dst.h = FIXED_MUL(dst.h,this->scale);
     Stage_DrawTex(tex, &src, &dst, stage.camera.bzoom);
 }
 

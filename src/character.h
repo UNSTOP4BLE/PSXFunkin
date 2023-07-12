@@ -19,6 +19,7 @@ typedef uint8_t CharSpec;
 #define CHAR_SPEC_SPOOKIDLE  (2 << 0) //Has spookeez animations
 #define CHAR_SPEC_GIRLFRIEND (3 << 0) //Has gf animations
 #define CHAR_SPEC_MOMHAIR    (4 << 0) //Has mom hair
+#define CHAR_SPEC_GHOST      (5 << 0) //ghost animation
 
 typedef enum
 {
@@ -54,7 +55,7 @@ typedef struct Character
     uint32_t health_bar; //hud1.tim
     fixed_t focus_x, focus_y, focus_zoom;
     
-    fixed_t size;
+    fixed_t scale;
     
     //Animation state
     const CharFrame *frames;
@@ -67,6 +68,10 @@ typedef struct Character
     IO_Data arc_main;
     IO_Data *arc_ptr;
     
+    //ghost
+    fixed_t distort_ang, distort_pow, distort_spd;
+    fixed_t ghost_x, ghost_y;
+
     Gfx_Tex tex;
     uint8_t frame, tex_id;
 } Character;

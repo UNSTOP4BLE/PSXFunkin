@@ -213,6 +213,7 @@
                 <file name = "senpaim.arc" type = "data" source = "iso/characters/senpaim/main.arc"/>
                 <file name = "senpaim.chr" type = "data" source = "iso/characters/senpaim/senpaim.chr"/>
                 <file name = "spirit.arc" type = "data" source = "iso/characters/spirit/main.arc"/>
+                <file name = "spirit.chr" type = "data" source = "iso/characters/spirit/spirit.chr"/>
                 
                 <!-- Girlfriend assets -->
                 <file name = "gf.arc" type = "data" source = "iso/characters/gf/main.arc"/>

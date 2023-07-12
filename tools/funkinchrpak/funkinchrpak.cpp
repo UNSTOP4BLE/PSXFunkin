@@ -19,6 +19,7 @@ typedef int32_t fixed_t;
 #define CHAR_SPEC_SPOOKIDLE (2 << 0) //Has spookeez animations
 #define CHAR_SPEC_GIRLFRIEND (3 << 0) //Has gf animations
 #define CHAR_SPEC_MOMHAIR (4 << 0) //Has mom hair
+#define CHAR_SPEC_GHOST (5 << 0) //ghosted animations (thorns)
 
 struct __attribute__((packed)) Animation
 {
@@ -122,6 +123,8 @@ int main(int argc, char *argv[])
             new_char.spec = CHAR_SPEC_GIRLFRIEND;
         else if (spec == "CHAR_SPEC_MOMHAIR")
             new_char.spec = CHAR_SPEC_MOMHAIR;
+        else if (spec == "CHAR_SPEC_GHOST")
+            new_char.spec = CHAR_SPEC_GHOST;
         else 
             std::cout << "invalid spec " << spec << std::endl;   
 

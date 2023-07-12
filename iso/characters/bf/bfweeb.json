@@ -2,7 +2,7 @@
     "spec": "CHAR_SPEC_MISSANIM",
     "health_i": 0,
     "health_bar": "0xFF29B5D6",
-    "focus": [[-50, 1], [-65, 1], [2, 1]],
+    "focus": [[-34, 1], [-40, 1], [2, 1]],
     "scale": [1,1],
 
     "struct": [                                                                                                                                                                                                                                                                                    
