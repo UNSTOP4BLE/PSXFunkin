@@ -131,6 +131,12 @@ void cd_read_handler(CdlIntrResult event, uint8_t *payload) {
 // stream buffers are going to be allocated into a region of SPU RAM that was
 // previously used (to make sure the IRQ is not going to be triggered by any
 // inactive channels).
+#define ALLOC_START_ADDR 0x1010
+static volatile uint32_t audio_alloc_ptr = 0;
+void Audio_ClearAlloc(void) {
+    audio_alloc_ptr = ALLOC_START_ADDR;
+}
+
 void Audio_ResetChannels(void) {
     SpuSetKey(0, 0x00ffffff);
 
@@ -145,6 +151,7 @@ void Audio_ResetChannels(void) {
 void Audio_Init(void) {
     SpuInit();
     Audio_ResetChannels();
+    Audio_ClearAlloc();
 }
 
 bool Audio_FeedStream(void) {
@@ -194,6 +201,7 @@ bool Audio_FeedStream(void) {
 }
 
 void Audio_LoadStream(const char *path, bool loop) {
+    Audio_ClearAlloc();
     CdlFILE file;
     if (!CdSearchFile(&file, path))
     {
@@ -288,20 +296,13 @@ void Audio_SetVolume(uint8_t i, uint16_t vol_left, uint16_t vol_right) {
 
 //vag sillies
 #define VAG_HEADER_SIZE 48
-#define ALLOC_START_ADDR 0x1010
 
 static uint8_t lastChannelUsed = 0;
-
-static volatile uint32_t audio_alloc_ptr = ALLOC_START_ADDR;
 
 static uint8_t getFreeChannel(void) {
     uint8_t channel = lastChannelUsed;
     lastChannelUsed = (channel + 1) % 20;
     return channel + 4;
-}
-
-void Audio_ClearAlloc(void) {
-    audio_alloc_ptr = ALLOC_START_ADDR;
 }
 
 void Audio_PlaySound(uint32_t addr, int volume) {

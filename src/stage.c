@@ -1204,8 +1204,8 @@ static void Stage_CountDown(void)
     switch(stage.song_step)
     {
         case -20:
-   //         if (soundcooldown == 0)
- //               Audio_PlaySound(Sounds[0], 0x3fff);
+            if (soundcooldown == 0)
+                Audio_PlaySound(Sounds[0], 0x3fff);
             soundcooldown ++;
             break;
         case -16:
@@ -1213,8 +1213,8 @@ static void Stage_CountDown(void)
             break;
         case -15:
             drawshit = 3;
-     //       if (soundcooldown == 0)
-       //         Audio_PlaySound(Sounds[1], 0x3fff);
+            if (soundcooldown == 0)
+                Audio_PlaySound(Sounds[1], 0x3fff);
             soundcooldown ++;
             break;
         case -11:
@@ -1222,8 +1222,8 @@ static void Stage_CountDown(void)
             break;
         case -10:
             drawshit = 2;
-         //   if (soundcooldown == 0)
-           //     Audio_PlaySound(Sounds[2], 0x3fff);
+            if (soundcooldown == 0)
+                Audio_PlaySound(Sounds[2], 0x3fff);
             soundcooldown ++;
             break;
         case -6:
@@ -1231,8 +1231,8 @@ static void Stage_CountDown(void)
             break;
         case -5:
             drawshit = 1;
-            //if (soundcooldown == 0)
-              //  Audio_PlaySound(Sounds[3], 0x3fff);
+            if (soundcooldown == 0)
+                Audio_PlaySound(Sounds[3], 0x3fff);
             soundcooldown ++;
             break;
     }
@@ -1761,7 +1761,7 @@ void Stage_Tick(void)
         {
             inctimer = true;
             Audio_StopStream();
-          //  Audio_PlaySound(Sounds[1], 0x3fff);
+            Audio_PlaySound(Sounds[1], 0x3fff);
         }
     }
     else if (pad_state.press & PAD_CIRCLE && stage.state != StageState_Play)
@@ -2333,11 +2333,11 @@ void Stage_Tick(void)
             stage.song_time = 0;
             
             stage.state = StageState_DeadLoad;
-            //if (stage.stage_id >= StageId_6_1 && stage.stage_id <= StageId_6_3)         
-           //     Sounds[0] = Audio_LoadSound("\\SOUNDS\\LOSSP.VAG;1");
-            //else
-              //  Sounds[0] = Audio_LoadSound("\\SOUNDS\\LOSS.VAG;1");
-            //Audio_PlaySound(Sounds[0], 0x3fff);
+            if (stage.stage_id >= StageId_6_1 && stage.stage_id <= StageId_6_3)         
+                Sounds[0] = Audio_LoadSound("\\SOUNDS\\LOSSP.VAG;1");
+            else
+                Sounds[0] = Audio_LoadSound("\\SOUNDS\\LOSS.VAG;1");
+            Audio_PlaySound(Sounds[0], 0x3fff);
         }
     //Fallthrough
         case StageState_DeadLoad:
@@ -2358,11 +2358,11 @@ void Stage_Tick(void)
             //load sounds
             if (stage.stage_id >= StageId_6_1 && stage.stage_id <= StageId_6_3)         
             {
-              //  Sounds[1] = Audio_LoadSound("\\SOUNDS\\ENDP.VAG;1");
+                Sounds[1] = Audio_LoadSound("\\SOUNDS\\ENDP.VAG;1");
             }
             else
             {
-              //  Sounds[1] = Audio_LoadSound("\\SOUNDS\\END.VAG;1");
+                Sounds[1] = Audio_LoadSound("\\SOUNDS\\END.VAG;1");
             }
 
             if (stage.player != NULL)
