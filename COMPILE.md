@@ -3,7 +3,8 @@
 ## Setting up the Development Environment
 First off, you'll need a terminal one way or another.
 
-Follow the PSn00bSDK set up instructions here https://github.com/spicyjpeg/PSn00bSDK/blob/master/doc/installation.md (set up mingw)
+Make sure to use my fork of PSn00bSDK because if you dont psp and other emulators wont work (ps1 and duckstation will work)
+Follow the PSn00bSDK set up instructions here https://github.com/UNSTOP4BLE/PSn00bSDK-kuseg/blob/kuseg/doc/installation.md (set up mingw)
 
 Also you need to install python in mingw (`pacman -S mingw-w64-x86_64-python`), install pip and install the python PIL library (`pip install PIL`)
 ## Compiling PSXFunkin
