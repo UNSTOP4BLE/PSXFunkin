@@ -18,13 +18,9 @@ You should keep TPage and VRAM space in mind when positioning them. Look at the 
 
 TIMs should be packed into .arc files, and you can control the dependencies and rules of .tim conversion and packing in [Makefile.tim](/Makefile.tim).
 
-## XA files
+## VAG files
 
-In [iso/music/](/iso/music/), you can find .ogg files with .txt files for various groups of .xa files. The txt files are pretty obvious, so I won't go into much more detail here.
-
-You can control the dependencies and rules of .xa conversion and interleaving in [Makefile.xa](/Makefile.xa).
-
-You must change the lengths in [/src/audio_def.h](audio_def.h) if you modify the oggs.
+In [iso/music/](/iso/music/), you can find .ogg files with .txt files for various groups of .vag files. The txt files are pretty obvious, so I won't go into much more detail here.
 
 ## CHT files
 
