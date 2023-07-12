@@ -54,6 +54,8 @@ typedef struct Character
     uint32_t health_bar; //hud1.tim
     fixed_t focus_x, focus_y, focus_zoom;
     
+    fixed_t size;
+    
     //Animation state
     const CharFrame *frames;
     Animatable animatable;
