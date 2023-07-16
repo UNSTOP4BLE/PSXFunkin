@@ -33,6 +33,10 @@ find_program(_vagpak
     funkinvagpak REQUIRED
     HINTS ${PROJECT_SOURCE_DIR}/tools/build
 )
+find_program(_psxavenc
+    psxavenc REQUIRED
+    HINTS ${PROJECT_SOURCE_DIR}/tools/build
+)
 
 
 function(funkin_add_archive _out)
@@ -342,6 +346,27 @@ funkin_add_archive(iso/week6/back.arc
 
 # ADD ARCHIVES HERE
 
+# build str files
+file(
+    GLOB_RECURSE _strs
+    RELATIVE ${PROJECT_SOURCE_DIR}
+    iso/movie/*.mp4
+)
+list(
+    TRANSFORM _strs REPLACE "\.mp4$" ".str"
+    OUTPUT_VARIABLE _built_strs
+)
+
+foreach(_in _out IN ZIP_LISTS _strs _built_strs)
+    add_custom_command(
+        OUTPUT ${_out}
+        COMMAND ${_psxavenc} -t str2 -f 37800 -b 4 -c 2 -s 320x240 -r 15 -x 2 ${PROJECT_SOURCE_DIR}/${_in} ${_out}
+        DEPENDS ${PROJECT_SOURCE_DIR}/${_in}
+        COMMENT "Building str ${_out}"
+        VERBATIM 
+    )
+endforeach()
+
 # compile the source code
 file(GLOB _sources src/*.c src/*/*.c)
 
@@ -349,7 +374,7 @@ psn00bsdk_add_executable(funkin STATIC ${_sources})
 
 # create bin and cue
 psn00bsdk_add_cd_image(iso
-    funkin # file name
+    n00bfunkin # file name
     funkin.xml # path to xml
     DEPENDS 
     funkin   
@@ -359,4 +384,5 @@ psn00bsdk_add_cd_image(iso
     ${_built_archives}
     ${_built_characters}
     ${_built_audio}
+    ${_built_strs}
 )

@@ -26,9 +26,19 @@
 //#include "character/gf.h"
 
 #include <stdlib.h>
-
+//globals fuckery
 static uint32_t Sounds[3];
 static char scoredisp[30];
+
+static struct {
+    StageId stage;
+    char path[64];
+} movies[] = {
+    {StageId_7_1, "\\STR\\UGH.STR;1"},
+    {StageId_7_2, "\\STR\\GUNS.STR;1"},
+    {StageId_7_3, "\\STR\\STRESS.STR;1"}
+};
+
 //Menu messages
 static const char *funny_messages[][2] = {
     {"PSX PORT BY CUCKYDEV", "YOU KNOW IT"},
@@ -324,16 +334,23 @@ bool adjustscreen, strdone;
 
 void Menu_HandleSTR()
 {
-    switch (menu.page_param.stage.id)
-    {
-      //  case StageId_7_1:
-        //    STR_StartStream("\\STR\\UGH.STR;1");
-          //  break;
-    }
-    strdone = false;
-}
-void Menu_Tick(void)
-{
+    bool hasstr = false;
+
+    for (int i = 0; i < COUNT_OF(movies); i++){ 
+        if (movies[i].stage == menu.page_param.stage.id)
+        { 
+            hasstr = true; 
+            STR_StartStream(movies[i].path);
+            break; 
+        } 
+    } 
+    if (!hasstr) 
+        return; 
+    
+    strdone = false; 
+} 
+
+void Menu_Tick(void){
     //Clear per-frame flags
     stage.flag &= ~STAGE_FLAG_JUST_STEP;
     
@@ -656,7 +673,7 @@ void Menu_Tick(void)
                 {"4", StageId_4_1, "MOMMY MUST MURDER", {"SATIN PANTIES", "HIGH", "MILF"}, 3},
                 {"5", StageId_5_1, "RED SNOW", {"COCOA", "EGGNOG", "WINTER HORRORLAND"}, 3},
                 {"6", StageId_6_1, "HATING SIMULATOR", {"SENPAI", "ROSES", "THORNS"}, 3},
- //               {"6", StageId_7_1, "HATING SIMULATOR", {"SENPAI", "ROSES", "THORNS"}, 3},
+                {"6", StageId_7_1, "HATING SIMULATOR", {"SENPAI", "ROSES", "THORNS"}, 3},
             };
     
             //Draw week name and tracks
@@ -1221,14 +1238,23 @@ void Menu_Tick(void)
         }
         case MenuPage_Stage:
         {
-    //        if (strdone == false && menu.page_param.stage.id ==
-      //         StageId_7_1)
-       //     {
-         //       Audio_StopStream();
-           //     Menu_HandleSTR();
-          //      menu.page = MenuPage_STR;
-           //     break;
-            //}
+            bool hasstr = false;
+            for (int i = 0; i < COUNT_OF(movies); i++){ 
+                if (movies[i].stage == menu.page_param.stage.id)
+                { 
+                    hasstr = true; 
+                    break; 
+                } 
+            } 
+
+            if (!strdone && hasstr)
+            {
+                Audio_StopStream();
+                Menu_HandleSTR();
+                menu.page = MenuPage_STR;
+                break;
+            }
+
             //Unload menu state
             Menu_Unload();
             //Load new stage
@@ -1300,9 +1326,12 @@ void Menu_Tick(void)
         }
         case MenuPage_STR:
         {
-            if (stage.str_playing == false)
-            {
+            if (!stage.str_playing)
+            {                           
+                STR_StopStream();
                 menu.page = MenuPage_Stage;
+                menu.trans_time = 0;
+                Trans_Clear();
                 strdone = true;
             }
         }

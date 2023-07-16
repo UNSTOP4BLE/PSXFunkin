@@ -1817,8 +1817,8 @@ void Stage_Tick(void)
             if (stage.prefs.debug)
                 Debug_StageDebug();
 
-            if (stage.opponent == NULL)
-                FntPrint(-1, "oh nooo ur shit is null noo");
+ //           if (stage.opponent == NULL)
+   //             FntPrint(-1, "oh nooo ur shit is null noo");
             //FntPrint("step %d, beat %d", stage.song_step, stage.song_beat);
 
             Stage_CountDown();

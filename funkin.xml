@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- Defines the ISO project -->
-<iso_project image_name="funkin.bin" cue_sheet="funkin.cue" no_xa="0">
+<iso_project image_name="n00bfunkin.bin" cue_sheet="n00bfunkin.cue" no_xa="0">
     <!-- Data track -->
     <track type="data">
         <!-- Identifiers -->
@@ -287,11 +287,11 @@
         
             <!-- Videos -->
             <dir name = "str">
-                <file name="ugh.STR" type="mixed" source="${PROJECT_SOURCE_DIR}/iso/movie/ugh.str"/>
+                <file name="ugh.STR" type="mixed" source="iso/movie/ugh.str"/>
                 <dummy sectors="16"/>
-                <file name="guns.STR" type="mixed" source="${PROJECT_SOURCE_DIR}/iso/movie/guns.str"/>
+                <file name="guns.STR" type="mixed" source="iso/movie/guns.str"/>
                 <dummy sectors="16"/>
-                <file name="stress.STR" type="mixed" source="${PROJECT_SOURCE_DIR}/iso/movie/stress.str"/>
+                <file name="stress.STR" type="mixed" source="iso/movie/stress.str"/>
                 <dummy sectors="16"/>
             </dir>
 

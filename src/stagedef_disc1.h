@@ -323,3 +323,51 @@
         
         StageId_6_3, 0
     },
+    { //StageId_7_1 (Ugh)
+        //Characters
+        {"\\CHAR\\BFWEEB.CHR;1", FIXED_DEC(52,1),  FIXED_DEC(50,1)},
+        {NULL},
+        {"\\CHAR\\SENPAI.CHR;1", FIXED_DEC(-60,1),  FIXED_DEC(50,1)},
+        {NULL},
+        {"\\CHAR\\GFWEEB.CHR;1", FIXED_DEC(0,1),  FIXED_DEC(45,1)},
+        
+        //Stage background
+        Back_Week6_New,
+        
+        //Song info
+        6, 1,
+        
+        StageId_7_2, STAGE_LOAD_FLAG | STAGE_LOAD_OPPONENT
+    },
+    { //StageId_7_2 (Guns)
+        //Characters
+        {"\\CHAR\\BFWEEB.CHR;1",  FIXED_DEC(52,1),  FIXED_DEC(50,1)},
+        {NULL},
+        {"\\CHAR\\SENPAIM.CHR;1", FIXED_DEC(-60,1),  FIXED_DEC(50,1)},
+        {NULL},
+        {"\\CHAR\\GFWEEB.CHR;1",  FIXED_DEC(0,1),  FIXED_DEC(45,1)},
+        
+        //Stage background
+        Back_Week6_New,
+        
+        //Song info
+        6, 2,
+        
+        StageId_7_3, 0
+    },
+    { //StageId_7_3 (Stress)
+        //Characters
+        {"\\CHAR\\BFWEEB.CHR;1", FIXED_DEC(52,1),  FIXED_DEC(50,1)},
+        {NULL},
+        {"\\CHAR\\SPIRIT.CHR;1", FIXED_DEC(-60,1),  FIXED_DEC(50,1)},
+        {NULL},
+        {"\\CHAR\\GFWEEB.CHR;1", FIXED_DEC(0,1),  FIXED_DEC(45,1)},
+        
+        //Stage background
+        Back_Week6_New,
+        
+        //Song info
+        6, 3,
+        
+        StageId_7_3, 0
+    },
