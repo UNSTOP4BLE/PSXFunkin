@@ -7,6 +7,8 @@ Make sure to use my fork of PSn00bSDK because if you dont psp and other emulator
 Follow the PSn00bSDK set up instructions here https://github.com/UNSTOP4BLE/PSn00bSDK-kuseg/blob/kuseg/doc/installation.md (set up mingw)
 
 Also you need to install python in mingw (`pacman -S mingw-w64-x86_64-python`), install pip and install the python PIL library (`pip install PIL`)
+You also need to install ffmpeg, libavformat and libswscale.
+
 ## Compiling PSXFunkin
 First, make sure to `cd` to the repo directory where the CMakeLists.txt is. You're gonna want to run a few commands from here;
 
