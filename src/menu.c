@@ -30,15 +30,6 @@
 static uint32_t Sounds[3];
 static char scoredisp[30];
 
-static struct {
-    StageId stage;
-    char path[64];
-} movies[] = {
-    {StageId_7_1, "\\STR\\UGH.STR;1"},
-    {StageId_7_2, "\\STR\\GUNS.STR;1"},
-    {StageId_7_3, "\\STR\\STRESS.STR;1"}
-};
-
 //Menu messages
 static const char *funny_messages[][2] = {
     {"PSX PORT BY CUCKYDEV", "YOU KNOW IT"},
@@ -330,25 +321,7 @@ void Menu_ToStage(StageId id, StageDiff diff, bool story)
     Trans_Start();
 }
 
-bool adjustscreen, strdone;
-
-void Menu_HandleSTR()
-{
-    bool hasstr = false;
-
-    for (int i = 0; i < COUNT_OF(movies); i++){ 
-        if (movies[i].stage == menu.page_param.stage.id)
-        { 
-            hasstr = true; 
-            STR_StartStream(movies[i].path);
-            break; 
-        } 
-    } 
-    if (!hasstr) 
-        return; 
-    
-    strdone = false; 
-} 
+bool adjustscreen;
 
 void Menu_Tick(void){
     //Clear per-frame flags
@@ -1238,23 +1211,6 @@ void Menu_Tick(void){
         }
         case MenuPage_Stage:
         {
-            bool hasstr = false;
-            for (int i = 0; i < COUNT_OF(movies); i++){ 
-                if (movies[i].stage == menu.page_param.stage.id)
-                { 
-                    hasstr = true; 
-                    break; 
-                } 
-            } 
-
-            if (!strdone && hasstr)
-            {
-                Audio_StopStream();
-                Menu_HandleSTR();
-                menu.page = MenuPage_STR;
-                break;
-            }
-
             //Unload menu state
             Menu_Unload();
             //Load new stage
@@ -1323,17 +1279,6 @@ void Menu_Tick(void){
                 0, 0, 0
             );
             break;
-        }
-        case MenuPage_STR:
-        {
-            if (!stage.str_playing)
-            {                           
-                STR_StopStream();
-                menu.page = MenuPage_Stage;
-                menu.trans_time = 0;
-                Trans_Clear();
-                strdone = true;
-            }
         }
     }
     

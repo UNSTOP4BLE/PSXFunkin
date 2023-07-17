@@ -2,6 +2,14 @@
 #define PSXF_GUARD_STR_H
 
 #include <psxcd.h>
+#include "stage.h"
+
+static volatile struct {
+    int stage;
+    char path[64];
+} movies[] = {
+    #include "strdef.h"
+};
 
 void STR_Init(void);
 

@@ -272,6 +272,7 @@ typedef struct
     
     enum
     {
+        StageState_STR,
         StageState_Play, //Game is playing as normal
         StageState_Dead,       //Start BREAK animation and reading extra data from CD
         StageState_DeadLoad,   //Wait for said data to be read

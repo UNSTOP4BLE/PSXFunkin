@@ -20,6 +20,7 @@
 #include "pause.h"
 #include "trans.h"
 #include "loadscr.h"
+#include "str.h"
 
 #include "object/combo.h"
 #include "object/splash.h"
@@ -1423,6 +1424,7 @@ static void Stage_LoadMusic(void)
         stage.gf->sing_end += stage.note_scroll;
 }
 
+bool str_done, str_canplay;
 static void Stage_LoadState(void)
 {
     //Initialize stage state
@@ -1468,6 +1470,8 @@ static void Stage_LoadState(void)
         timer.timer = 0;
         timer.timermin = 0;     
         timer.timersec = 0;
+        str_done = false;
+        str_canplay = true;
         stage.paused = false;
         strcpy(stage.player_state[i].accuracy_text, "Accuracy: ?");
         strcpy(stage.player_state[i].miss_text, "Misses: 0");
@@ -1714,104 +1718,131 @@ void Stage_Tick(void)
 {
     SeamLoad:;
     
-    //Tick transition
-    if (stage.paused == false && pad_state.press & PAD_START && stage.state == StageState_Play && stage.song_time > 0)
+    if (stage.state != StageState_STR)
     {
-        stage.pause_scroll = -1;
-        pad_state.press = false;
-        Audio_StopStream();
-        stage.paused = true;
-    }
-
-    if (stage.paused)
-    {
-        switch (stage.pause_state)
+        //Tick transition
+        if (stage.paused == false && pad_state.press & PAD_START && stage.state == StageState_Play && stage.song_time > 0)
         {
-            case 0:
-                PausedState();
-                break;
-            case 1:
-                OptionsState((int *)&note_x);
-                break;
-        }
-
-    }
-
-    if (pad_state.press & (PAD_START | PAD_CROSS) && stage.state != StageState_Play)
-    {
-        if (deadtimer == 0)
-        {
-            inctimer = true;
+            stage.pause_scroll = -1;
+            pad_state.press = false;
             Audio_StopStream();
-            Audio_PlaySound(Sounds[1], 0x3fff);
+            stage.paused = true;
         }
-    }
-    else if (pad_state.press & PAD_CIRCLE && stage.state != StageState_Play)
-    {
-        stage.trans = StageTrans_Menu;
-        Trans_Start();
-    }
 
-    if (inctimer)
-        deadtimer ++;
-
-    if (deadtimer == 200 && stage.state != StageState_Play)
-    {
-        stage.trans = StageTrans_Reload;
-        Trans_Start();
-    }
-
-    if (Trans_Tick())
-    {
-        switch (stage.trans)
+        if (stage.paused)
         {
-            case StageTrans_Menu:
-                CheckNewScore();
-                writeSaveFile();
-                //Load appropriate menu
-                Stage_Unload();
-                
-                LoadScr_Start();
-        
-                    if (stage.stage_id <= StageId_LastVanilla)
-                    {
-                        if (stage.story)
-                            Menu_Load(MenuPage_Story);
+            switch (stage.pause_state)
+            {
+                case 0:
+                    PausedState();
+                    break;
+                case 1:
+                    OptionsState((int *)&note_x);
+                    break;
+            }
+
+        }
+
+        if (pad_state.press & (PAD_START | PAD_CROSS) && stage.state != StageState_Play)
+        {
+            if (deadtimer == 0)
+            {
+                inctimer = true;
+                Audio_StopStream();
+                Audio_PlaySound(Sounds[1], 0x3fff);
+            }
+        }
+        else if (pad_state.press & PAD_CIRCLE && stage.state != StageState_Play)
+        {
+            stage.trans = StageTrans_Menu;
+            Trans_Start();
+        }
+
+        if (inctimer)
+            deadtimer ++;
+
+        if (deadtimer == 200 && stage.state != StageState_Play)
+        {
+            stage.trans = StageTrans_Reload;
+            Trans_Start();
+        }
+
+        if (Trans_Tick())
+        {
+            switch (stage.trans)
+            {
+                case StageTrans_Menu:
+                    CheckNewScore();
+                    writeSaveFile();
+                    //Load appropriate menu
+                    Stage_Unload();
+                    
+                    LoadScr_Start();
+            
+                        if (stage.stage_id <= StageId_LastVanilla)
+                        {
+                            if (stage.story)
+                                Menu_Load(MenuPage_Story);
+                            else
+                                Menu_Load(MenuPage_Freeplay);
+                        }
                         else
-                            Menu_Load(MenuPage_Freeplay);
-                    }
-                    else
-                    {
-                        Menu_Load(MenuPage_Credits);
-                    }
-                
-                LoadScr_End();
-                
-                gameloop = GameLoop_Menu;
-                return;
-            case StageTrans_NextSong:
-                //Load next song
-                Stage_Unload();
-                
-                LoadScr_Start();
-                Stage_Load(stage.stage_def->next_stage, stage.stage_diff, stage.story);
-                LoadScr_End();
-                break;
-            case StageTrans_Reload:
-                //Reload song
-                Stage_Unload();
-                
-                LoadScr_Start();
-                Stage_Load(stage.stage_id, stage.stage_diff, stage.story);
-                LoadScr_End();
-                break;
+                        {
+                            Menu_Load(MenuPage_Credits);
+                        }
+                    
+                    LoadScr_End();
+                    
+                    gameloop = GameLoop_Menu;
+                    return;
+                case StageTrans_NextSong:
+                    //Load next song
+                    Stage_Unload();
+                    
+                    LoadScr_Start();
+                    Stage_Load(stage.stage_def->next_stage, stage.stage_diff, stage.story);
+                    LoadScr_End();
+                    break;
+                case StageTrans_Reload:
+                    //Reload song
+                    Stage_Unload();
+                    
+                    LoadScr_Start();
+                    Stage_Load(stage.stage_id, stage.stage_diff, stage.story);
+                    LoadScr_End();
+                    break;
+            }
+        }
+         
+        if (stage.story && !str_done && str_canplay)
+        {
+            Trans_Clear();
+            for (int i = 0; i < COUNT_OF(movies); i++){ 
+                if (movies[i].stage == stage.stage_id)
+                { 
+                    str_done = false;
+                    str_canplay = false;
+                    stage.state = StageState_STR;
+                    STR_StartStream(movies[i].path);
+                    break; 
+                } 
+            } 
         }
     }
-    
     switch (stage.state)
     {
-        case StageState_Play:
+        case StageState_STR:
         { 
+            if (!stage.str_playing)
+            {                           
+                str_done = true;
+                stage.state = StageState_Play;
+                Gfx_Flip();
+                Trans_Set();
+            }
+        }
+        case StageState_Play:
+        {
             if (stage.prefs.songtimer)
                 StageTimer_Draw();
             if (stage.prefs.debug)
