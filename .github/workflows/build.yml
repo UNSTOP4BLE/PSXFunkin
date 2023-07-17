@@ -24,7 +24,7 @@ jobs:
           mv PSn00bSDK-0.24-Linux /opt/psn00bsdk
           export PATH=$PATH:/opt/psn00bsdk/bin
           export PSN00BSDK_LIBS=/opt/psn00bsdk/lib/libpsn00b
-          sudo apt install ffmpeg libavformat-dev
+          sudo apt install ffmpeg libavformat-dev libswscale-dev
           cmake -S ./tools -B ./tools/build -G "Ninja"
           cmake --build ./tools/build
           cmake -S . -B ./build -G "Ninja" -DCMAKE_TOOLCHAIN_FILE=/opt/psn00bsdk/lib/libpsn00b/cmake/sdk.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build }}
